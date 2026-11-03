@@ -2,7 +2,6 @@
 alwaysApply: true
 scene: git_message
 ---
-
 先根据暂存改动所属目录判断改动范围：
 - website/ 目录 → 官网（前端）
 - miniprogram/ 目录 → 小程序（前端）
