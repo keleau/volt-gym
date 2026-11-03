@@ -55,12 +55,20 @@
 
         <div class="member-mini">
           <p class="mm-title">课在手机里。</p>
-          <p class="mm-line">约课 · 查余位 · 进场码</p>
+          <p class="mm-line">约课 · 查余位 · 进场码，一个小程序全搞定</p>
 
-          <div class="mm-phone" aria-hidden="true">
-            <span class="mm-phone-status mono">VOLT // 微信小程序</span>
-            <span class="mm-phone-btn">约课</span>
-            <span class="mm-phone-btn ghost">进场码</span>
+          <div class="mm-qr">
+            <img
+              class="mm-qr-img"
+              src="/images/mini-qr.png"
+              alt="VOLT 电压健身会员小程序二维码"
+              width="88"
+              height="88"
+            />
+            <div class="mm-qr-copy">
+              <p class="mm-qr-title">微信扫一扫，免费入会</p>
+              <p class="mm-qr-sub">新人首节 ¥{{ brand.trialPrice }} · 预约到店扫码核销</p>
+            </div>
           </div>
 
           <p class="mm-search mono">微信搜「VOLT 电压健身」</p>
@@ -394,36 +402,36 @@ onBeforeUnmount(() => {
   font-weight: 500;
   color: color-mix(in srgb, oldlace 62%, transparent);
 }
-.mm-phone {
+.mm-qr {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 9px;
-  margin-top: 12px;
-  padding: 9px 11px;
-  border: 1px solid color-mix(in srgb, oldlace 18%, transparent);
-  border-radius: 10px;
-  background: linear-gradient(180deg, color-mix(in srgb, black 32%, transparent), color-mix(in srgb, black 55%, transparent));
+  gap: 13px;
+  margin-top: 14px;
 }
-.mm-phone-status {
-  font-size: 6.5px;
-  letter-spacing: .1em;
-  color: color-mix(in srgb, oldlace 46%, transparent);
-}
-.mm-phone-btn {
+.mm-qr-img {
   flex: none;
-  padding: 5px 10px;
-  border-radius: 6px;
-  background: var(--acid);
-  color: var(--ink);
-  font-family: var(--font-cn);
-  font-size: 10px;
-  font-weight: 900;
+  width: 88px;
+  height: 88px;
+  padding: 5px;
+  border-radius: 8px;
+  background: #fff;
 }
-.mm-phone-btn.ghost {
-  background: transparent;
-  border: 1px solid color-mix(in srgb, oldlace 30%, transparent);
+.mm-qr-copy { min-width: 0; }
+.mm-qr-title {
+  margin: 0;
+  font-family: var(--font-cn);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.35;
   color: var(--paper);
+}
+.mm-qr-sub {
+  margin: 4px 0 0;
+  font-family: var(--font-cn);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: color-mix(in srgb, oldlace 58%, transparent);
 }
 .mm-search {
   margin: 10px 0 0;

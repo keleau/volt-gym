@@ -39,15 +39,24 @@
         :aria-label="`选择 ${program.name}，去预约`"
         @click="$emit('go', 3, { program: program.no })"
       >
-        <span class="c-top mono">
-          <span class="c-no">{{ program.no }}</span>
-          <span class="c-bars" aria-hidden="true">
-            <i v-for="n in 3" :key="n" :class="{ on: n <= bars[program.meta.intensity] }"></i>
+        <img
+          class="c-pic"
+          :src="program.img"
+          :alt="`${program.name}课程现场`"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="c-text">
+          <span class="c-top mono">
+            <span class="c-no">{{ program.no }}</span>
+            <span class="c-bars" aria-hidden="true">
+              <i v-for="n in 3" :key="n" :class="{ on: n <= bars[program.meta.intensity] }"></i>
+            </span>
+            <span class="c-meta">{{ program.meta.intensity }} · {{ program.meta.duration }}</span>
           </span>
-          <span class="c-meta">{{ program.meta.intensity }} · {{ program.meta.duration }}</span>
+          <span class="c-name">{{ program.name }}</span>
+          <span class="c-en mono">{{ program.en }}<i class="c-arrow" aria-hidden="true">→</i></span>
         </span>
-        <span class="c-name">{{ program.name }}</span>
-        <span class="c-en mono">{{ program.en }}<i class="c-arrow" aria-hidden="true">→</i></span>
       </button>
     </div>
 
@@ -210,9 +219,9 @@ const coursePos = {
   left: calc(var(--x) * 1% - 4px);
   top: calc(var(--y) * 1% - 6px);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
   padding: 0 0 0 14px;
   border: 0;
   background: none;
@@ -232,9 +241,37 @@ const coursePos = {
 .course-btn.is-left {
   left: auto;
   right: calc((100 - var(--x)) * 1% - 4px);
-  align-items: flex-end;
+  flex-direction: row-reverse;
+  align-items: center;
   padding: 0 14px 0 0;
   text-align: right;
+}
+
+/* —— 课程小图 —— */
+.c-pic {
+  flex: none;
+  width: clamp(64px, 6vw, 92px);
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 6px;
+  filter: saturate(.82) contrast(1.06) brightness(.92);
+  transition: filter .25s ease, transform .25s ease;
+}
+.course-btn:hover .c-pic,
+.course-btn:focus-visible .c-pic {
+  filter: saturate(.95) contrast(1.06) brightness(1.04);
+  transform: scale(1.05);
+}
+
+.c-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+.course-btn.is-left .c-text {
+  align-items: flex-end;
 }
 .course-btn::before {
   content: '';
@@ -421,11 +458,19 @@ const coursePos = {
     right: auto;
     top: auto;
     width: 100%;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
     padding: 0 0 0 26px;
     text-align: left;
   }
+  .course-btn.is-left .c-text,
+  .course-btn .c-text {
+    align-items: flex-start;
+    text-align: left;
+  }
   .course-btn.is-left .c-top { justify-content: flex-start; }
+  .c-pic { width: 56px; }
   .course-btn::before,
   .course-btn.is-left::before {
     left: 1px;

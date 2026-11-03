@@ -43,14 +43,13 @@
           </div>
 
           <div class="pass-phone" aria-hidden="true">
-            <div class="pp-screen">
-              <div class="pp-brand">VOLT//</div>
-              <div class="pp-label">今日可约</div>
-              <div class="pp-num">3<b>节</b></div>
-              <div class="pp-btn">约课</div>
-              <div class="pp-btn ghost">进场码</div>
-              <div class="pp-foot">社员 0087</div>
-            </div>
+            <img
+              class="pp-img"
+              src="/images/mini-screen-home.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </div>
 
@@ -320,54 +319,12 @@ onBeforeUnmount(() => window.clearTimeout(copyTimer))
   padding: 6px;
   background: var(--ink);
 }
-.pp-screen {
+.pp-img {
+  display: block;
+  width: 100%;
   height: 100%;
-  background: var(--paper);
-  padding: 13px 11px 10px;
-  display: flex;
-  flex-direction: column;
-  color: var(--ink);
-}
-.pp-brand { font-family: var(--font-display); font-size: 17px; line-height: 1; }
-.pp-label {
-  margin-top: 18px;
-  font-size: 8px;
-  letter-spacing: .04em;
-  color: color-mix(in srgb, black 58%, transparent);
-}
-.pp-num {
-  margin-top: 2px;
-  font-family: var(--font-cn);
-  font-size: 38px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -.05em;
-}
-.pp-num b { font-size: 10px; margin-left: 2px; }
-.pp-btn {
-  margin-top: 11px;
-  padding: 7px 0;
-  background: var(--acid);
-  color: var(--ink);
-  text-align: center;
-  font-family: var(--font-cn);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .04em;
-}
-.pp-btn.ghost {
-  margin-top: 5px;
-  background: transparent;
-  border: 1px solid color-mix(in srgb, black 22%, transparent);
-}
-.pp-foot {
-  margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid color-mix(in srgb, black 14%, transparent);
-  font-family: var(--font-mono);
-  font-size: 7px;
-  letter-spacing: .04em;
-  color: color-mix(in srgb, black 52%, transparent);
+  object-fit: cover;
+  object-position: top center;
 }
 
 .pass-foot {
@@ -500,12 +457,6 @@ onBeforeUnmount(() => window.clearTimeout(copyTimer))
   .pass-line { font-size: 11px; margin-top: 6px; }
   .pass-search { margin-top: 14px; padding-top: 9px; font-size: 8px; }
   .pass-phone { width: 118px; height: 204px; padding: 5px; }
-  .pp-screen { padding: 10px 8px 8px; }
-  .pp-brand { font-size: 14px; }
-  .pp-label { margin-top: 13px; font-size: 7px; }
-  .pp-num { font-size: 29px; }
-  .pp-btn { margin-top: 8px; padding: 5px 0; font-size: 8px; }
-  .pp-foot { font-size: 6px; }
   .pass-foot { padding: 8px 12px; font-size: 7px; }
 
   .closing-info {

@@ -4,6 +4,7 @@ export const programs = [
     name: '光影搏击',
     en: 'SHADOW BOXING',
     desc: '出拳、躲闪、踢腿，把一天的压力打在空气里。',
+    img: '/images/program-boxing-960.webp',
     meta: { intensity: 'HIGH', duration: '60 MIN', kcal: '620 KCAL' },
   },
   {
@@ -11,6 +12,7 @@ export const programs = [
     name: '高压燃脂',
     en: 'HIGH VOLTAGE HIIT',
     desc: '短时高强度间歇，心率拉满，结束后还在持续烧。',
+    img: '/images/program-conditioning-960.webp',
     meta: { intensity: 'HIGH', duration: '45 MIN', kcal: '550 KCAL' },
   },
   {
@@ -18,6 +20,7 @@ export const programs = [
     name: '力量搬运',
     en: 'STRENGTH WORKS',
     desc: '杠铃、壶铃、自重，把骨架和肌肉一点点练扎实。',
+    img: '/images/program-strength-960.webp',
     meta: { intensity: 'MID', duration: '60 MIN', kcal: '430 KCAL' },
   },
   {
@@ -25,6 +28,7 @@ export const programs = [
     name: '战绳风暴',
     en: 'ROPE STORM',
     desc: '双绳甩动、波比和冲刺，把心率直接拽到红线。',
+    img: '/images/program-rope-960.webp',
     meta: { intensity: 'MID', duration: '50 MIN', kcal: '580 KCAL' },
   },
   {
@@ -32,6 +36,7 @@ export const programs = [
     name: '静流瑜伽',
     en: 'QUIET FLOW',
     desc: '呼吸、拉伸、平衡，给充过头的身体放一次电。',
+    img: '/images/program-mobility-960.webp',
     meta: { intensity: 'LOW', duration: '60 MIN', kcal: '220 KCAL' },
   },
   {
