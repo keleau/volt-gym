@@ -1,0 +1,126 @@
+<view class="page archive">
+  <volt-nav placeholder="{{false}}" title="记录">
+    <button class="nav-share" open-type="share">分享</button>
+  </volt-nav>
+
+  <view class="ar-body">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载训练记录</text></view>
+
+    <block wx:else>
+      <view class="ar-head wrap">
+        <view class="ar-kicker mono"><view class="ar-kicker__node"></view>VOLT / TRAINING LOG · 连续通电 {{stats.streakWeeks}} 周</view>
+        <text class="ar-title serif">训练记录</text>
+        <text class="ar-sub">把每一次训练，接成一条电流。</text>
+      </view>
+
+      <view class="ar-chart-wrap wrap">
+        <view class="ar-chart-card">
+          <view class="ar-chart__head">
+            <view class="ar-chart__stat">
+              <view class="ar-chart__meta mono">{{chartStat.meta}}</view>
+              <view class="ar-chart__value-row">
+                <text class="ar-chart__value serif">{{chartStat.value}}</text>
+                <text class="ar-chart__unit mono">{{chartStat.unit}}</text>
+              </view>
+              <text class="ar-chart__label">{{chartStat.label}}</text>
+            </view>
+            <view class="ar-toggle">
+              <view class="ar-toggle__item {{chartMode === 'sessions' ? 'is-active' : ''}}" data-mode="sessions" bindtap="onToggleChart">次数</view>
+              <view class="ar-toggle__item {{chartMode === 'duration' ? 'is-active' : ''}}" data-mode="duration" bindtap="onToggleChart">时长</view>
+              <view class="ar-toggle__item {{chartMode === 'weight' ? 'is-active' : ''}}" data-mode="weight" bindtap="onToggleChart">体重</view>
+            </view>
+          </view>
+
+          <volt-chart class="ar-chart" mode="{{chartMode}}" points="{{chartPoints}}" height="520rpx"></volt-chart>
+
+          <view class="ar-chart__foot">
+            <text>{{chartStat.note}}</text>
+            <text class="mono">{{chartStat.foot}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="ar-actions wrap">
+        <button class="ar-action ar-action--primary" bindtap="onGoCheckin">
+          <text>去进场记录</text><text class="ar-action__arrow">→</text>
+        </button>
+        <button class="ar-action" bindtap="openBodySheet">记录体重</button>
+      </view>
+
+      <view wx:if="{{latestRecord}}" class="ar-last-wrap wrap">
+        <view class="ar-last__head">
+          <text class="ar-last__label mono">LAST SESSION / 最近一次</text>
+          <text class="ar-last__all" bindtap="onGoLogs">全部记录 →</text>
+        </view>
+        <view class="ar-last__card">
+          <image wx:if="{{latestRecord.image}}" class="ar-last__img" src="{{latestRecord.image}}" mode="aspectFill"></image>
+          <view class="ar-last__main">
+            <text class="ar-last__name serif">{{latestRecord.name}}</text>
+            <text class="ar-last__meta">{{latestRecord.dateShort}} {{latestRecord.dateLabel}} · {{latestRecord.venueName}}</text>
+            <text class="ar-last__meta">{{latestRecord.coachName || latestRecord.coach}} · {{latestRecord.durationMin}} 分钟 · {{latestRecord.kcal}} kcal</text>
+          </view>
+          <view class="ar-last__check">✓</view>
+        </view>
+      </view>
+
+      <view wx:else class="ar-empty wrap">
+        <view class="empty">
+          <view class="empty__icon">—</view>
+          <text class="empty__title">还没有训练记录</text>
+          <text class="empty__desc">去前台扫码进场，第一笔记录会出现在这里。</text>
+          <button class="empty__btn" bindtap="onGoCheckin">去进场记录</button>
+        </view>
+      </view>
+
+      <view class="ar-more wrap">
+        <text class="ar-more__label serif">记录之外</text>
+        <text class="ar-more__link" bindtap="goRanking">排行榜 →</text>
+        <text class="ar-more__link" bindtap="goCalendar">日历 →</text>
+      </view>
+
+      <view class="ar-bottom"></view>
+    </block>
+  </view>
+
+  <volt-sheet
+    visible="{{bodySheetVisible}}"
+    title="记录身体数据"
+    subtitle="数据只用于你的训练档案"
+    maxHeight="82vh"
+    bind:close="onCloseBodySheet"
+  >
+    <view class="body-form">
+      <view class="body-form__fields">
+        <view class="body-form__field">
+          <text class="body-form__label">身高</text>
+          <view class="body-form__input-row">
+            <input class="body-form__input" type="number" value="{{form.heightCm}}" data-field="heightCm" bindinput="onFormInput" placeholder="178" placeholder-class="body-form__placeholder" />
+            <text class="body-form__unit">cm</text>
+          </view>
+        </view>
+        <view class="body-form__field">
+          <text class="body-form__label">体重</text>
+          <view class="body-form__input-row">
+            <input class="body-form__input" type="digit" value="{{form.weightKg}}" data-field="weightKg" bindinput="onFormInput" placeholder="74.2" placeholder-class="body-form__placeholder" />
+            <text class="body-form__unit">kg</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="body-form__bmi">
+        <view>
+          <text class="body-form__bmi-label">BMI</text>
+          <text class="body-form__bmi-value">{{bmiPreview || '--'}}</text>
+        </view>
+        <text class="body-form__bmi-note">BMI 仅作参考，训练表现与体感更重要。</text>
+      </view>
+
+      <text wx:if="{{latestBody}}" class="body-form__last">上次记录 {{latestBody.date}} · {{latestBody.weightKg}} kg</text>
+
+      <button class="btn btn--primary btn--block body-form__save" bindtap="onSaveBody">保存</button>
+      <text class="body-form__fine">同一天重复记录会覆盖当天数据</text>
+    </view>
+  </volt-sheet>
+</view>

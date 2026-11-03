@@ -1,0 +1,4 @@
+<view class="vchart" style="height:{{height}}">
+  <canvas type="2d" id="chart" class="vchart__canvas"></canvas>
+  <view wx:if="{{empty}}" class="vchart__empty mono">NO DATA / 暂无趋势</view>
+</view>

@@ -1,0 +1,22 @@
+<view class="nav" style="padding-top:{{nav.statusBarHeight}}px">
+  <view class="nav__bar" style="height:{{nav.navBarHeight}}px; padding-right:{{nav.navRight}}px">
+    <view class="nav__left">
+      <view wx:if="{{back}}" class="nav__back" bindtap="onBack" hover-class="nav__back--hover">
+        <view class="nav__chevron"></view>
+      </view>
+
+      <view wx:if="{{logo}}" class="nav__logo">
+        <text class="nav__logo-text display">VOLT</text>
+        <text class="nav__slashes">///</text>
+      </view>
+
+      <text wx:elif="{{title}}" class="nav__title">{{title}}</text>
+    </view>
+
+    <view class="nav__right">
+      <slot></slot>
+    </view>
+  </view>
+</view>
+
+<view wx:if="{{placeholder}}" style="height:{{nav.totalHeight}}px"></view>

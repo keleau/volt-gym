@@ -1,0 +1,289 @@
+.login {
+  position: fixed;
+  inset: 0;
+  z-index: 420;
+}
+
+.login__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 23, 18, 0.38);
+  opacity: 0;
+  transition: opacity 0.26s ease;
+}
+
+.login__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 90vh;
+  background: #fbf5e9;
+  border-top: 2rpx solid #1b1712;
+  border-radius: 0;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.22, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+.login.is-active .login__mask {
+  opacity: 1;
+}
+
+.login.is-active .login__panel {
+  transform: translateY(0);
+}
+
+.login__grip {
+  width: 62rpx;
+  height: 6rpx;
+  margin: 12rpx auto 0;
+  background: #a33b2b;
+}
+
+.login__scroll {
+  max-height: 88vh;
+  padding: 18rpx 36rpx 0;
+  box-sizing: border-box;
+}
+
+.login__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26rpx;
+}
+
+.login__brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.login__brand-slash {
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  margin-left: 4rpx;
+  transform: skewX(-8deg);
+}
+
+.login__close {
+  position: relative;
+  width: 58rpx;
+  height: 58rpx;
+  border: 1rpx solid #c9b99f;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+}
+
+.login__close--hover {
+  background: #efe4d2;
+}
+
+.login__close-line {
+  position: absolute;
+  top: 27rpx;
+  left: 15rpx;
+  width: 26rpx;
+  height: 2rpx;
+  background: #1b1712;
+  transform: rotate(45deg);
+}
+
+.login__close-line--two {
+  transform: rotate(-45deg);
+}
+
+.login__eyebrow {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 22rpx;
+  letter-spacing: 0.08em;
+  color: #a33b2b;
+}
+
+.login__title {
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 54rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.login__hl {
+  display: inline-block;
+  margin-left: 6rpx;
+  padding: 0 8rpx 2rpx;
+  background: #f0ddd6;
+  color: #873023;
+}
+
+.login__desc {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  line-height: 1.65;
+  color: #635846;
+}
+
+.login__abilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 20rpx;
+}
+
+.login__ability {
+  min-height: 44rpx;
+  padding: 0 14rpx;
+  border: 1rpx solid #d9cbb6;
+  border-radius: 2rpx;
+  background: #f2e8d8;
+  font-size: 23rpx;
+  line-height: 42rpx;
+  color: #56604c;
+}
+
+.login__profile {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 26rpx;
+  padding: 22rpx;
+  border: 1rpx solid #d9cbb6;
+  border-radius: 3rpx;
+  background: #fdf9f0;
+}
+
+.login__avatar {
+  position: relative;
+  width: 90rpx;
+  height: 90rpx;
+  border: 1rpx solid #c9b99f;
+  border-radius: 2rpx;
+  background: #f0ddd6;
+  color: #873023;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  overflow: visible;
+}
+
+.login__avatar--hover {
+  opacity: 0.84;
+}
+
+.login__avatar-img {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 2rpx;
+}
+
+.login__avatar-text {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.login__avatar-badge {
+  position: absolute;
+  right: -8rpx;
+  bottom: -8rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border: 1rpx solid #1b1712;
+  border-radius: 0;
+  background: #a33b2b;
+  color: #fbf5e9;
+  font-size: 24rpx;
+  line-height: 28rpx;
+  text-align: center;
+}
+
+.login__fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.login__fields-label {
+  display: block;
+  font-size: 23rpx;
+  color: #72654f;
+}
+
+.login__nickname {
+  width: 100%;
+  height: 54rpx;
+  margin-top: 2rpx;
+  font-size: 30rpx;
+  color: #1b1712;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.login__placeholder {
+  color: #8d7f6a;
+}
+
+.login__submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100% !important;
+  min-height: 92rpx;
+  margin-top: 26rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #a33b2b;
+  border-radius: 3rpx;
+  background: #a33b2b;
+  color: #fbf5e9;
+}
+
+.login__submit--hover {
+  opacity: 0.9;
+}
+
+.login__submit.is-loading {
+  opacity: 0.7;
+}
+
+.login__submit-main {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.login__wx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34rpx;
+  padding: 0 8rpx;
+  border: 1rpx solid rgba(251, 245, 233, 0.6);
+  border-radius: 2rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.login__submit-arrow {
+  font-size: 30rpx;
+}
+
+.login__note {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  color: #72654f;
+  text-align: center;
+}
+
+.login__safe {
+  height: calc(28rpx + env(safe-area-inset-bottom));
+}

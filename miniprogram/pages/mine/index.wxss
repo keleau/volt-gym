@@ -1,0 +1,974 @@
+.mine {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.mine-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.mine-profile {
+  padding-top: 18rpx;
+}
+
+.mine-profile__card {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx;
+}
+
+.mine-profile__card--hover {
+  background: #fbf5e9;
+}
+
+.mine-profile__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #f0ddd6;
+  color: #873023;
+  font-size: 36rpx;
+  font-weight: 700;
+  flex: none;
+  overflow: hidden;
+}
+
+.mine-profile__img {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.mine-profile__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.mine-profile__name {
+  font-size: 34rpx;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.mine-profile__meta {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.mine-profile__arrow {
+  font-size: 36rpx;
+  line-height: 1;
+  color: #8b7e68;
+  flex: none;
+}
+
+.mine-pass {
+  margin-top: 14rpx;
+}
+
+.mine-pass__card {
+  padding: 24rpx;
+  background: #fbf5e9;
+  border-color: #dfc3b9;
+  box-shadow: none;
+}
+
+.mine-pass__card--hover {
+  background: #f0ddd6;
+}
+
+.mine-pass__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.mine-pass__brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 30rpx;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.mine-pass__slash {
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  margin-left: 2rpx;
+  transform: skewX(-8deg);
+}
+
+.mine-pass__link {
+  font-size: 23rpx;
+  color: #873023;
+}
+
+.mine-pass__body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 14rpx;
+}
+
+.mine-pass__credits {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+}
+
+.mine-pass__num {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 70rpx;
+  line-height: 0.9;
+  color: #1b1712;
+}
+
+.mine-pass__unit {
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.mine-pass__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2rpx;
+}
+
+.mine-pass__plan {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #3c342a;
+}
+
+.mine-pass__expire {
+  font-size: 22rpx;
+  color: #873023;
+  opacity: 0.7;
+}
+
+.mine-pass__bar {
+  height: 6rpx;
+  margin-top: 16rpx;
+  border-radius: 4rpx;
+  background: rgba(163, 59, 43, 0.16);
+  overflow: hidden;
+}
+
+.mine-pass__fill {
+  height: 100%;
+  border-radius: 4rpx;
+  background: #a33b2b;
+}
+
+.mine-group {
+  margin-top: 20rpx;
+}
+
+.menu {
+  overflow: hidden;
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  width: 100% !important;
+  padding: 20rpx 22rpx;
+  border-bottom: 1rpx solid #ece0ce;
+  background: transparent;
+  text-align: left;
+}
+
+.menu-row:last-child {
+  border-bottom: 0;
+}
+
+.menu-row--hover {
+  background: #fbf5e9;
+}
+
+.menu-row--button {
+  line-height: inherit;
+}
+
+.menu-row__label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1b1712;
+  flex: none;
+}
+
+.menu-row__right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+}
+
+.menu-row__desc {
+  font-size: 23rpx;
+  color: #635846;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-row__badge {
+  min-width: 34rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  border-radius: 4rpx;
+  background: #f8f2e6;
+  color: #635846;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  text-align: center;
+}
+
+.menu-row__badge--accent {
+  background: #a33b2b;
+  color: #1b1712;
+}
+
+.menu-row__arrow {
+  font-size: 34rpx;
+  line-height: 1;
+  color: #8b7e68;
+  flex: none;
+}
+
+.mine-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 28rpx;
+  font-size: 23rpx;
+  color: #8b7e68;
+}
+
+.mine-foot__reset {
+  color: #8b7e68;
+  text-decoration: underline;
+  text-decoration-color: #d9d1c4;
+  text-underline-offset: 4rpx;
+}
+
+.mine-bottom {
+  height: calc(170rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------- reminder sheet ---------- */
+
+.push-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #ece0ce;
+}
+
+.push-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.push-row__title {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.push-row__desc {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.push-note {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 23rpx;
+  color: #8b7e68;
+}
+
+.push-safe {
+  height: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------- plans sheet ---------- */
+
+.plans__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 20rpx;
+  border-radius: 2rpx;
+  background: #fbf5e9;
+}
+
+.plans__current-label {
+  display: block;
+  font-size: 23rpx;
+  color: #873023;
+}
+
+.plans__current-name {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.plans__current-meta {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.plans__barcode {
+  width: 120rpx;
+  height: 44rpx;
+  flex: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    #873023 0,
+    #873023 2rpx,
+    transparent 2rpx,
+    transparent 6rpx,
+    #873023 6rpx,
+    #873023 8rpx,
+    transparent 8rpx,
+    transparent 13rpx
+  );
+}
+
+.plans__list {
+  margin-top: 18rpx;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 18rpx 4rpx;
+  border-bottom: 1rpx solid #ece0ce;
+}
+
+.plan-row.is-current {
+  background: #fffaf2;
+}
+
+.plan-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.plan-row__name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.plan-row__unit {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.plan-row__right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.plan-row__price {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.plans__note {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #8b7e68;
+}
+
+.plans__call {
+  margin-top: 16rpx;
+}
+
+.mine-dev {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding: 14rpx 18rpx;
+  border: 1rpx dashed #cfc0a9;
+  border-radius: 2rpx;
+  font-size: 23rpx;
+  color: #8b7e68;
+}
+
+.mine-dev__action {
+  color: #873023;
+}
+
+.phone-bind {
+  padding-top: 8rpx;
+}
+
+.phone-bind__field {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  height: 92rpx;
+  padding: 0 18rpx;
+  border-radius: 2rpx;
+  background: #fbf5e9;
+}
+
+.phone-bind__prefix {
+  font-size: 26rpx;
+  color: #635846;
+}
+
+.phone-bind__input {
+  flex: 1;
+  height: 100%;
+  font-size: 30rpx;
+}
+
+.phone-bind__placeholder {
+  color: #8b7e68;
+}
+
+.phone-bind__hint {
+  display: block;
+  margin: 14rpx 0 20rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #8b7e68;
+}
+
+.phone-bind__safe {
+  height: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+/* ===== VOLT TRAINING LOG / MINE ===== */
+
+.mine-scroll {
+  background: transparent;
+}
+
+.mine-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin: 22rpx 0 12rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #635846;
+}
+
+.mine-kicker__node {
+  width: 12rpx;
+  height: 12rpx;
+  background: #a33b2b;
+}
+
+.mine-profile__card {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 20rpx rgba(27, 23, 18, 0.04);
+}
+
+.mine-profile__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 104rpx;
+  height: 104rpx;
+  flex: none;
+  border: 7rpx solid #fffaf0;
+  border-radius: 2rpx;
+  box-shadow: 0 0 0 1rpx #d9cbb6;
+  background: #f0ddd6;
+  color: #873023;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 40rpx;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.mine-profile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mine-profile__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.mine-profile__name {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.mine-profile__meta {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.mine-profile__arrow {
+  flex: none;
+  color: #a33b2b;
+  font-size: 32rpx;
+}
+
+.mine-pass {
+  margin-top: 16rpx;
+}
+
+.mine-pass__card {
+  position: relative;
+  padding: 22rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 10rpx 24rpx rgba(27, 23, 18, 0.05);
+}
+
+.mine-pass__card::before {
+  content: "";
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  width: 84rpx;
+  height: 24rpx;
+  margin-left: -42rpx;
+  background: linear-gradient(180deg, rgba(226, 207, 172, 0.58), rgba(226, 207, 172, 0.28));
+  border: 1rpx solid rgba(190, 169, 133, 0.24);
+  transform: rotate(-1deg);
+}
+
+.mine-pass__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.mine-pass__brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 34rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1b1712;
+}
+
+.mine-pass__slash {
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  margin-left: 4rpx;
+  transform: skewX(-8deg);
+}
+
+.mine-pass__link {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #873023;
+  border-bottom: 1rpx solid rgba(163, 59, 43, 0.4);
+  padding-bottom: 2rpx;
+}
+
+.mine-pass__body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 10rpx;
+}
+
+.mine-pass__credits {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.mine-pass__num {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 76rpx;
+  font-weight: 700;
+  line-height: 0.9;
+  color: #1b1712;
+}
+
+.mine-pass__unit {
+  font-size: 22rpx;
+  color: #635846;
+}
+
+.mine-pass__info {
+  text-align: right;
+}
+
+.mine-pass__plan {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.mine-pass__expire {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 19rpx;
+  color: #72654f;
+}
+
+.mine-pass__bar {
+  position: relative;
+  height: 12rpx;
+  margin-top: 16rpx;
+  border: 1rpx solid #c6b69e;
+  background: #efe4d2;
+  overflow: hidden;
+}
+
+.mine-pass__fill {
+  height: 100%;
+  background: #a33b2b;
+}
+
+.mine-pass__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, rgba(27, 23, 18, 0.2) 2rpx, transparent 2rpx);
+  background-size: 10% 100%;
+}
+
+.mine-group {
+  margin-top: 18rpx;
+}
+
+.menu {
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 6rpx 16rpx rgba(27, 23, 18, 0.03);
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  min-height: 92rpx;
+  padding: 14rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.menu-row:last-child {
+  border-bottom: 0;
+}
+
+.menu-row--hover {
+  background: #fbf5e9;
+}
+
+.menu-row__label {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 29rpx;
+  color: #1b1712;
+}
+
+.menu-row__right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex: none;
+}
+
+.menu-row__desc {
+  font-size: 20rpx;
+  color: #72654f;
+}
+
+.menu-row__arrow {
+  color: #a33b2b;
+  font-size: 28rpx;
+}
+
+.menu-row__badge {
+  min-width: 30rpx;
+  height: 30rpx;
+  padding: 0 6rpx;
+  border: 1rpx solid #1b1712;
+  background: #efe4d2;
+  color: #1b1712;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  line-height: 28rpx;
+  text-align: center;
+}
+
+.menu-row__badge--accent {
+  background: #a33b2b;
+  color: #fbf5e9;
+}
+
+.mine-dev {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin: 24rpx 32rpx 0;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-size: 20rpx;
+  color: #72654f;
+}
+
+.mine-dev__label {
+  font-family: "Plex Mono", Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
+.mine-dev__action {
+  color: #a33b2b;
+  text-decoration: underline;
+}
+
+.mine-bottom {
+  height: calc(170rpx + env(safe-area-inset-bottom));
+}
+
+/* reminder sheet */
+
+.push-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.push-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.push-row__title {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 29rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.push-row__desc {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.push-note {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 21rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.push-safe {
+  height: calc(18rpx + env(safe-area-inset-bottom));
+}
+
+/* plans sheet */
+
+.plans__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 18rpx;
+  border: 1rpx dashed #c6b69e;
+  background: #fbf5e9;
+}
+
+.plans__current-label {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.plans__current-name {
+  display: block;
+  margin-top: 4rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.plans__current-meta {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.plans__barcode {
+  width: 120rpx;
+  height: 58rpx;
+  flex: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #1b1712 0,
+    #1b1712 3rpx,
+    transparent 3rpx,
+    transparent 8rpx,
+    #1b1712 8rpx,
+    #1b1712 12rpx,
+    transparent 12rpx,
+    transparent 18rpx
+  );
+  opacity: 0.8;
+}
+
+.plans__list {
+  margin-top: 14rpx;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 15rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.plan-row__name {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 29rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.plan-row__unit {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.plan-row__right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.plan-row__price {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #873023;
+}
+
+.plans__note {
+  display: block;
+  margin: 14rpx 0;
+  font-size: 20rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.plans__call {
+  margin-top: 4rpx !important;
+}
+
+/* phone bind */
+
+.phone-bind__field {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  height: 94rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #d9cbb6;
+  background: #fdf9f0;
+}
+
+.phone-bind__prefix {
+  flex: none;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.phone-bind__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 32rpx;
+  color: #1b1712;
+}
+
+.phone-bind__placeholder {
+  color: #9b8d77;
+}
+
+.phone-bind__hint {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 20rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.phone-bind .btn {
+  margin-top: 18rpx !important;
+}
+
+.phone-bind__safe {
+  height: calc(18rpx + env(safe-area-inset-bottom));
+}

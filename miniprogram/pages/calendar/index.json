@@ -1,0 +1,11 @@
+{
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "backgroundColor": "#F8F2E6",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "volt-calendar": "/components/volt-calendar/index"
+  },
+  "navigationBarBackgroundColor": "#F8F2E6",
+  "navigationBarTextStyle": "black"
+}

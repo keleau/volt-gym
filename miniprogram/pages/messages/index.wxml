@@ -1,0 +1,44 @@
+<view class="page messages">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="消息中心"></volt-nav>
+
+  <scroll-view class="msg-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view class="msg-toolbar wrap">
+      <text class="msg-toolbar__count">共 {{messages.length}} 条 · {{unread}} 条未读</text>
+      <text class="msg-toolbar__read" bindtap="onMarkAll">全部已读</text>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载消息</text></view>
+
+    <view wx:elif="{{filtered.length}}" class="msg-list wrap">
+      <view
+        wx:for="{{filtered}}"
+        wx:key="id"
+        class="msg-card card {{item.read ? 'is-read' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onMessage"
+        hover-class="msg-card--hover"
+      >
+        <view class="msg-card__top">
+          <text class="msg-card__type">{{item.typeLabel}}</text>
+          <text class="msg-card__time">{{item.stamp}}</text>
+          <view wx:if="{{!item.read}}" class="msg-card__unread"></view>
+        </view>
+        <text class="msg-card__title">{{item.title}}</text>
+        <text class="msg-card__body">{{item.body}}</text>
+      </view>
+    </view>
+
+    <view wx:else class="msg-empty wrap">
+      <view class="empty">
+        <view class="empty__icon">—</view>
+        <text class="empty__title">{{filter === 'all' ? '暂时没有消息' : '这个分类没有消息'}}</text>
+        <text class="empty__desc">预约、开课提醒和候补递补会出现在这里。</text>
+        <button class="empty__btn" bindtap="onGoSchedule">去看看课表</button>
+      </view>
+    </view>
+
+    <view class="msg-bottom"></view>
+  </scroll-view>
+</view>

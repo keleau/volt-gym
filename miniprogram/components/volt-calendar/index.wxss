@@ -1,0 +1,148 @@
+.cal {
+  width: 100%;
+}
+
+.cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding-bottom: 14rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  border: 1rpx solid #d9cbb6;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+  color: #1b1712;
+  flex: none;
+}
+
+.cal__nav--hover {
+  background: #efe4d2;
+}
+
+.cal__nav.is-disabled {
+  opacity: 0.34;
+}
+
+.cal__chevron {
+  width: 14rpx;
+  height: 14rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  transform: translateX(-2rpx) rotate(45deg);
+}
+
+.cal__chevron--left {
+  transform: translateX(2rpx) rotate(-135deg);
+}
+
+.cal__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.cal__month {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.cal__sub {
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 12rpx 0 6rpx;
+}
+
+.cal__weekday {
+  text-align: center;
+  font-size: 21rpx;
+  color: #72654f;
+}
+
+.cal__grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal__cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  margin: 3rpx;
+  border: 1rpx solid transparent;
+  border-radius: 2rpx;
+  color: #1b1712;
+}
+
+.cal__cell.is-out {
+  color: #b8aa95;
+}
+
+.cal__cell.is-today {
+  border-color: #a33b2b;
+}
+
+.cal__cell.is-marked {
+  border-color: #ccd3c0;
+  background: #e3e7da;
+  color: #56604c;
+  font-weight: 700;
+}
+
+.cal__cell.is-selected {
+  border-color: #a33b2b;
+  background: #f0ddd6;
+  color: #873023;
+  font-weight: 700;
+}
+
+.cal__day {
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+.cal__mark {
+  position: absolute;
+  bottom: 8rpx;
+  width: 9rpx;
+  height: 9rpx;
+  background: #66705b;
+}
+
+.cal__cell.is-selected .cal__mark {
+  background: #a33b2b;
+}
+
+.cal__cell.is-out .cal__mark {
+  display: none;
+}
+
+.cal__cell.is-out.is-marked {
+  background: transparent;
+  border-color: transparent;
+  color: #b8aa95;
+  font-weight: 400;
+}

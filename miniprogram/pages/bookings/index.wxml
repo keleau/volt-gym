@@ -1,0 +1,103 @@
+<view class="page bookings">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="我的预约"></volt-nav>
+
+  <scroll-view class="bk-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view class="bk-tabs wrap">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="key"
+        class="bk-tab {{tab === item.key ? 'is-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onSelectTab"
+      >
+        <text>{{item.label}}</text>
+        <text class="bk-tab__count">{{item.count}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载预约</text></view>
+
+    <view wx:elif="{{currentList.length}}" class="bk-list wrap">
+      <view wx:for="{{currentList}}" wx:key="id" class="booking-card card">
+        <view class="booking-card__top">
+          <view class="booking-card__date">
+            <text class="booking-card__short">{{item.shortDate}}</text>
+            <text class="booking-card__day">{{item.dateText}}</text>
+          </view>
+          <text class="tag {{item.statusTone === 'lock' || item.statusTone === 'wait' ? 'tag--acid' : item.statusTone === 'done' ? 'tag--paper' : ''}}">{{item.statusLabel}}</text>
+        </view>
+
+        <view class="booking-card__body">
+          <image class="booking-card__img" src="{{item.programImage}}" mode="aspectFill"></image>
+          <view class="booking-card__info">
+            <text class="booking-card__name">{{item.programName}}</text>
+            <text class="booking-card__meta">{{item.time}} · {{item.venueName}}</text>
+            <text class="booking-card__meta">{{item.coachName || item.coach}} · {{item.durationMin}} 分钟</text>
+          </view>
+        </view>
+
+        <view wx:if="{{item.status === 'locked'}}" class="booking-card__lock">
+          <text>名额已锁定，剩余 {{item.lockText || '10:00'}}</text>
+        </view>
+
+        <view wx:if="{{item.group === 'waitlist'}}" class="booking-card__queue">
+          <text>候补第 {{item.position}} 位</text>
+        </view>
+
+        <view class="booking-card__actions">
+          <block wx:if="{{item.group === 'upcoming' && item.status === 'locked'}}">
+            <button class="btn btn--primary btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onConfirm">确认预约</button>
+            <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onCancelBooking">释放名额</button>
+          </block>
+          <block wx:elif="{{item.group === 'upcoming' && item.status === 'confirmed'}}">
+            <button class="btn btn--primary btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onOpenPass">进场码</button>
+            <button class="booking-card__cancel" data-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+          </block>
+          <block wx:elif="{{item.group === 'waitlist'}}">
+            <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onCancelWaitlist">退出候补</button>
+          </block>
+          <block wx:else>
+            <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onBookAgain">再约一次</button>
+          </block>
+        </view>
+      </view>
+
+      <view class="bk-note">开课前 2 小时可自助取消 · 到店扫码核销后扣课</view>
+    </view>
+
+    <view wx:else class="bk-empty wrap">
+      <view class="empty">
+        <view class="empty__icon">—</view>
+        <text class="empty__title">{{tab === 'waitlist' ? '没有候补中的课程' : tab === 'history' ? '还没有历史记录' : '没有待上课的预约'}}</text>
+        <text class="empty__desc">{{tab === 'history' ? '完成第一次训练后，这里会留下记录。' : '去课表挑一节，把今天的电流接上。'}}</text>
+        <button class="empty__btn" bindtap="onGoSchedule">去约课</button>
+      </view>
+    </view>
+
+    <view class="bk-bottom"></view>
+  </scroll-view>
+
+  <volt-sheet
+    visible="{{passVisible}}"
+    eyebrow="ENTRY PASS / 通行证"
+    title="进场码"
+    subtitle="{{passBooking.programName}} · {{passBooking.venueName}}"
+    maxHeight="64vh"
+    bind:close="closePass"
+  >
+    <view wx:if="{{passBooking}}" class="booking-pass">
+      <view class="booking-pass__code">{{passBooking.entryCode}}</view>
+      <view class="booking-pass__barcode"></view>
+      <view class="booking-pass__rows">
+        <text>预约号 {{passBooking.orderNo}}</text>
+        <text>{{passBooking.dateShort}} {{passBooking.startTime}} · {{passBooking.coachName}}</text>
+        <text>{{passBooking.venueName}} · {{passBooking.durationMin}} 分钟</text>
+      </view>
+      <text class="booking-pass__hint">到店后向前台出示进场码，或扫描前台场馆码完成核销。</text>
+      <button class="btn btn--primary btn--block" bindtap="goCheckinFromPass">去进场</button>
+      <view class="booking-pass__safe"></view>
+    </view>
+  </volt-sheet>
+</view>

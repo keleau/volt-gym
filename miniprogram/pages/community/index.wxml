@@ -1,0 +1,74 @@
+<view class="page community">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="社区"></volt-nav>
+
+  <scroll-view class="community-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view class="community-head wrap">
+      <view class="community-head__kicker mono"><view class="community-head__node"></view>VOLT COMMUNITY / 同频的人</view>
+      <text class="community-head__title serif">练在一起。</text>
+      <text class="community-head__sub">这周把电接上，也见见一起练的人。</text>
+      <view class="community-head__current"><view class="current-line"></view></view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载社区</text></view>
+
+    <block wx:else>
+      <view wx:if="{{challenge}}" class="challenge-wrap wrap">
+        <view class="challenge-card">
+          <view class="challenge-card__top">
+            <text class="challenge-card__label">本周电流挑战</text>
+            <text class="challenge-card__joined">{{challenge.joined}} 人参与</text>
+          </view>
+          <text class="challenge-card__title serif">{{challenge.title}}</text>
+          <text class="challenge-card__desc">{{challenge.desc}}</text>
+          <view class="challenge-card__progress">
+            <view class="challenge-card__progress-bar" style="width:{{challenge.percent}}%"></view>
+          </view>
+          <view class="challenge-card__foot">
+            <text>本周进度 {{challenge.myProgress}} / {{challenge.sessions}} 次</text>
+            <button
+              class="challenge-card__btn {{challenge.joinedByMe ? 'is-joined' : ''}}"
+              bindtap="onJoinChallenge"
+              disabled="{{challenge.joinedByMe || joiningChallenge}}"
+            >{{challenge.joinedByMe ? '已加入' : joiningChallenge ? '加入中…' : '加入挑战'}}</button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{rankingPreview.length}}" class="community-section wrap">
+        <view class="community-section__head">
+          <text class="community-section__title">本周榜</text>
+          <text class="community-section__aside community-section__aside--link" bindtap="goRanking">完整榜单 →</text>
+        </view>
+        <view class="ranking">
+          <view wx:for="{{rankingPreview}}" wx:key="code" class="ranking-row {{item.me ? 'is-me' : ''}}">
+            <text class="ranking-row__no">{{item.no}}</text>
+            <text class="ranking-row__code">{{item.code}}</text>
+            <text class="ranking-row__sessions">{{item.sessions}} 次</text>
+            <text class="ranking-row__weeks">{{item.weeks}} 周</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="community-links wrap">
+        <view class="community-link" bindtap="goEvents">
+          <view>
+            <text class="community-link__kicker mono">EVENTS</text>
+            <text class="community-link__title serif">近期活动</text>
+          </view>
+          <text class="community-link__meta mono">{{events.length}} 场 →</text>
+        </view>
+        <view class="community-link" bindtap="goStories">
+          <view>
+            <text class="community-link__kicker mono">STORIES</text>
+            <text class="community-link__title serif">训练者故事</text>
+          </view>
+          <text class="community-link__meta mono">{{stories.length}} 位 →</text>
+        </view>
+      </view>
+
+      <view class="community-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

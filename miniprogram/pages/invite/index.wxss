@@ -1,0 +1,682 @@
+.invite-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.invite-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.invite-hero {
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+  padding-bottom: 84rpx;
+  background: #a33b2b;
+  border-radius: 0 0 40rpx 40rpx;
+}
+
+.invite-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding-top: 12rpx;
+}
+
+.invite-brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 40rpx;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.invite-brand__slash {
+  color: #1b1712;
+  opacity: 0.45;
+  letter-spacing: -0.14em;
+  margin-left: 4rpx;
+  transform: skewX(-8deg);
+}
+
+.invite-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.invite-share {
+  width: auto !important;
+  height: 50rpx;
+  padding: 0 16rpx;
+  border-radius: 4rpx;
+  background: rgba(253, 249, 240, 0.35);
+  color: #1b1712;
+  font-size: 23rpx;
+  line-height: 50rpx;
+}
+
+.invite-share--hover {
+  background: rgba(253, 249, 240, 0.55);
+}
+
+.invite-close {
+  position: relative;
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  background: rgba(253, 249, 240, 0.35);
+}
+
+.invite-close--hover {
+  background: rgba(253, 249, 240, 0.55);
+}
+
+.invite-close__line {
+  position: absolute;
+  top: 24rpx;
+  left: 14rpx;
+  width: 22rpx;
+  height: 2rpx;
+  background: #1b1712;
+  transform: rotate(45deg);
+}
+
+.invite-close__line--two {
+  transform: rotate(-45deg);
+}
+
+.invite-copy {
+  padding-top: 38rpx;
+}
+
+.invite-eyebrow {
+  font-size: 24rpx;
+  color: rgba(27, 23, 18, 0.6);
+}
+
+.invite-title {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8rpx;
+  font-size: 62rpx;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.14;
+  color: #1b1712;
+}
+
+.invite-title__hl {
+  display: inline-block;
+  margin-right: 6rpx;
+  padding: 0 14rpx;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+  color: #873023;
+}
+
+.invite-from {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: rgba(27, 23, 18, 0.66);
+}
+
+.invite-from__dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: rgba(27, 23, 18, 0.5);
+}
+
+.invite-self {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: rgba(27, 23, 18, 0.45);
+}
+
+.invite-loading {
+  padding: 40rpx 32rpx;
+}
+
+.invite-error {
+  padding-top: 20rpx;
+}
+
+.invite-body {
+  position: relative;
+  margin-top: -46rpx;
+  padding: 0 32rpx;
+}
+
+.invite-program {
+  overflow: hidden;
+}
+
+.invite-program__img {
+  width: 100%;
+  height: 280rpx;
+  object-fit: cover;
+  background: #f8f2e6;
+}
+
+.invite-program__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  padding: 20rpx 22rpx 22rpx;
+}
+
+.invite-program__en {
+  font-size: 23rpx;
+  color: #873023;
+  letter-spacing: 0.04em;
+}
+
+.invite-program__name {
+  font-size: 36rpx;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.invite-program__desc {
+  margin-top: 2rpx;
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.invite-program__meta {
+  margin-top: 4rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.invite-offer {
+  margin-top: 14rpx;
+  padding: 24rpx;
+}
+
+.invite-offer__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.invite-offer__label {
+  display: block;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.invite-offer__price {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rpx;
+  margin-top: 2rpx;
+}
+
+.invite-offer__currency {
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  color: #873023;
+}
+
+.invite-offer__num {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 64rpx;
+  line-height: 0.95;
+  color: #1b1712;
+}
+
+.invite-offer__title {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.invite-benefits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8rpx 14rpx;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #ece0ce;
+}
+
+.invite-benefit {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 23rpx;
+  color: #3c342a;
+  line-height: 1.4;
+}
+
+.invite-benefit__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: #f0ddd6;
+  color: #873023;
+  font-size: 22rpx;
+  flex: none;
+}
+
+.invite-offer__btn {
+  margin-top: 20rpx;
+}
+
+.invite-offer__note {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8b7e68;
+  text-align: center;
+}
+
+.invite-features {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 6rpx;
+}
+
+.invite-feature {
+  position: relative;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.invite-feature + .invite-feature::before {
+  content: "";
+  position: absolute;
+  left: -32rpx;
+  top: 50%;
+  width: 3rpx;
+  height: 20rpx;
+  margin-top: -10rpx;
+  border-radius: 4rpx;
+  background: #d9d1c4;
+}
+
+.invite-foot {
+  padding-top: 16rpx;
+}
+
+.invite-foot__brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 32rpx;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.invite-foot__slash {
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  margin-left: 3rpx;
+  transform: skewX(-8deg);
+}
+
+.invite-foot__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.invite-foot__phone {
+  color: #873023;
+}
+
+.invite-foot__note {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #8b7e68;
+}
+
+.invite-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ===== VOLT TRAINING LOG / INVITE ===== */
+
+.invite-page {
+  background: #f8f2e6;
+}
+
+.invite-scroll {
+  background: transparent;
+}
+
+.invite-hero {
+  position: relative;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+  padding-bottom: 44rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+  border-radius: 0;
+  background: #f8f2e6;
+}
+
+.invite-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding-top: 12rpx;
+}
+
+.invite-brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.invite-brand__slash {
+  color: #a33b2b;
+  opacity: 1;
+  letter-spacing: -0.14em;
+  margin-left: 4rpx;
+  transform: skewX(-8deg);
+}
+
+.invite-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.invite-share {
+  width: auto !important;
+  height: 52rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #c9b99f;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+  color: #873023;
+  font-size: 22rpx;
+  line-height: 50rpx;
+}
+
+.invite-share--hover {
+  background: #efe4d2;
+}
+
+.invite-close {
+  position: relative;
+  width: 52rpx;
+  height: 52rpx;
+  border: 1rpx solid #c9b99f;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+}
+
+.invite-close--hover {
+  background: #efe4d2;
+}
+
+.invite-close__line {
+  position: absolute;
+  top: 25rpx;
+  left: 14rpx;
+  width: 24rpx;
+  height: 2rpx;
+  background: #1b1712;
+  transform: rotate(45deg);
+}
+
+.invite-close__line--two {
+  transform: rotate(-45deg);
+}
+
+.invite-copy {
+  padding-top: 36rpx;
+}
+
+.invite-eyebrow {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 21rpx;
+  letter-spacing: 0.08em;
+  color: #a33b2b;
+}
+
+.invite-title {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 68rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.16;
+  color: #1b1712;
+}
+
+.invite-title__hl {
+  display: inline-block;
+  margin-right: 6rpx;
+  padding: 0 8rpx 2rpx;
+  border-radius: 0;
+  background: #f0ddd6;
+  color: #873023;
+}
+
+.invite-from {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 16rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.invite-from__dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 0;
+  background: #a33b2b;
+}
+
+.invite-current {
+  margin-top: 16rpx;
+}
+
+.invite-self {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: #72654f;
+}
+
+.invite-body {
+  padding-top: 22rpx;
+}
+
+.invite-program {
+  padding: 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 20rpx rgba(27, 23, 18, 0.045);
+  overflow: hidden;
+}
+
+.invite-program__img {
+  width: 100%;
+  height: 260rpx;
+  padding: 8rpx;
+  background: #fffaf0;
+  border-bottom: 1rpx solid #d9cbb6;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.invite-program__info {
+  padding-top: 16rpx;
+}
+
+.invite-program__en {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  letter-spacing: 0.06em;
+  color: #873023;
+}
+
+.invite-program__name {
+  display: block;
+  margin-top: 4rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.invite-program__desc {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #635846;
+}
+
+.invite-program__meta {
+  display: block;
+  margin-top: 7rpx;
+  padding-top: 7rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.invite-offer {
+  position: relative;
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border: 1rpx dashed #c6b69e;
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 20rpx rgba(27, 23, 18, 0.04);
+}
+
+.invite-offer::before {
+  content: "";
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  width: 84rpx;
+  height: 24rpx;
+  margin-left: -42rpx;
+  background: linear-gradient(180deg, rgba(226, 207, 172, 0.58), rgba(226, 207, 172, 0.28));
+  border: 1rpx solid rgba(190, 169, 133, 0.24);
+  transform: rotate(1.5deg);
+}
+
+.invite-offer__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.invite-offer__label {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 19rpx;
+  color: #72654f;
+}
+
+.invite-offer__price {
+  display: flex;
+  align-items: baseline;
+  gap: 2rpx;
+  margin-top: 2rpx;
+}
+
+.invite-offer__currency {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 32rpx;
+  color: #873023;
+}
+
+.invite-offer__num {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 64rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #873023;
+}
+
+.invite-offer__title {
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.invite-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.invite-benefit {
+  display: flex;
+  align-items: center;
+  gap: 9rpx;
+  font-size: 22rpx;
+  color: #635846;
+}
+
+.invite-benefit__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  flex: none;
+  background: #66705b;
+  color: #fbf5e9;
+  font-size: 17rpx;
+}
+
+.invite-offer__btn {
+  margin-top: 18rpx !important;
+}
+
+.invite-offer__note {
+  display: block;
+  margin-top: 10rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  color: #72654f;
+  text-align: center;
+}
+
+.invite-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}

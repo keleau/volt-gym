@@ -1,0 +1,50 @@
+<view class="page stories-page">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="训练者故事"></volt-nav>
+
+  <scroll-view class="stories-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在翻故事</text></view>
+
+    <block wx:else>
+      <view class="stories-head wrap">
+        <view class="stories-kicker mono"><view class="stories-kicker__node"></view>VOLT / STORIES · 同频的人</view>
+        <text class="stories-title serif">训练者故事</text>
+        <text class="stories-sub">他们也在把日子接上电。</text>
+        <view class="stories-current"><view class="current-line"></view></view>
+      </view>
+
+      <view wx:if="{{leadStory}}" class="lead-wrap wrap">
+        <view class="lead-photo photo-frame">
+          <span class="tape tape--left"></span>
+          <image class="lead-photo__img" src="{{leadStory.imageUrl}}" mode="aspectFill"></image>
+        </view>
+        <view class="lead-role mono">{{leadStory.role}}</view>
+        <text class="lead-quote serif">“{{leadStory.quote}}”</text>
+        <text class="lead-name">— {{leadStory.name}}</text>
+      </view>
+
+      <view wx:if="{{otherStories.length}}" class="stories-list wrap">
+        <view class="stories-section-head">
+          <text class="stories-section-title serif">还有他们</text>
+          <text class="stories-section-aside mono">MORE STORIES</text>
+        </view>
+        <view wx:for="{{otherStories}}" wx:key="name" class="story-row">
+          <image class="story-row__img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+          <view class="story-row__main">
+            <text class="story-row__role mono">{{item.role}}</text>
+            <text class="story-row__quote serif">“{{item.quote}}”</text>
+            <text class="story-row__name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="stories-empty wrap">
+        <text class="stories-empty__title serif">故事还在发生</text>
+        <text class="stories-empty__desc">下一次训练，也许就是你的。</text>
+      </view>
+
+      <view class="stories-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

@@ -1,0 +1,124 @@
+.vsheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+
+.vsheet__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 23, 18, 0.38);
+  opacity: 0;
+  transition: opacity 0.24s ease;
+}
+
+.vsheet__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  background: #fbf5e9;
+  border-top: 2rpx solid #1b1712;
+  border-radius: 0;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+.vsheet.is-active .vsheet__mask {
+  opacity: 1;
+}
+
+.vsheet.is-active .vsheet__panel {
+  transform: translateY(0);
+}
+
+.vsheet__rule {
+  display: none;
+}
+
+.vsheet__grip {
+  width: 62rpx;
+  height: 6rpx;
+  margin: 12rpx auto 0;
+  background: #a33b2b;
+  flex: none;
+}
+
+.vsheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 18rpx 28rpx 18rpx;
+  flex: none;
+}
+
+.vsheet__head-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5rpx;
+  min-width: 0;
+}
+
+.vsheet__eyebrow {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 20rpx;
+  letter-spacing: 0.1em;
+  color: #a33b2b;
+}
+
+.vsheet__title {
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  color: #1b1712;
+}
+
+.vsheet__subtitle {
+  font-size: 25rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.vsheet__close {
+  position: relative;
+  width: 58rpx;
+  height: 58rpx;
+  flex: none;
+  border: 1rpx solid #c9b99f;
+  background: #fdf9f0;
+}
+
+.vsheet__close--hover {
+  background: #efe4d2;
+}
+
+.vsheet__close-line {
+  position: absolute;
+  top: 27rpx;
+  left: 15rpx;
+  width: 26rpx;
+  height: 2rpx;
+  background: #1b1712;
+  transform: rotate(45deg);
+}
+
+.vsheet__close-line--two {
+  transform: rotate(-45deg);
+}
+
+.vsheet__body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 28rpx;
+}
+
+.vsheet__safe {
+  height: calc(28rpx + env(safe-area-inset-bottom));
+}

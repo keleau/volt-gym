@@ -1,0 +1,447 @@
+.bookings {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.bk-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.bk-tabs {
+  display: flex;
+  gap: 8rpx;
+  padding-top: 18rpx;
+  padding-bottom: 18rpx;
+}
+
+.bk-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  height: 72rpx;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+  border: 1rpx solid #d9cbb6;
+  font-size: 26rpx;
+  color: #635846;
+}
+
+.bk-tab.is-active {
+  background: #1b1712;
+  border-color: #1b1712;
+  color: #fbf5e9;
+  font-weight: 600;
+}
+
+.bk-tab__count {
+  font-size: 23rpx;
+  opacity: 0.55;
+}
+
+.bk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.booking-card {
+  padding: 20rpx;
+}
+
+.booking-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.booking-card__date {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.booking-card__short {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.booking-card__day {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.booking-card__body {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.booking-card__img {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 2rpx;
+  object-fit: cover;
+  flex: none;
+  background: #f8f2e6;
+}
+
+.booking-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.booking-card__name {
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.booking-card__meta {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.booking-card__lock {
+  margin-top: 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 2rpx;
+  background: #f0ddd6;
+  color: #873023;
+  font-size: 23rpx;
+}
+
+.booking-card__queue {
+  margin-top: 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 2rpx;
+  background: #fbf5e9;
+  color: #635846;
+  font-size: 23rpx;
+}
+
+.booking-card__actions {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #ece0ce;
+}
+
+.booking-card__btn {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+
+.bk-note {
+  padding: 6rpx 4rpx;
+  font-size: 23rpx;
+  color: #8b7e68;
+  text-align: center;
+}
+
+.bk-empty {
+  padding-top: 12rpx;
+}
+
+.bk-bottom {
+  height: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.booking-card__cancel {
+  width: auto !important;
+  flex: none;
+  padding: 0 8rpx;
+  font-size: 23rpx;
+  color: #8b7e68;
+  line-height: 64rpx;
+}
+
+.booking-pass {
+  padding-top: 6rpx;
+}
+
+.booking-pass__code {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 54rpx;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  color: #1b1712;
+}
+
+.booking-pass__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.booking-pass__hint {
+  display: block;
+  margin: 14rpx 0 20rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #635846;
+}
+
+.booking-pass__safe {
+  height: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+/* ===== VOLT TRAINING LOG / BOOKINGS ===== */
+
+.bk-scroll {
+  background: transparent;
+}
+
+.bk-tabs {
+  display: flex;
+  align-items: stretch;
+  margin-top: 18rpx;
+  border: 1rpx solid #d9cbb6;
+  border-radius: 2rpx;
+  background: #fdf9f0;
+  overflow: hidden;
+}
+
+.bk-tab {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 16rpx 6rpx;
+  border-right: 1rpx dashed #d9cbb6;
+  color: #635846;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 27rpx;
+}
+
+.bk-tab:last-child {
+  border-right: 0;
+}
+
+.bk-tab.is-active {
+  background: #fbf5e9;
+  color: #a33b2b;
+  font-weight: 700;
+  box-shadow: inset 0 -4rpx 0 #a33b2b;
+}
+
+.bk-tab__count {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  color: #72654f;
+}
+
+.bk-list {
+  margin-top: 18rpx;
+}
+
+.booking-card {
+  margin-bottom: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 18rpx rgba(27, 23, 18, 0.04);
+}
+
+.booking-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.booking-card__date {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.booking-card__short {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.booking-card__day {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #635846;
+}
+
+.booking-card__body {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding-top: 14rpx;
+}
+
+.booking-card__img {
+  width: 130rpx;
+  height: 140rpx;
+  flex: none;
+  border: 6rpx solid #fffaf0;
+  border-radius: 0;
+  box-shadow: 0 0 0 1rpx #d9cbb6;
+  transform: rotate(-1deg);
+  object-fit: cover;
+}
+
+.booking-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-card__name {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 33rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.booking-card__meta {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 21rpx;
+  line-height: 1.45;
+  color: #635846;
+}
+
+.booking-card__lock,
+.booking-card__queue {
+  margin-top: 12rpx;
+  padding: 10rpx 12rpx;
+  border: 1rpx solid #dfc3b9;
+  background: #f0ddd6;
+  color: #873023;
+  font-size: 21rpx;
+}
+
+.booking-card__queue {
+  border-color: #ccd3c0;
+  background: #e3e7da;
+  color: #56604c;
+}
+
+.booking-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.booking-card__btn {
+  flex: 1;
+}
+
+.booking-card__cancel {
+  flex: none;
+  padding-bottom: 2rpx;
+  border-bottom: 1rpx solid rgba(163, 59, 43, 0.4);
+  color: #873023;
+  font-size: 21rpx;
+}
+
+.bk-note {
+  margin-top: 14rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #72654f;
+  text-align: center;
+}
+
+.bk-empty {
+  margin-top: 24rpx;
+}
+
+.bk-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* entry pass */
+
+.booking-pass {
+  padding-top: 4rpx;
+}
+
+.booking-pass__code {
+  padding: 18rpx 20rpx 14rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.22);
+  border-bottom: 0;
+  background: #fdf9f0;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 56rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  color: #1b1712;
+  overflow-wrap: break-word;
+}
+
+.booking-pass__barcode {
+  height: 62rpx;
+  margin: 0;
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.22);
+  border-top: 0;
+  border-bottom: 0;
+  background-color: #fdf9f0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #1b1712 0,
+    #1b1712 4rpx,
+    transparent 4rpx,
+    transparent 10rpx,
+    #1b1712 10rpx,
+    #1b1712 15rpx,
+    transparent 15rpx,
+    transparent 22rpx
+  );
+  background-clip: content-box;
+  opacity: 0.8;
+}
+
+.booking-pass__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5rpx;
+  padding: 14rpx 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.22);
+  border-top: 1rpx dashed #d9cbb6;
+  background: #fdf9f0;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.booking-pass__hint {
+  display: block;
+  margin: 14rpx 0 20rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #635846;
+}
+
+.booking-pass__safe {
+  height: calc(18rpx + env(safe-area-inset-bottom));
+}

@@ -1,0 +1,75 @@
+<view class="page pass-page">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="会员卡"></volt-nav>
+
+  <scroll-view class="pass-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在读取会员卡</text></view>
+
+    <block wx:else>
+      <view class="pass-head wrap">
+        <view class="pass-kicker mono"><view class="pass-kicker__node"></view>VOLT / PASS · 按次通电</view>
+        <text class="pass-title serif">会员卡</text>
+        <text class="pass-sub">不办年卡，用一次算一次。</text>
+        <view class="pass-current"><view class="current-line"></view></view>
+      </view>
+
+      <view class="pass-ticket-wrap wrap">
+        <view class="pass-ticket">
+          <span class="tape tape--left"></span>
+          <span class="tape tape--right"></span>
+          <view class="pass-ticket__top">
+            <view class="pass-brand serif">VOLT<text class="pass-brand__slash">///</text></view>
+            <text class="pass-valid mono">VALID / 有效</text>
+          </view>
+          <view class="pass-ticket__main">
+            <view class="pass-credits">
+              <text class="pass-credits__num serif">{{member.credits}}</text>
+              <text class="pass-credits__unit">次可用</text>
+            </view>
+            <text class="pass-plan serif">{{member.planName}}</text>
+            <text class="pass-expire mono">有效至 {{member.expiresAt}}</text>
+          </view>
+          <view wx:if="{{passCells.length}}" class="pass-grid">
+            <view
+              wx:for="{{passCells}}"
+              wx:key="no"
+              class="pass-cell {{item.used ? 'is-used' : ''}}"
+            >
+              <text wx:if="{{item.used}}" class="pass-cell__check">✓</text>
+              <text wx:else class="pass-cell__num mono">{{item.label}}</text>
+            </view>
+          </view>
+          <view wx:else class="pass-empty">暂无次卡，联系前台开通后开始充电。</view>
+          <view class="pass-ticket__foot">
+            <text class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 余 {{member.credits}} 次</text>
+            <view class="pass-barcode"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="pass-plans wrap">
+        <view class="pass-section-head">
+          <text class="pass-section-title serif">续卡选项</text>
+          <text class="pass-section-aside mono">PLANS / 按次</text>
+        </view>
+        <view class="plan-list">
+          <view wx:for="{{plans}}" wx:key="code" class="plan-row {{item.code === member.planCode ? 'is-current' : ''}}">
+            <view class="plan-row__main">
+              <text class="plan-row__name serif">{{item.name}}</text>
+              <text class="plan-row__unit">{{item.unit}}</text>
+            </view>
+            <view class="plan-row__right">
+              <text class="plan-row__price serif">¥{{item.price}}</text>
+              <text wx:if="{{item.code === member.planCode}}" class="plan-row__tag">当前</text>
+            </view>
+          </view>
+        </view>
+        <button class="btn btn--ghost btn--block pass-contact" bindtap="onContact">联系前台购卡</button>
+        <text class="pass-note">按次购卡 · 前台办理 · 不自动续费</text>
+      </view>
+
+      <view class="pass-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

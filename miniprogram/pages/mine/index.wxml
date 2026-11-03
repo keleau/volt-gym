@@ -1,0 +1,186 @@
+<view class="page mine">
+  <volt-nav placeholder="{{false}}" title="我的"></volt-nav>
+
+  <scroll-view
+    class="mine-scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-top="{{scrollTop}}"
+    refresher-enabled
+    refresher-triggered="{{refreshing}}"
+    refresher-threshold="80"
+    refresher-background="#F8F2E6"
+    refresher-default-style="dark"
+    bindrefresherrefresh="onRefresh"
+  >
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载</text></view>
+
+    <block wx:else>
+      <view class="mine-profile wrap">
+        <view class="mine-kicker mono"><view class="mine-kicker__node"></view>VOLT / MEMBER LOG · 我的档案</view>
+        <view class="mine-profile__card card" bindtap="onGoArchive" hover-class="mine-profile__card--hover">
+          <view class="mine-profile__avatar">
+            <image wx:if="{{member.avatarUrl}}" class="mine-profile__img" src="{{member.avatarUrl}}" mode="aspectFill"></image>
+            <text wx:else>{{memberInitial}}</text>
+          </view>
+          <view class="mine-profile__main">
+            <text class="mine-profile__name">{{member.nickname}}</text>
+            <text class="mine-profile__meta">{{member.goal}} · 会员 {{member.joinedAt}}</text>
+          </view>
+          <text class="mine-profile__arrow">›</text>
+        </view>
+      </view>
+
+      <view class="mine-group wrap">
+        <view class="menu card">
+          <view class="menu-row" bindtap="onGoBookings" data-tab="upcoming" hover-class="menu-row--hover">
+            <text class="menu-row__label">我的预约</text>
+            <view class="menu-row__right">
+              <text wx:if="{{counts.upcoming}}" class="menu-row__badge">{{counts.upcoming}}</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="onGoMessages" hover-class="menu-row--hover">
+            <text class="menu-row__label">消息中心</text>
+            <view class="menu-row__right">
+              <text wx:if="{{messagesUnread}}" class="menu-row__badge menu-row__badge--accent">{{messagesUnread}}</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="goPass" hover-class="menu-row--hover">
+            <text class="menu-row__label">会员卡</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">余 {{member.credits}} 次</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="mine-group wrap">
+        <view class="menu card">
+          <view class="menu-row" bindtap="openReminders" hover-class="menu-row--hover">
+            <text class="menu-row__label">微信提醒</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">{{subscriptions.classReminder ? '已开启' : '已关闭'}}</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <button class="menu-row menu-row--button" open-type="share" hover-class="menu-row--hover">
+            <text class="menu-row__label">邀请好友</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">已邀请 {{invites.invitedCount}} 人</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </button>
+          <view class="menu-row" bindtap="onGoVenues" hover-class="menu-row--hover">
+            <text class="menu-row__label">门店与客服</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">广州三店</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="onContact" hover-class="menu-row--hover">
+            <text class="menu-row__label">联系客服</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">{{brand.phone}}</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="onAbout" hover-class="menu-row--hover">
+            <text class="menu-row__label">关于 VOLT</text>
+            <view class="menu-row__right">
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="onOpenLogin" hover-class="menu-row--hover">
+            <text class="menu-row__label">微信授权</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">已接入 · 更新资料</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+          <view class="menu-row" bindtap="openPhoneBind" hover-class="menu-row--hover">
+            <text class="menu-row__label">绑定手机号</text>
+            <view class="menu-row__right">
+              <text class="menu-row__desc">{{member.phoneBound ? member.phone : '未绑定'}}</text>
+              <text class="menu-row__arrow">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="mine-bottom"></view>
+    </block>
+  </scroll-view>
+
+  <volt-sheet
+    visible="{{reminderVisible}}"
+    title="微信提醒"
+    subtitle="通过微信服务通知送达"
+    maxHeight="70vh"
+    bind:close="closeReminders"
+  >
+    <view class="push">
+      <view class="push-row">
+        <view class="push-row__main">
+          <text class="push-row__title">开课提醒</text>
+          <text class="push-row__desc">开课前 60 分钟提醒</text>
+        </view>
+        <switch checked="{{subscriptions.classReminder}}" color="#A33B2B" data-key="classReminder" bindchange="onToggleSub" />
+      </view>
+      <view class="push-row">
+        <view class="push-row__main">
+          <text class="push-row__title">课程变更</text>
+          <text class="push-row__desc">时间、教练或门店调整时推送</text>
+        </view>
+        <switch checked="{{subscriptions.classChange}}" color="#A33B2B" data-key="classChange" bindchange="onToggleSub" />
+      </view>
+      <view class="push-row">
+        <view class="push-row__main">
+          <text class="push-row__title">候补递补</text>
+          <text class="push-row__desc">候补出现空位时提醒</text>
+        </view>
+        <switch checked="{{subscriptions.waitlist}}" color="#A33B2B" data-key="waitlist" bindchange="onToggleSub" />
+      </view>
+      <text class="push-note">课程变更属于重要通知，建议保持开启。</text>
+      <view class="push-safe"></view>
+    </view>
+  </volt-sheet>
+
+
+  <volt-sheet
+    visible="{{phoneVisible}}"
+    title="绑定手机号"
+    subtitle="绑定后官网与小程序共用同一个会员身份"
+    maxHeight="60vh"
+    bind:close="closePhoneBind"
+  >
+    <view class="phone-bind">
+      <view class="phone-bind__field">
+        <text class="phone-bind__prefix">+86</text>
+        <input
+          class="phone-bind__input"
+          type="number"
+          maxlength="11"
+          value="{{phoneInput}}"
+          placeholder="请输入 11 位手机号"
+          placeholder-class="phone-bind__placeholder"
+          bindinput="onPhoneInput"
+        />
+      </view>
+      <text class="phone-bind__hint">绑定后与官网共用同一个会员身份，预约、报名和历史记录会自动认领；生产环境需接入短信验证码。</text>
+      <button class="btn btn--primary btn--block" bindtap="bindPhone" disabled="{{bindingPhone}}">{{bindingPhone ? '绑定中…' : '确认绑定'}}</button>
+      <view class="phone-bind__safe"></view>
+    </view>
+  </volt-sheet>
+
+  <volt-login
+    visible="{{loginVisible}}"
+    bind:success="onLoginSuccess"
+    bind:cancel="onLoginCancel"
+  ></volt-login>
+</view>

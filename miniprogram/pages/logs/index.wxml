@@ -1,0 +1,129 @@
+<view class="page logs">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="记录簿"></volt-nav>
+
+  <scroll-view class="logs-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在翻记录簿</text></view>
+
+    <block wx:else>
+      <view class="logs-head wrap">
+        <view class="logs-kicker mono"><view class="logs-kicker__node"></view>VOLT / ARCHIVE · {{totalSessions}} SESSIONS</view>
+        <text class="logs-title serif">记录簿</text>
+        <text class="logs-sub">{{tab === 'records' ? '更早的训练，都在这里。' : '和同频的人一起，把电接上。'}}</text>
+
+        <view wx:if="{{tab === 'records'}}" class="logs-summary">
+          <view class="logs-summary__item">
+            <text class="logs-summary__value serif">{{totalSessions}}</text>
+            <text class="logs-summary__label mono">SESSIONS / 全部</text>
+          </view>
+          <view class="logs-summary__item">
+            <text class="logs-summary__value serif">{{totalHours}}</text>
+            <text class="logs-summary__label mono">HOURS / 累计</text>
+          </view>
+          <view class="logs-summary__item">
+            <text class="logs-summary__value serif">{{totalKcal}}</text>
+            <text class="logs-summary__label mono">KCAL / 累计</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="logs-tabs wrap">
+        <view class="logs-tab {{tab === 'records' ? 'is-active' : ''}}" data-tab="records" bindtap="onSwitchTab">
+          记录<text class="logs-tab__count mono">{{totalSessions}}</text>
+        </view>
+        <view class="logs-tab {{tab === 'ranking' ? 'is-active' : ''}}" data-tab="ranking" bindtap="onSwitchTab">
+          排行榜
+        </view>
+      </view>
+
+      <block wx:if="{{tab === 'records'}}">
+        <view wx:if="{{!groups.length}}" class="logs-empty wrap">
+          <view class="empty">
+            <view class="empty__icon">—</view>
+            <text class="empty__title">还没有更早的记录</text>
+            <text class="empty__desc">完成第一次训练后，记录会出现在这里。</text>
+          </view>
+        </view>
+
+        <view wx:for="{{groups}}" wx:key="monthKey" class="logs-group wrap">
+          <view class="logs-group__head">
+            <text class="logs-group__label mono">{{item.label}}</text>
+            <text class="logs-group__count mono">{{item.count}} SESSIONS</text>
+          </view>
+          <view class="logs-list">
+            <view wx:for="{{item.records}}" wx:for-item="record" wx:key="id" class="logs-row">
+              <view class="logs-row__date">
+                <text class="logs-row__day serif">{{record.day}}</text>
+                <text class="logs-row__mark">✓</text>
+              </view>
+              <view class="logs-row__main">
+                <view class="logs-row__title-row">
+                  <text class="logs-row__name serif">{{record.name}}</text>
+                  <text class="logs-row__mode mono">{{record.modeLabel}}</text>
+                </view>
+                <text class="logs-row__meta">{{record.weekday}} {{record.time}} · {{record.coachName}}</text>
+                <text class="logs-row__meta">{{record.venueName}} · {{record.durationMin}} 分钟</text>
+              </view>
+              <view class="logs-row__side">
+                <text class="logs-row__kcal serif">{{record.kcal}}</text>
+                <text class="logs-row__unit mono">KCAL</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="logs-note wrap">
+          <text class="logs-note__serif serif">记录不是考核，是你来过的证据。</text>
+          <text class="logs-note__mono mono">VOLT / TRAINING LOG</text>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="rank-wrap wrap">
+          <view class="rank-hero">
+            <view class="rank-hero__kicker mono">LEADERBOARD / 训练榜</view>
+            <view class="rank-hero__main">
+              <view class="rank-hero__copy">
+                <text class="rank-hero__title serif">一起通电的人</text>
+                <text class="rank-hero__sub">按累计训练次数排名。</text>
+              </view>
+              <view class="rank-hero__me">
+                <text class="rank-hero__me-value serif">{{myRank ? '#' + myRank.no : '—'}}</text>
+                <text class="rank-hero__me-label mono">YOU / 本周 {{weekSessions}} 次</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="rank-list">
+            <view
+              wx:for="{{ranking}}"
+              wx:key="code"
+              class="rank-row {{item.me ? 'is-me' : ''}} {{item.no === '01' ? 'is-first' : ''}}"
+            >
+              <text class="rank-row__no serif">{{item.no}}</text>
+              <view class="rank-row__main">
+                <view class="rank-row__title-row">
+                  <text class="rank-row__code">{{item.code}}</text>
+                  <text wx:if="{{item.me}}" class="rank-row__tag mono">你</text>
+                </view>
+                <text class="rank-row__meta mono">{{item.weeks}} WEEKS · {{item.minutes}} MIN</text>
+              </view>
+              <view class="rank-row__sessions">
+                <text class="rank-row__sessions-value serif">{{item.sessions}}</text>
+                <text class="rank-row__unit mono">次</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="rank-note">
+            <text class="rank-note__main serif">编号是会员代号，不公开姓名。</text>
+            <text class="rank-note__mono mono">TOP {{ranking.length}} / VOLT</text>
+          </view>
+        </view>
+      </block>
+
+      <view class="logs-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

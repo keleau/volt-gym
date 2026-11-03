@@ -1,0 +1,61 @@
+<view wx:if="{{rendered}}" class="login {{active ? 'is-active' : ''}}" catchtouchmove="noop">
+  <view class="login__mask" bindtap="onMask"></view>
+
+  <view class="login__panel">
+    <view class="login__grip"></view>
+    <scroll-view scroll-y class="login__scroll" enhanced show-scrollbar="{{false}}">
+      <view class="login__head">
+        <view class="login__brand display">VOLT<text class="login__brand-slash">///</text></view>
+        <view wx:if="{{closable}}" class="login__close" bindtap="onCancel" hover-class="login__close--hover">
+          <view class="login__close-line"></view>
+          <view class="login__close-line login__close-line--two"></view>
+        </view>
+      </view>
+
+      <text class="login__eyebrow">微信一键接入</text>
+      <view class="login__title">接入<text class="login__hl">会员终端</text></view>
+      <text class="login__desc">用微信身份接入 VOLT，预约、签到与训练档案自动同步。预约前需在「我的」绑定手机号，没有年卡。</text>
+
+      <view class="login__abilities">
+        <view class="login__ability">微信身份</view>
+        <view class="login__ability">服务通知</view>
+        <view class="login__ability">训练档案</view>
+      </view>
+
+      <view class="login__profile">
+        <button class="login__avatar" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" hover-class="login__avatar--hover">
+          <image wx:if="{{avatarUrl}}" class="login__avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="login__avatar-text">电</text>
+          <view class="login__avatar-badge">+</view>
+        </button>
+        <view class="login__fields">
+          <text class="login__fields-label">可选 · 完善头像与昵称</text>
+          <input
+            class="login__nickname"
+            type="nickname"
+            value="{{nickname}}"
+            placeholder="称呼（默认：训练者）"
+            placeholder-class="login__placeholder"
+            bindinput="onNickname"
+          />
+        </view>
+      </view>
+
+      <button
+        class="login__submit {{loading ? 'is-loading' : ''}}"
+        bindtap="onLogin"
+        hover-class="login__submit--hover"
+        disabled="{{loading}}"
+      >
+        <view class="login__submit-main">
+          <view class="login__wx">微信</view>
+          <text>{{loading ? '正在接入…' : '微信一键接入'}}</text>
+        </view>
+        <text class="login__submit-arrow">→</text>
+      </button>
+
+      <text class="login__note">授权仅用于会员身份识别，不读取通讯录 · 不办年卡</text>
+      <view class="login__safe"></view>
+    </scroll-view>
+  </view>
+</view>

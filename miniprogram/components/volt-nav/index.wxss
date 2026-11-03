@@ -1,0 +1,92 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 120;
+  width: 100%;
+  background: #f8f2e6;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.nav__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 32rpx;
+}
+
+.nav__left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.nav__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  margin-left: 0;
+  border: 1rpx solid #c9b99f;
+  background: #fdf9f0;
+  color: #1b1712;
+  flex: none;
+}
+
+.nav__back--hover {
+  background: #efe4d2;
+}
+
+.nav__chevron {
+  width: 18rpx;
+  height: 18rpx;
+  border-left: 2rpx solid currentColor;
+  border-bottom: 2rpx solid currentColor;
+  transform: translateX(3rpx) rotate(45deg);
+}
+
+.nav__logo {
+  display: flex;
+  align-items: baseline;
+  gap: 2rpx;
+  line-height: 1;
+}
+
+.nav__logo-text {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 43rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #1b1712;
+}
+
+.nav__slashes {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  transform: skewX(-8deg);
+}
+
+.nav__title {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #1b1712;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: none;
+}

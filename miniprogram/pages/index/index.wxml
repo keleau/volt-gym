@@ -1,0 +1,225 @@
+<view class="page home">
+  <volt-nav logo="{{true}}" placeholder="{{false}}"></volt-nav>
+
+  <scroll-view
+    class="home-scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-top="{{scrollTop}}"
+    scroll-with-animation
+    refresher-enabled
+    refresher-triggered="{{refreshing}}"
+    refresher-threshold="80"
+    refresher-background="#F8F2E6"
+    refresher-default-style="dark"
+    bindrefresherrefresh="onRefresh"
+    bindscroll="onScroll"
+  >
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="home-loading">
+      <view class="home-loading__logo serif">VOLT<text class="accent">///</text></view>
+      <view class="loading"><view class="loading__bar"></view><text>正在接入会员终端</text></view>
+    </view>
+
+    <view wx:elif="{{error}}" class="home-error wrap">
+      <view class="empty">
+        <view class="empty__icon">!</view>
+        <text class="empty__title">{{error}}</text>
+        <text class="empty__desc">检查网络后，重新把电接上。</text>
+        <button class="empty__btn" bindtap="load">重新加载</button>
+        <button class="empty__btn" bindtap="onOpenLogin">微信登录</button>
+      </view>
+    </view>
+
+    <block wx:else>
+      <view class="home-head wrap">
+        <view class="home-head__main">
+          <view class="home-kicker mono"><view class="home-kicker__node"></view>VOLT / MEMBER LOG · 第 {{stats.streakWeeks}} 周</view>
+          <view class="home-greet serif">{{greeting}}，{{member.nickname}}。</view>
+          <view class="home-lede">今天也要<text class="accent">通电</text>。去把这一格盖进本子里。</view>
+        </view>
+        <view class="home-bell" bindtap="goMessages" hover-class="home-bell--hover">
+          <view class="bell"><view class="bell__clapper"></view></view>
+          <view wx:if="{{messagesUnread}}" class="home-bell__badge mono">{{messagesUnread}}</view>
+        </view>
+      </view>
+
+      <view class="home-current wrap"><view class="current-line"></view></view>
+
+      <view class="home-next wrap">
+        <view class="today-card">
+          <view class="tape tape--left"></view>
+          <view class="tape tape--right"></view>
+
+          <view class="today-top">
+            <view class="today-info">
+              <view class="today-label-row">
+                <text class="today-label mono">{{nextIsToday ? 'TODAY / 今日训练' : 'NEXT / 下一节'}}</text>
+                <text wx:if="{{nextBooking}}" class="today-status mono {{isLocked ? 'is-lock' : ''}}">{{isLocked ? '待确认' : '已预约'}}</text>
+              </view>
+
+              <block wx:if="{{nextBooking}}">
+                <view class="today-title serif">{{nextBooking.programName}}</view>
+                <view class="today-meta">{{nextBooking.coachName || nextBooking.coach}} · {{nextBooking.venueName}} · {{nextBooking.durationMin}} 分钟</view>
+                <view class="today-time-row">
+                  <text class="today-time serif">{{nextBooking.time}}</text>
+                  <text class="today-date mono">{{nextDayText}}</text>
+                </view>
+              </block>
+
+              <block wx:else>
+                <view class="today-title serif">今天还没有安排</view>
+                <view class="today-meta">挑一节课，把今天的电接上。</view>
+              </block>
+            </view>
+
+            <view wx:if="{{nextBooking && nextBooking.programImage}}" class="today-photo photo-frame">
+              <image class="today-photo__img" src="{{nextBooking.programImage}}" mode="aspectFill"></image>
+              <text wx:if="{{nextBooking.programCode}}" class="today-photo__code mono">{{nextBooking.programCode}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{todayBooking}}" class="today-entry" bindtap="openEntry" hover-class="today-entry--hover">
+            <text class="today-entry__label mono">TODAY ENTRY / 今日进场码</text>
+            <text class="today-entry__code mono">{{todayBooking.entryCode}}</text>
+            <text class="today-entry__arrow">→</text>
+          </view>
+
+          <view wx:if="{{isLocked}}" class="today-lock">
+            <text class="mono">SEAT LOCKED</text>
+            <text>名额已锁定 · {{nextBooking.lockText}}</text>
+          </view>
+
+          <view class="dot-divider"></view>
+
+          <view class="today-actions">
+            <button wx:if="{{!nextBooking}}" class="btn btn--primary today-btn" bindtap="goSchedule">
+              <text>去约课</text><text class="today-btn__arrow">→</text>
+            </button>
+            <button wx:elif="{{isLocked}}" class="btn btn--primary today-btn" bindtap="onConfirmNext">
+              <text>确认预约</text><text class="today-btn__arrow">→</text>
+            </button>
+            <button wx:elif="{{nextIsToday}}" class="btn btn--primary today-btn" bindtap="goCheckin">
+              <text>去进场</text><text class="today-btn__arrow">→</text>
+            </button>
+            <button wx:else class="btn btn--primary today-btn" bindtap="goBookings">
+              <text>查看预约</text><text class="today-btn__arrow">→</text>
+            </button>
+          </view>
+        </view>
+      </view>
+
+      <view class="home-pass wrap">
+        <view class="pass-ticket" bindtap="goPass" hover-class="pass-ticket--hover">
+          <view class="pass-ticket__top">
+            <text class="pass-ticket__label mono">MEMBER PASS / 次卡</text>
+            <text class="pass-ticket__stamp mono">VALID</text>
+          </view>
+
+          <view class="pass-ticket__main">
+            <view class="pass-credits">
+              <text class="pass-credits__num serif">{{member.credits}}</text>
+              <text class="pass-credits__unit">次可用</text>
+            </view>
+            <view class="pass-ticket__meta">
+              <text class="pass-ticket__plan serif">{{member.planName}}</text>
+              <text class="pass-ticket__expire mono">有效至 {{expiresShort}}</text>
+            </view>
+          </view>
+
+          <view class="pass-punches">
+            <view
+              wx:for="{{passCells}}"
+              wx:key="no"
+              class="pass-punch {{item.used ? 'is-used' : ''}}"
+            >
+              <text wx:if="{{item.used}}" class="pass-punch__check">✓</text>
+            </view>
+          </view>
+
+          <view class="pass-ticket__foot">
+            <text class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 按次付费</text>
+            <text class="pass-ticket__link">查看会员卡 →</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="home-section wrap">
+        <view class="home-section__head">
+          <view class="home-section__main">
+            <text class="home-section__kicker mono">COMMUNITY / 本周同频</text>
+            <text class="home-section__title serif">一起练，才通电</text>
+          </view>
+          <text class="home-section__link" bindtap="goCommunity">进社区 →</text>
+        </view>
+
+        <view wx:if="{{challenge}}" class="home-challenge" bindtap="goCommunity" hover-class="home-challenge--hover">
+          <view class="home-challenge__head">
+            <text class="home-challenge__title serif">{{challenge.title}}</text>
+            <text class="home-challenge__tag mono">{{challenge.joinedByMe ? '已加入' : challenge.joined + ' 人参与'}}</text>
+          </view>
+          <text class="home-challenge__desc">{{challenge.desc}}</text>
+          <view class="home-challenge__progress">
+            <view class="home-challenge__bar" style="width:{{challengePercent}}%"></view>
+          </view>
+          <view class="home-challenge__foot">
+            <text>本周进度 {{challenge.myProgress}} / {{challenge.sessions}} 次</text>
+            <text class="home-challenge__cta mono">{{challenge.joinedByMe ? '查看挑战 →' : '了解挑战 →'}}</text>
+          </view>
+        </view>
+
+        <view wx:if="{{nextEvent}}" class="home-event" bindtap="goEvents" hover-class="home-event--hover">
+          <view class="home-event__date">
+            <text class="home-event__day serif">{{nextEvent.day}}</text>
+            <text class="home-event__month mono">{{nextEvent.monthShort}}</text>
+          </view>
+          <view class="home-event__main">
+            <text class="home-event__kicker mono">NEXT EVENT / 近期活动</text>
+            <text class="home-event__title serif">{{nextEvent.title}}</text>
+            <text class="home-event__meta">{{nextEvent.time}} · {{nextEvent.venueName}}</text>
+          </view>
+          <view class="home-event__side">
+            <text class="home-event__status mono {{nextEvent.soldOut ? 'is-full' : ''}}">{{nextEvent.mySigned ? '已报名' : nextEvent.soldOut ? '已满员' : '余 ' + nextEvent.remaining + ' 席'}}</text>
+            <text class="home-event__arrow">→</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="home-bottom"></view>
+    </block>
+  </scroll-view>
+
+  <volt-sheet
+    visible="{{entryVisible}}"
+    eyebrow="ENTRY PASS / 通行证"
+    title="进场码"
+    subtitle="{{entryBooking.programName}} · {{entryBooking.venueName}}"
+    maxHeight="68vh"
+    bind:close="closeEntry"
+  >
+    <view wx:if="{{entryBooking}}" class="entry-sheet">
+      <view class="entry-pass">
+        <view class="entry-pass__top">
+          <text class="entry-pass__label mono">VOLT / SCAN AT FRONT DESK</text>
+          <text class="entry-pass__status mono">VALID</text>
+        </view>
+        <view class="entry-pass__code serif">{{entryBooking.entryCode}}</view>
+        <view class="entry-pass__barcode"></view>
+        <view class="entry-pass__meta">{{entryBooking.dateShort}} {{entryBooking.startTime}} · {{entryBooking.coachName}}</view>
+      </view>
+      <text class="entry-sheet__hint">到店后向前台出示进场码，或扫描前台场馆码完成核销。这一次进场会消耗 1 次。</text>
+      <button class="btn btn--primary btn--block entry-sheet__btn" bindtap="goCheckinFromEntry">
+        <text>去进场</text><text class="today-btn__arrow">→</text>
+      </button>
+      <view class="entry-sheet__safe"></view>
+    </view>
+  </volt-sheet>
+
+  <volt-login
+    visible="{{loginVisible}}"
+    bind:success="onLoginSuccess"
+    bind:cancel="onLoginCancel"
+  ></volt-login>
+</view>

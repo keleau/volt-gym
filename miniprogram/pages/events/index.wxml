@@ -1,0 +1,46 @@
+<view class="page events-page">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="社区活动"></volt-nav>
+
+  <scroll-view class="events-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载活动</text></view>
+
+    <block wx:else>
+      <view class="events-head wrap">
+        <view class="events-kicker mono"><view class="events-kicker__node"></view>VOLT / EVENTS · 线下见</view>
+        <text class="events-title serif">近期活动</text>
+        <text class="events-sub">一起练，也一起见面。</text>
+        <view class="events-current"><view class="current-line"></view></view>
+      </view>
+
+      <view class="events-list wrap">
+        <view wx:for="{{events}}" wx:key="id" class="event-ticket">
+          <view class="event-ticket__date">
+            <text class="event-ticket__day serif">{{item.day}}</text>
+            <text class="event-ticket__month mono">{{item.monthShort}}</text>
+          </view>
+          <view class="event-ticket__main">
+            <view class="event-ticket__title-row">
+              <text class="event-ticket__title serif">{{item.title}}</text>
+              <text class="event-ticket__status mono">{{item.mySigned ? '已报名' : item.soldOut ? '已满' : '开放报名'}}</text>
+            </view>
+            <text class="event-ticket__meta">{{item.time}} · {{item.venueName}}</text>
+            <text class="event-ticket__desc">{{item.desc}}</text>
+            <view class="event-ticket__foot">
+              <text class="event-ticket__count mono">{{item.signed}} / {{item.cap}} · {{item.soldOut ? '已满' : '剩 ' + item.remaining + ' 位'}}</text>
+              <button
+                class="event-ticket__btn {{item.mySigned ? 'is-joined' : ''}}"
+                data-id="{{item.id}}"
+                bindtap="onJoinEvent"
+                disabled="{{item.mySigned || item.soldOut || joiningEventId === item.id}}"
+              >{{item.mySigned ? '已报名' : item.soldOut ? '已满' : joiningEventId === item.id ? '报名中…' : '报名'}}</button>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="events-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

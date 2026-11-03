@@ -1,0 +1,64 @@
+<view class="page calendar-page">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="训练日历"></volt-nav>
+
+  <scroll-view class="calendar-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在翻训练日历</text></view>
+
+    <block wx:else>
+      <view class="calendar-head wrap">
+        <view class="calendar-kicker mono"><view class="calendar-kicker__node"></view>VOLT / CALENDAR · {{monthCountLabel}} {{calendarMonthCount}} 次</view>
+        <text class="calendar-title serif">训练日历</text>
+        <text class="calendar-sub">把每一次到店，留在格子里。</text>
+        <view class="calendar-current"><view class="current-line"></view></view>
+      </view>
+
+      <view class="calendar-card wrap">
+        <volt-calendar
+          month="{{calendarMonth}}"
+          markedDates="{{recordDates}}"
+          selected="{{selectedDate}}"
+          bind:change="onCalendarChange"
+          bind:daytap="onDayTap"
+        ></volt-calendar>
+        <view class="calendar-legend">
+          <view class="calendar-key"><view class="calendar-mark"></view><text>已训练</text></view>
+          <view class="calendar-key"><view class="calendar-today"></view><text>今天</text></view>
+          <view class="calendar-key"><view class="calendar-selected"></view><text>选中</text></view>
+        </view>
+      </view>
+
+      <view wx:if="{{selectedDate}}" class="day-detail wrap">
+        <view class="day-detail__head">
+          <text class="day-detail__date serif">{{selectedDateLabel}}</text>
+          <text class="day-detail__clear" bindtap="onClearDay">收起</text>
+        </view>
+        <view wx:if="{{dayRecords.length}}" class="day-list">
+          <view wx:for="{{dayRecords}}" wx:key="id" class="day-row">
+            <view class="day-row__mark"><text>✓</text></view>
+            <view class="day-row__main">
+              <text class="day-row__name serif">{{item.name}}</text>
+              <text class="day-row__meta">{{item.time}} · {{item.coachName}} · {{item.venueName}}</text>
+            </view>
+            <view class="day-row__side">
+              <text class="day-row__kcal mono">{{item.kcal}}</text>
+              <text class="day-row__unit">kcal</text>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="day-empty">
+          <text class="day-empty__title serif">这天没有训练</text>
+          <text class="day-empty__desc">休息也是训练的一部分。</text>
+        </view>
+      </view>
+
+      <view wx:else class="calendar-hint wrap">
+        <text class="calendar-hint__serif">点一格，看看那天留下了什么。</text>
+        <text class="calendar-hint__mono mono">SELECT A DAY / 选择日期</text>
+      </view>
+
+      <view class="calendar-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

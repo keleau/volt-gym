@@ -1,0 +1,34 @@
+<view class="cal">
+  <view class="cal__head">
+    <view class="cal__nav" bindtap="onPrev" hover-class="cal__nav--hover">
+      <view class="cal__chevron cal__chevron--left"></view>
+    </view>
+    <view class="cal__label">
+      <text class="cal__month">{{label}}</text>
+      <text class="cal__sub mono">训练日历</text>
+    </view>
+    <view class="cal__nav {{canNext ? '' : 'is-disabled'}}" bindtap="onNext" hover-class="cal__nav--hover">
+      <view class="cal__chevron"></view>
+    </view>
+  </view>
+
+  <view class="cal__weekdays">
+    <text wx:for="{{weekdayLabels}}" wx:key="*this" class="cal__weekday mono">{{item}}</text>
+  </view>
+
+  <view class="cal__grid">
+    <view wx:for="{{weeks}}" wx:key="weekId" class="cal__row">
+      <view
+        wx:for="{{item.days}}"
+        wx:for-item="day"
+        wx:key="iso"
+        class="cal__cell {{day.inMonth ? '' : 'is-out'}} {{day.marked ? 'is-marked' : ''}} {{day.isToday ? 'is-today' : ''}} {{day.selected ? 'is-selected' : ''}}"
+        data-date="{{day.iso}}"
+        bindtap="onDay"
+      >
+        <text class="cal__day">{{day.day}}</text>
+        <view wx:if="{{day.marked}}" class="cal__mark"></view>
+      </view>
+    </view>
+  </view>
+</view>

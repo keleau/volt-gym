@@ -1,0 +1,72 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/schedule/index",
+    "pages/checkin/index",
+    "pages/archive/index",
+    "pages/logs/index",
+    "pages/calendar/index",
+    "pages/mine/index",
+    "pages/pass/index",
+    "pages/bookings/index",
+    "pages/messages/index",
+    "pages/invite/index",
+    "pages/community/index",
+    "pages/stories/index",
+    "pages/events/index",
+    "pages/venues/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarBackgroundColor": "#F8F2E6",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8F2E6",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#72654F",
+    "selectedColor": "#A33B2B",
+    "backgroundColor": "#FBF5E9",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/schedule/index",
+        "text": "预约"
+      },
+      {
+        "pagePath": "pages/checkin/index",
+        "text": "进场"
+      },
+      {
+        "pagePath": "pages/archive/index",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于场馆扫码签到时校验你是否到达门店"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "usingComponents": {
+    "volt-nav": "/components/volt-nav/index",
+    "volt-sheet": "/components/volt-sheet/index",
+    "volt-calendar": "/components/volt-calendar/index",
+    "volt-login": "/components/volt-login/index"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

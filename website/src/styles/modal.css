@@ -1,0 +1,32 @@
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(13, 11, 8, .84);
+  overscroll-behavior: contain;
+}
+
+.modal-mask {
+  animation: modal-mask-in .18s ease;
+}
+.modal-mask > * {
+  animation: modal-panel-in .24s var(--ease-gate);
+}
+
+/* 只做入场动画，不依赖 Transition 的 class 生命周期；后台标签/减少动效时也不会卡成透明 */
+@keyframes modal-mask-in {
+  from { opacity: .72; }
+  to { opacity: 1; }
+}
+@keyframes modal-panel-in {
+  from { opacity: .86; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 900px) {
+  .modal-mask { padding: 14px; }
+}

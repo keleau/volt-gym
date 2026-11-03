@@ -1,0 +1,44 @@
+<view class="page venues">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="门店"></volt-nav>
+
+  <scroll-view class="venues-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view class="venues-head wrap">
+      <view class="venues-head__row">
+        <view>
+          <text class="venues-head__title">广州三店</text>
+          <text class="venues-head__sub">营业时间与今日可约场次</text>
+        </view>
+        <text class="venues-head__locate" bindtap="onLocate">{{locating ? '定位中…' : '定位最近'}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载门店</text></view>
+
+    <view wx:else class="venue-list wrap">
+      <view wx:for="{{venues}}" wx:key="code" class="venue-card card">
+        <image class="venue-card__img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="venue-card__body">
+          <view class="venue-card__title-row">
+            <text class="venue-card__index mono">0{{index + 1}}</text>
+            <text class="venue-card__name">{{item.name}}</text>
+            <text class="tag {{item.todaySlots > 0 ? 'tag--acid' : 'tag--paper'}}">{{item.todaySlots > 0 ? '今日 ' + item.todaySlots + ' 节可约' : '今日已结束'}}</text>
+          </view>
+          <text class="venue-card__address">{{item.address}}</text>
+          <text class="venue-card__metro">{{item.metro}}</text>
+          <view class="venue-card__meta">
+            <text>{{item.hours}}</text>
+            <text wx:if="{{item.distanceText}}" class="venue-card__distance">{{item.distanceText}}</text>
+          </view>
+          <view class="venue-card__actions">
+            <button class="btn btn--primary btn--sm venue-card__book" data-code="{{item.code}}" bindtap="onGoBook">去约课</button>
+            <button class="btn btn--ghost btn--sm venue-card__map" data-code="{{item.code}}" bindtap="onNavigate">导航</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="venues-bottom"></view>
+  </scroll-view>
+</view>

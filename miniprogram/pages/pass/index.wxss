@@ -1,0 +1,300 @@
+.pass-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.pass-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.pass-head {
+  padding-top: 26rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.pass-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #635846;
+}
+
+.pass-kicker__node {
+  width: 12rpx;
+  height: 12rpx;
+  background: #a33b2b;
+}
+
+.pass-title {
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 54rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.pass-sub {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.pass-current {
+  margin-top: 18rpx;
+}
+
+.pass-ticket-wrap {
+  padding-top: 24rpx;
+}
+
+.pass-ticket {
+  position: relative;
+  padding: 24rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.22);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 12rpx 28rpx rgba(27, 23, 18, 0.06);
+}
+
+.pass-ticket__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.pass-brand {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1b1712;
+}
+
+.pass-brand__slash {
+  margin-left: 4rpx;
+  color: #a33b2b;
+  letter-spacing: -0.14em;
+  transform: skewX(-8deg);
+}
+
+.pass-valid {
+  font-size: 18rpx;
+  letter-spacing: 0.06em;
+  color: #873023;
+}
+
+.pass-ticket__main {
+  margin-top: 16rpx;
+}
+
+.pass-credits {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.pass-credits__num {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 108rpx;
+  font-weight: 700;
+  line-height: 0.82;
+  color: #1b1712;
+}
+
+.pass-credits__unit {
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.pass-plan {
+  display: block;
+  margin-top: 12rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.pass-expire {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 19rpx;
+  color: #72654f;
+}
+
+.pass-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52rpx, 1fr));
+  gap: 6rpx;
+  margin-top: 22rpx;
+}
+
+.pass-empty {
+  margin-top: 22rpx;
+  padding: 22rpx;
+  border: 1rpx dashed #c6b69e;
+  font-size: 24rpx;
+  color: #635846;
+  text-align: center;
+}
+
+.pass-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50rpx;
+  border: 1rpx dashed #c6b69e;
+  background: #fbf5e9;
+}
+
+.pass-cell__num {
+  font-size: 17rpx;
+  color: #72654f;
+}
+
+.pass-cell__check {
+  font-size: 24rpx;
+  color: #fbf5e9;
+}
+
+.pass-cell.is-used {
+  border-style: solid;
+  border-color: #66705b;
+  background: #66705b;
+}
+
+.pass-ticket__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 16rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.pass-barcode {
+  width: 120rpx;
+  height: 44rpx;
+  flex: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #1b1712 0,
+    #1b1712 3rpx,
+    transparent 3rpx,
+    transparent 8rpx,
+    #1b1712 8rpx,
+    #1b1712 12rpx,
+    transparent 12rpx,
+    transparent 18rpx
+  );
+  opacity: 0.8;
+}
+
+.pass-plans {
+  margin-top: 34rpx;
+}
+
+.pass-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14rpx;
+  padding-bottom: 9rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.pass-section-title {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.pass-section-aside {
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.plan-list {
+  margin-top: 8rpx;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.plan-row__name {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 29rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.plan-row__unit {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.plan-row__right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.plan-row__price {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #873023;
+}
+
+.plan-row__tag {
+  padding: 4rpx 8rpx;
+  border: 1rpx solid #dfc3b9;
+  background: #f0ddd6;
+  color: #873023;
+  font-size: 18rpx;
+}
+
+.pass-contact {
+  margin-top: 22rpx !important;
+}
+
+.pass-note {
+  display: block;
+  margin-top: 10rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  color: #72654f;
+  text-align: center;
+}
+
+.pass-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+.plan-row.is-current .plan-row__price {
+  color: #873023;
+  text-decoration: none;
+}

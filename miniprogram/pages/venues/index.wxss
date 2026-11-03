@@ -1,0 +1,261 @@
+.venues {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.venues-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.venues-head {
+  padding-top: 18rpx;
+  padding-bottom: 18rpx;
+}
+
+.venues-head__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.venues-head__title {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.venues-head__sub {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.venues-head__locate {
+  font-size: 24rpx;
+  color: #873023;
+  flex: none;
+}
+
+.venue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.venue-card {
+  overflow: hidden;
+}
+
+.venue-card__img {
+  width: 100%;
+  height: 250rpx;
+  object-fit: cover;
+  background: #f8f2e6;
+}
+
+.venue-card__body {
+  padding: 20rpx 22rpx 22rpx;
+}
+
+.venue-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.venue-card__name {
+  font-size: 34rpx;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.venue-card__address {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #3c342a;
+}
+
+.venue-card__metro {
+  display: block;
+  margin-top: 1rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.venue-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #8b7e68;
+}
+
+.venue-card__distance {
+  color: #873023;
+}
+
+.venue-card__actions {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #ece0ce;
+}
+
+.venue-card__book {
+  flex: 1;
+  width: 0;
+}
+
+.venue-card__map {
+  width: 150rpx !important;
+  flex: none;
+}
+
+.venues-bottom {
+  height: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+/* ===== VOLT TRAINING LOG / VENUES ===== */
+
+.venues-scroll {
+  background: transparent;
+}
+
+.venues-head {
+  padding-top: 24rpx;
+  padding-bottom: 18rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.venues-head__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.venues-head__title {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.venues-head__sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.venues-head__locate {
+  flex: none;
+  padding-bottom: 3rpx;
+  border-bottom: 1rpx solid rgba(163, 59, 43, 0.42);
+  color: #a33b2b;
+  font-size: 22rpx;
+}
+
+.venue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 20rpx;
+}
+
+.venue-card {
+  overflow: hidden;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 20rpx rgba(27, 23, 18, 0.045);
+}
+
+.venue-card__img {
+  width: 100%;
+  height: 280rpx;
+  padding: 10rpx;
+  background: #fffaf0;
+  border-bottom: 1rpx solid #d9cbb6;
+  object-fit: cover;
+}
+
+.venue-card__body {
+  padding: 18rpx 20rpx 20rpx;
+}
+
+.venue-card__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9rpx;
+  flex-wrap: wrap;
+}
+
+.venue-card__index {
+  flex: none;
+  font-size: 18rpx;
+  color: #a33b2b;
+}
+
+.venue-card__name {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.venue-card__address,
+.venue-card__metro {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 22rpx;
+  line-height: 1.45;
+  color: #635846;
+}
+
+.venue-card__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-top: 10rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 19rpx;
+  color: #72654f;
+}
+
+.venue-card__distance {
+  color: #873023;
+}
+
+.venue-card__actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.venue-card__book {
+  flex: 1;
+}
+
+.venue-card__map {
+  flex: none;
+  min-width: 150rpx;
+}
+
+.venues-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}

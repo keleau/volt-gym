@@ -1,0 +1,831 @@
+.community {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.community-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.community-head {
+  padding-top: 18rpx;
+  padding-bottom: 20rpx;
+}
+
+.community-head__title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.community-head__sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.community-stats {
+  display: flex;
+  margin-top: 22rpx;
+  border-top: 1rpx solid #d9cbb6;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.community-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  padding: 16rpx 0;
+}
+
+.community-stat + .community-stat {
+  padding-left: 18rpx;
+  border-left: 1rpx solid #ece0ce;
+}
+
+.community-stat__value {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.community-stat__label {
+  font-size: 22rpx;
+  color: #635846;
+}
+
+.challenge-wrap {
+  padding-top: 20rpx;
+}
+
+.challenge-card {
+  padding: 24rpx;
+  border-radius: 4rpx;
+  background: #fbf5e9;
+  border: 1rpx solid #dfc3b9;
+}
+
+.challenge-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.challenge-card__label {
+  font-size: 23rpx;
+  color: #873023;
+}
+
+.challenge-card__joined {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.challenge-card__title {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 34rpx;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.challenge-card__desc {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 23rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.challenge-card__progress {
+  height: 8rpx;
+  margin-top: 18rpx;
+  border-radius: 4rpx;
+  background: rgba(163, 59, 43, 0.16);
+  overflow: hidden;
+}
+
+.challenge-card__progress-bar {
+  height: 100%;
+  border-radius: 4rpx;
+  background: #a33b2b;
+}
+
+.challenge-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.challenge-card__btn {
+  width: auto !important;
+  height: 58rpx;
+  padding: 0 18rpx;
+  border-radius: 4rpx;
+  background: #a33b2b;
+  color: #1b1712;
+  font-size: 23rpx;
+  line-height: 58rpx;
+  flex: none;
+}
+
+.challenge-card__btn.is-joined {
+  background: #fdf9f0;
+  color: #635846;
+}
+
+.community-section {
+  margin-top: 28rpx;
+}
+
+.community-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.community-section__title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.community-section__aside {
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.event-card {
+  display: flex;
+  gap: 16rpx;
+  padding: 18rpx;
+}
+
+.event-card__date {
+  width: 82rpx;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.event-card__day {
+  font-size: 34rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.event-card__month {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: #873023;
+  text-align: center;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.event-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-card__title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.event-card__meta {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 23rpx;
+  color: #635846;
+}
+
+.event-card__desc {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 23rpx;
+  line-height: 1.5;
+  color: #635846;
+}
+
+.event-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-top: 10rpx;
+}
+
+.event-card__count {
+  font-size: 22rpx;
+  color: #8b7e68;
+}
+
+.event-card__btn {
+  width: auto !important;
+  height: 52rpx;
+  padding: 0 16rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid #cfc0a9;
+  background: #fdf9f0;
+  color: #3c342a;
+  font-size: 23rpx;
+  line-height: 52rpx;
+  flex: none;
+}
+
+.event-card__btn.is-joined {
+  color: #635846;
+}
+
+.ranking {
+  overflow: hidden;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx 20rpx;
+  border-bottom: 1rpx solid #ece0ce;
+  font-size: 23rpx;
+}
+
+.ranking-row:last-child {
+  border-bottom: 0;
+}
+
+.ranking-row.is-me {
+  background: #fbf5e9;
+}
+
+.ranking-row__no {
+  width: 34rpx;
+  color: #873023;
+  font-weight: 700;
+}
+
+.ranking-row__code {
+  flex: 1;
+  color: #3c342a;
+}
+
+.ranking-row__sessions {
+  color: #1b1712;
+  font-weight: 600;
+}
+
+.ranking-row__weeks {
+  width: 70rpx;
+  color: #635846;
+  text-align: right;
+}
+
+.story-card {
+  display: flex;
+  gap: 14rpx;
+  padding: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.story-card__img {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 2rpx;
+  object-fit: cover;
+  flex: none;
+}
+
+.story-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.story-card__role {
+  font-size: 22rpx;
+  color: #635846;
+}
+
+.story-card__quote {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 23rpx;
+  line-height: 1.55;
+  color: #3c342a;
+}
+
+.story-card__name {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 23rpx;
+  font-weight: 600;
+  color: #873023;
+}
+
+.community-bottom {
+  height: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+/* ===== VOLT TRAINING LOG / COMMUNITY ===== */
+
+.community-scroll {
+  background: transparent;
+}
+
+.community-head {
+  padding-top: 24rpx;
+  padding-bottom: 18rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.community-head__kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #635846;
+}
+
+.community-head__node {
+  width: 12rpx;
+  height: 12rpx;
+  background: #a33b2b;
+}
+
+.community-head__title {
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 58rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.community-head__sub {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.community-head__current {
+  margin-top: 16rpx;
+}
+
+.community-stats {
+  display: flex;
+  align-items: stretch;
+  margin-top: 18rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.community-stat {
+  flex: 1;
+  padding: 12rpx 16rpx;
+  border-right: 1rpx dashed #d9cbb6;
+}
+
+.community-stat:first-child {
+  padding-left: 0;
+}
+
+.community-stat:last-child {
+  border-right: 0;
+}
+
+.community-stat__value {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #1b1712;
+}
+
+.community-stat__label {
+  display: block;
+  margin-top: 2rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  color: #72654f;
+}
+
+.challenge-wrap {
+  margin-top: 24rpx;
+}
+
+.challenge-card {
+  position: relative;
+  padding: 24rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.21);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 10rpx 24rpx rgba(27, 23, 18, 0.06);
+  transform: rotate(-0.55deg);
+}
+
+.challenge-card::before {
+  content: "";
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  width: 88rpx;
+  height: 24rpx;
+  margin-left: -44rpx;
+  background: linear-gradient(180deg, rgba(226, 207, 172, 0.58), rgba(226, 207, 172, 0.28));
+  border: 1rpx solid rgba(190, 169, 133, 0.24);
+  transform: rotate(1.5deg);
+}
+
+.challenge-card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.challenge-card__label {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 20rpx;
+  letter-spacing: 0.06em;
+  color: #a33b2b;
+}
+
+.challenge-card__joined {
+  font-size: 20rpx;
+  color: #72654f;
+}
+
+.challenge-card__title {
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  color: #1b1712;
+}
+
+.challenge-card__desc {
+  display: block;
+  margin-top: 7rpx;
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.challenge-card__progress {
+  position: relative;
+  height: 12rpx;
+  margin-top: 16rpx;
+  border: 1rpx solid #c6b69e;
+  background: #efe4d2;
+  overflow: hidden;
+}
+
+.challenge-card__progress-bar {
+  height: 100%;
+  background: #a33b2b;
+}
+
+.challenge-card__progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, rgba(27, 23, 18, 0.2) 2rpx, transparent 2rpx);
+  background-size: 10% 100%;
+  pointer-events: none;
+}
+
+.challenge-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.challenge-card__btn {
+  width: auto !important;
+  height: 64rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #a33b2b;
+  border-radius: 2rpx;
+  background: #a33b2b;
+  color: #fbf5e9;
+  font-size: 23rpx;
+  font-weight: 600;
+  line-height: 62rpx;
+}
+
+.challenge-card__btn.is-joined {
+  border-color: #d9cbb6;
+  background: #efe4d2;
+  color: #635846;
+}
+
+.community-section {
+  margin-top: 34rpx;
+}
+
+.community-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding-bottom: 9rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.community-section__title {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.community-section__aside {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 19rpx;
+  color: #72654f;
+}
+
+.community-section__aside--link {
+  padding-bottom: 2rpx;
+  border-bottom: 1rpx solid rgba(163, 59, 43, 0.35);
+  color: #873023;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-top: 14rpx;
+}
+
+.event-card {
+  display: flex;
+  gap: 18rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 6rpx 16rpx rgba(27, 23, 18, 0.035);
+}
+
+.event-card__date {
+  width: 76rpx;
+  flex: none;
+  align-self: flex-start;
+  padding-right: 14rpx;
+  border-right: 1rpx solid #d9cbb6;
+  text-align: center;
+}
+
+.event-card__day {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 27rpx;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #a33b2b;
+}
+
+.event-card__month {
+  display: block;
+  margin-top: 3rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 16rpx;
+  color: #72654f;
+}
+
+.event-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-card__title {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 31rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.event-card__meta,
+.event-card__desc {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: #635846;
+}
+
+.event-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-top: 10rpx;
+  padding-top: 9rpx;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.event-card__count {
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.event-card__btn {
+  width: auto !important;
+  min-width: 96rpx;
+  height: 54rpx;
+  padding: 0 14rpx;
+  border: 1rpx solid #a33b2b;
+  border-radius: 2rpx;
+  background: transparent;
+  color: #873023;
+  font-size: 21rpx;
+  line-height: 52rpx;
+}
+
+.event-card__btn.is-joined {
+  border-color: #d9cbb6;
+  background: #efe4d2;
+  color: #635846;
+}
+
+.ranking {
+  margin-top: 14rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 6rpx 16rpx rgba(27, 23, 18, 0.03);
+}
+
+.ranking-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 15rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.ranking-row:last-child {
+  border-bottom: 0;
+}
+
+.ranking-row.is-me {
+  background: #fbf5e9;
+}
+
+.ranking-row__no {
+  width: 40rpx;
+  flex: none;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 20rpx;
+  color: #a33b2b;
+}
+
+.ranking-row__code {
+  flex: 1;
+  min-width: 0;
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 25rpx;
+  color: #1b1712;
+}
+
+.ranking-row__sessions,
+.ranking-row__weeks {
+  flex: none;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #635846;
+}
+
+.ranking-row__sessions {
+  color: #873023;
+}
+
+.story-card {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 14rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 6rpx 16rpx rgba(27, 23, 18, 0.035);
+}
+
+.story-card__img {
+  width: 138rpx;
+  height: 158rpx;
+  flex: none;
+  border: 6rpx solid #fffaf0;
+  border-radius: 2rpx;
+  box-shadow: 0 0 0 1rpx #d9cbb6;
+  transform: rotate(-1deg);
+  object-fit: cover;
+}
+
+.story-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.story-card__role {
+  display: block;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 18rpx;
+  color: #873023;
+}
+
+.story-card__quote {
+  display: block;
+  margin-top: 6rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 27rpx;
+  line-height: 1.55;
+  color: #1b1712;
+}
+
+.story-card__name {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.community-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------- community hub links ---------- */
+
+.community-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.community-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.community-link__kicker {
+  display: block;
+  font-size: 18rpx;
+  letter-spacing: 0.06em;
+  color: #72654f;
+}
+
+.community-link__title {
+  display: block;
+  margin-top: 2rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.community-link__meta {
+  flex: none;
+  font-size: 20rpx;
+  color: #873023;
+}

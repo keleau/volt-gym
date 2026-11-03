@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#F8F2E6",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "volt-chart": "/components/volt-chart/index"
+  },
+  "navigationBarBackgroundColor": "#F8F2E6",
+  "navigationBarTextStyle": "black"
+}

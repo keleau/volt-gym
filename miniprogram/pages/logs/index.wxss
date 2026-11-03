@@ -1,0 +1,511 @@
+.logs {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.logs-scroll {
+  width: 100%;
+  height: 100vh;
+  background: transparent;
+}
+
+.logs-head {
+  padding-top: 24rpx;
+}
+
+.logs-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #635846;
+}
+
+.logs-kicker__node {
+  width: 12rpx;
+  height: 12rpx;
+  flex: none;
+  background: #a33b2b;
+}
+
+.logs-title {
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 54rpx;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.logs-sub {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 23rpx;
+  line-height: 1.55;
+  color: #635846;
+}
+
+.logs-summary {
+  display: flex;
+  margin-top: 18rpx;
+  padding: 14rpx 0;
+  border-top: 1rpx dashed #d9cbb6;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.logs-summary__item {
+  flex: 1;
+  min-width: 0;
+  padding-right: 14rpx;
+  border-right: 1rpx dashed #d9cbb6;
+}
+
+.logs-summary__item + .logs-summary__item {
+  padding-left: 16rpx;
+}
+
+.logs-summary__item:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.logs-summary__value {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #1b1712;
+}
+
+.logs-summary__label {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 15rpx;
+  color: #72654f;
+}
+
+/* ---------- tabs ---------- */
+
+.logs-tabs {
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+  margin-top: 20rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.logs-tab {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  padding: 2rpx 0 8rpx;
+  border-bottom: 3rpx solid transparent;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 28rpx;
+  color: #635846;
+}
+
+.logs-tab.is-active {
+  border-bottom-color: #a33b2b;
+  color: #a33b2b;
+  font-weight: 700;
+}
+
+.logs-tab__count {
+  font-size: 16rpx;
+  color: #72654f;
+}
+
+.logs-tab.is-active .logs-tab__count {
+  color: #873023;
+}
+
+/* ---------- record groups ---------- */
+
+.logs-group {
+  margin-top: 26rpx;
+}
+
+.logs-empty {
+  margin-top: 24rpx;
+}
+
+.logs-group__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding-bottom: 8rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.logs-group__label {
+  font-size: 19rpx;
+  letter-spacing: 0.06em;
+  color: #72654f;
+}
+
+.logs-group__count {
+  font-size: 16rpx;
+  color: #873023;
+}
+
+.logs-list {
+  margin-top: 12rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.18);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 6rpx 16rpx rgba(27, 23, 18, 0.03);
+}
+
+.logs-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.logs-row:last-child {
+  border-bottom: 0;
+}
+
+.logs-row__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 76rpx;
+  flex: none;
+  padding-right: 12rpx;
+  border-right: 1rpx solid #d9cbb6;
+}
+
+.logs-row__day {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #1b1712;
+}
+
+.logs-row__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24rpx;
+  height: 24rpx;
+  margin-top: 5rpx;
+  background: #66705b;
+  color: #fbf5e9;
+  font-size: 13rpx;
+  line-height: 1;
+}
+
+.logs-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.logs-row__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.logs-row__name {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.logs-row__mode {
+  flex: none;
+  padding: 1rpx 5rpx;
+  border: 1rpx solid #d9cbb6;
+  font-size: 14rpx;
+  color: #873023;
+}
+
+.logs-row__meta {
+  display: block;
+  margin-top: 2rpx;
+  overflow: hidden;
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #635846;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logs-row__side {
+  flex: none;
+  text-align: right;
+}
+
+.logs-row__kcal {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #873023;
+}
+
+.logs-row__unit {
+  display: block;
+  font-size: 14rpx;
+  color: #72654f;
+}
+
+.logs-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-top: 26rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.logs-note__serif {
+  font-family: "STSong", "Songti SC", "SimSun", serif;
+  font-size: 22rpx;
+  color: #635846;
+}
+
+.logs-note__mono {
+  font-size: 16rpx;
+  color: #8b7e68;
+}
+
+/* ---------- leaderboard ---------- */
+
+.rank-wrap {
+  margin-top: 22rpx;
+}
+
+.rank-hero {
+  position: relative;
+  padding: 22rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 10rpx 24rpx rgba(27, 23, 18, 0.045);
+  overflow: hidden;
+}
+
+.rank-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 104rpx;
+  height: 6rpx;
+  background: #a33b2b;
+}
+
+.rank-hero__kicker {
+  font-size: 17rpx;
+  letter-spacing: 0.07em;
+  color: #a33b2b;
+}
+
+.rank-hero__main {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 8rpx;
+}
+
+.rank-hero__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-hero__title {
+  display: block;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 42rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.rank-hero__sub {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.rank-hero__me {
+  flex: none;
+  text-align: right;
+}
+
+.rank-hero__me-value {
+  display: block;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #873023;
+}
+
+.rank-hero__me-label {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 14rpx;
+  color: #72654f;
+}
+
+.rank-list {
+  margin-top: 14rpx;
+  border: 1rpx solid rgba(27, 23, 18, 0.2);
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  box-shadow: 0 8rpx 20rpx rgba(27, 23, 18, 0.035);
+  overflow: hidden;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx 18rpx;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.rank-row:last-child {
+  border-bottom: 0;
+}
+
+.rank-row__no {
+  width: 42rpx;
+  flex: none;
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #a33b2b;
+}
+
+.rank-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-row__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.rank-row__code {
+  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 25rpx;
+  color: #1b1712;
+}
+
+.rank-row__tag {
+  flex: none;
+  padding: 1rpx 6rpx;
+  background: #a33b2b;
+  color: #fbf5e9;
+  font-size: 13rpx;
+}
+
+.rank-row__meta {
+  display: block;
+  margin-top: 1rpx;
+  font-size: 15rpx;
+  color: #72654f;
+}
+
+.rank-row__sessions {
+  flex: none;
+  text-align: right;
+}
+
+.rank-row__sessions-value {
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.rank-row__unit {
+  margin-left: 3rpx;
+  font-size: 15rpx;
+  color: #635846;
+}
+
+.rank-row.is-first {
+  border-bottom-color: rgba(251, 245, 233, 0.24);
+  background: #a33b2b;
+}
+
+.rank-row.is-first .rank-row__no {
+  font-size: 40rpx;
+  color: #fbf5e9;
+}
+
+.rank-row.is-first .rank-row__code {
+  color: #fbf5e9;
+}
+
+.rank-row.is-first .rank-row__meta {
+  color: rgba(251, 245, 233, 0.72);
+}
+
+.rank-row.is-first .rank-row__sessions-value {
+  font-size: 38rpx;
+  color: #fbf5e9;
+}
+
+.rank-row.is-first .rank-row__unit {
+  color: rgba(251, 245, 233, 0.72);
+}
+
+.rank-row.is-first .rank-row__tag {
+  background: #fbf5e9;
+  color: #873023;
+}
+
+.rank-row.is-me:not(.is-first) {
+  background: #f6ead8;
+  box-shadow: inset 4rpx 0 0 #a33b2b;
+}
+
+.rank-note {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #d9cbb6;
+}
+
+.rank-note__main {
+  font-family: "STSong", "Songti SC", "SimSun", serif;
+  font-size: 21rpx;
+  color: #635846;
+}
+
+.rank-note__mono {
+  flex: none;
+  font-size: 15rpx;
+  color: #8b7e68;
+}
+
+.logs-bottom {
+  height: calc(48rpx + env(safe-area-inset-bottom));
+}

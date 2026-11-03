@@ -1,0 +1,37 @@
+<view wx:if="{{!hidden}}" class="tabbar">
+  <view
+    wx:for="{{list}}"
+    wx:key="pagePath"
+    class="tabbar__item {{selected === index ? 'is-active' : ''}} {{item.center ? 'is-center' : ''}}"
+    data-index="{{index}}"
+    bindtap="onTap"
+  >
+    <block wx:if="{{item.center}}">
+      <view class="tabbar__scan">
+        <text class="tabbar__check">✓</text>
+      </view>
+      <text class="tabbar__label">{{item.text}}</text>
+    </block>
+
+    <block wx:else>
+      <view class="tabbar__icon tabbar__icon--{{item.icon}}">
+        <block wx:if="{{item.icon === 'home'}}">
+          <view class="home-cell"></view><view class="home-cell"></view>
+          <view class="home-cell"></view><view class="home-cell"></view>
+        </block>
+        <block wx:elif="{{item.icon === 'schedule'}}">
+          <view class="cal-top"></view>
+          <view class="cal-dot"></view><view class="cal-dot"></view>
+        </block>
+        <block wx:elif="{{item.icon === 'archive'}}">
+          <view class="bar bar--1"></view><view class="bar bar--2"></view><view class="bar bar--3"></view>
+        </block>
+        <block wx:else>
+          <view class="person-head"></view>
+          <view class="person-body"></view>
+        </block>
+      </view>
+      <text class="tabbar__label">{{item.text}}</text>
+    </block>
+  </view>
+</view>

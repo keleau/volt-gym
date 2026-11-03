@@ -1,0 +1,88 @@
+<view class="page invite-page">
+  <scroll-view class="invite-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
+    <view class="invite-hero" style="padding-top:{{nav.statusBarHeight}}px">
+      <view class="invite-top">
+        <view class="invite-brand display">VOLT<text class="invite-brand__slash">///</text></view>
+        <view class="invite-top__actions" style="margin-right:{{nav.capsuleGap}}px">
+          <button class="invite-share" open-type="share" hover-class="invite-share--hover">分享</button>
+          <view class="invite-close" bindtap="onBack" hover-class="invite-close--hover">
+            <view class="invite-close__line"></view>
+            <view class="invite-close__line invite-close__line--two"></view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{invite}}" class="invite-copy">
+        <text class="invite-eyebrow">好友邀请</text>
+        <view class="invite-title">
+          <text>朋友喊你</text>
+          <view><text class="invite-title__hl">来通电</text><text>。</text></view>
+        </view>
+        <view class="invite-from">
+          <view class="invite-from__dot"></view>
+          <text>来自 {{invite.inviterName}} 的邀请</text>
+        </view>
+        <view class="invite-current"><view class="current-line"></view></view>
+        <text wx:if="{{invite.isSelf}}" class="invite-self">这是你的邀请链接，转发给朋友吧</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="invite-loading">
+      <view class="loading"><view class="loading__bar"></view><text>正在打开邀请</text></view>
+    </view>
+
+    <view wx:elif="{{error}}" class="invite-error wrap">
+      <view class="empty">
+        <view class="empty__icon">!</view>
+        <text class="empty__title">{{error}}</text>
+        <text class="empty__desc">邀请可能已失效</text>
+        <button class="empty__btn" bindtap="onRetry">重新加载</button>
+      </view>
+    </view>
+
+    <block wx:else>
+      <view class="invite-body">
+        <view class="invite-program card">
+          <image class="invite-program__img" src="{{program.image}}" mode="aspectFill"></image>
+          <view class="invite-program__info">
+            <text class="invite-program__en">{{program.en}}</text>
+            <text class="invite-program__name">{{program.name}}</text>
+            <text class="invite-program__desc">{{program.desc}}</text>
+            <text class="invite-program__meta">{{program.meta.intensity}} · {{program.meta.duration}} · {{program.meta.kcal}}</text>
+          </view>
+        </view>
+
+        <view class="invite-offer card">
+          <view class="invite-offer__top">
+            <view>
+              <text class="invite-offer__label">首次体验</text>
+              <view class="invite-offer__price"><text class="invite-offer__currency">¥</text><text class="invite-offer__num">{{invite.trialPrice}}</text></view>
+            </view>
+            <text class="tag tag--acid">体验课</text>
+          </view>
+          <text class="invite-offer__title">先练一次，再说。</text>
+
+          <view class="invite-benefits">
+            <view wx:for="{{invite.benefits}}" wx:key="*this" class="invite-benefit">
+              <view class="invite-benefit__check">✓</view>
+              <text>{{item}}</text>
+            </view>
+          </view>
+
+          <button class="btn btn--primary btn--block invite-offer__btn" bindtap="onClaim" disabled="{{claiming}}">{{claiming ? '正在绑定…' : (canBind ? '领取体验课' : '去选课')}}</button>
+          <text wx:if="{{accepted}}" class="invite-offer__note">邀请已绑定 · 可在「我的」查看邀请记录</text>
+          <text wx:else class="invite-offer__note">首次到店 · 三店通用 · 30 天内有效</text>
+        </view>
+
+      </view>
+
+      <view class="invite-bottom"></view>
+    </block>
+  </scroll-view>
+
+  <volt-login
+    visible="{{loginVisible}}"
+    bind:success="onLoginSuccess"
+    bind:cancel="onLoginCancel"
+  ></volt-login>
+</view>

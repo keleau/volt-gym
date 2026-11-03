@@ -1,0 +1,156 @@
+<view class="page checkin">
+  <volt-nav placeholder="{{false}}" title="进场"></volt-nav>
+
+  <scroll-view class="ci-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{scrollTop}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view class="ci-head wrap">
+      <view class="ci-head__kicker mono"><view class="ci-head__node"></view>CHECK IN / 到店盖章</view>
+      <text class="ci-heading serif">到店进场</text>
+      <text class="ci-sub">扫描前台场馆码，把今天盖进本子里。</text>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载</text></view>
+
+    <block wx:else>
+      <view class="scan-card card">
+        <view class="scan-card__icon">
+          <view class="scan-frame">
+            <view class="scan-frame__c scan-frame__c--tl"></view>
+            <view class="scan-frame__c scan-frame__c--tr"></view>
+            <view class="scan-frame__c scan-frame__c--bl"></view>
+            <view class="scan-frame__c scan-frame__c--br"></view>
+            <view class="scan-frame__line"></view>
+          </view>
+        </view>
+        <text class="scan-card__title serif">到店盖章</text>
+        <text class="scan-card__desc">扫描前台场馆码，核销课时并记录训练</text>
+        <button class="btn btn--primary btn--block scan-card__btn" bindtap="onScan">开始扫码</button>
+        <text class="scan-card__alt" bindtap="onSimulate">手动选择场馆</text>
+      </view>
+
+      <view class="ci-section wrap">
+        <view class="ci-section__head">
+          <text class="ci-section__title">今日课程</text>
+          <text class="ci-section__aside">{{todayBooking ? '待核销' : todayRecord ? '已签到' : '暂无'}}</text>
+        </view>
+
+        <view wx:if="{{todayBooking}}" class="today-card card">
+          <view class="today-card__top">
+            <text class="today-card__time">{{todayBooking.time}}</text>
+            <text class="today-card__end">{{todayBooking.endTime}}</text>
+            <text class="tag tag--acid">待核销</text>
+          </view>
+          <text class="today-card__name">{{todayBooking.programName}}</text>
+          <text class="today-card__meta">{{todayBooking.coach}} · {{todayBooking.venueName}}</text>
+          <text class="today-card__hint">到馆后扫描前台场馆码完成核销</text>
+        </view>
+
+        <view wx:elif="{{todayRecord}}" class="today-card card">
+          <view class="today-card__top">
+            <text class="today-card__time">{{todayRecord.time}}</text>
+            <text class="tag tag--paper">已签到</text>
+          </view>
+          <text class="today-card__name">{{todayRecord.programName}}</text>
+          <text class="today-card__meta">{{todayRecord.venueName}} · {{todayRecord.kcal}} kcal</text>
+          <text class="today-card__hint" bindtap="onGoArchive">查看训练档案 ›</text>
+        </view>
+
+        <view wx:else class="today-card today-card--empty card">
+          <text class="today-card__empty-title">今天没有待核销课程</text>
+          <text class="today-card__hint">也可以先约一节课，到店后再签到。</text>
+          <button class="btn btn--ghost today-card__empty-btn" bindtap="onGoBook">去约课</button>
+        </view>
+      </view>
+
+      <view class="ci-foot wrap">
+        <text class="ci-foot__note serif">进场即核销 · 次卡按次扣减</text>
+        <text class="ci-foot__phone" bindtap="onGoArchive">查看训练记录 →</text>
+      </view>
+    </block>
+  </scroll-view>
+
+  <view wx:if="{{phase === 'checking'}}" class="process">
+    <view class="process__panel">
+      <view class="process__icon">
+        <view class="scan-frame">
+          <view class="scan-frame__c scan-frame__c--tl"></view>
+          <view class="scan-frame__c scan-frame__c--tr"></view>
+          <view class="scan-frame__c scan-frame__c--bl"></view>
+          <view class="scan-frame__c scan-frame__c--br"></view>
+          <view class="scan-frame__line"></view>
+        </view>
+      </view>
+      <text class="process__title">正在核销</text>
+      <text class="process__venue">{{checkVenue.name}} · {{checkingCode}}</text>
+      <view class="process__steps">
+        <view class="process__step {{checkStage >= 0 ? 'is-done' : ''}}">读取场馆码</view>
+        <view class="process__step {{checkStage >= 1 ? 'is-done' : ''}}">{{checkStage === 1 ? '正在校验位置' : '校验到店位置'}}</view>
+        <view class="process__step {{checkStage >= 2 ? 'is-done' : ''}}">{{checkStage === 2 ? '正在写入档案' : '核销课时与记录'}}</view>
+      </view>
+      <text class="process__note">请保持页面打开</text>
+    </view>
+  </view>
+
+  <view wx:if="{{phase === 'success' && success}}" class="success">
+    <scroll-view scroll-y class="success__scroll" enhanced show-scrollbar="{{false}}">
+      <view class="success__inner" style="padding-top:{{nav.statusBarHeight + 16}}px">
+        <view class="success__top" style="padding-right:{{nav.capsuleGap}}px">
+          <view class="success__brand display">VOLT<text class="success__slash">///</text></view>
+          <view class="success__close" bindtap="onCloseSuccess" hover-class="success__close--hover">
+            <view class="success__close-line"></view>
+            <view class="success__close-line success__close-line--two"></view>
+          </view>
+        </view>
+
+        <view class="success__stamp">
+          <view class="success__stamp-inner">
+            <text class="success__stamp-top mono">VOLT GYM</text>
+            <text class="success__stamp-main serif">已进场</text>
+            <text class="success__stamp-bottom mono">{{success.record.time}} / {{success.record.venueName}}</text>
+          </view>
+        </view>
+        <view class="success__kicker mono">CIRCUIT CLOSED / 电流已接通</view>
+        <text class="success__title serif">电流已接通</text>
+        <text class="success__sub">
+          {{success.mode === 'already' ? '今天已经完成签到' : success.mode === 'free' ? '自由训练已记录，未消耗次卡' : '课时已核销，训练档案已更新'}}
+        </text>
+
+        <view class="success__card card">
+          <view class="success__card-top">
+            <text class="success__card-label">本次训练</text>
+            <text class="success__card-kcal">{{success.record.kcal}} kcal</text>
+          </view>
+          <text class="success__card-name">{{success.record.programName}}</text>
+          <text class="success__card-meta">{{success.record.time}} · {{success.record.venueName}} · {{success.record.coach}}</text>
+          <view class="success__grid">
+            <view class="success__cell">
+              <text class="success__cell-label">消耗</text>
+              <text class="success__cell-value">{{success.mode === 'class' ? '1 次' : '0 次'}}</text>
+            </view>
+            <view class="success__cell">
+              <text class="success__cell-label">剩余</text>
+              <text class="success__cell-value">{{success.member.credits}} 次</text>
+            </view>
+            <view class="success__cell">
+              <text class="success__cell-label">时长</text>
+              <text class="success__cell-value">{{success.record.durationMin}} 分钟</text>
+            </view>
+          </view>
+          <text class="success__location">{{success.locationLabel}}</text>
+        </view>
+
+        <view class="success__week">
+          <text>本周第 {{success.stats.weekSessions || 0}} 次训练</text>
+          <text>本周 {{success.stats.weekKcal || 0}} kcal</text>
+        </view>
+
+        <view class="success__actions">
+          <button class="btn btn--primary btn--block" bindtap="onGoArchive">查看训练档案</button>
+          <button class="btn btn--ghost btn--block" open-type="share">分享给好友</button>
+        </view>
+        <text class="success__note">VOLT 电压健身 · 广州三店</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

@@ -1,0 +1,24 @@
+<view wx:if="{{rendered}}" class="vsheet {{active ? 'is-active' : ''}}" catchtouchmove="noop">
+  <view class="vsheet__mask" bindtap="onMask"></view>
+  <view class="vsheet__panel" style="max-height:{{maxHeight}}">
+    <view class="vsheet__rule"></view>
+    <view class="vsheet__grip"></view>
+
+    <view wx:if="{{title}}" class="vsheet__head">
+      <view class="vsheet__head-main">
+        <text wx:if="{{eyebrow}}" class="vsheet__eyebrow mono">{{eyebrow}}</text>
+        <text class="vsheet__title">{{title}}</text>
+        <text wx:if="{{subtitle}}" class="vsheet__subtitle">{{subtitle}}</text>
+      </view>
+      <view wx:if="{{closable}}" class="vsheet__close" bindtap="close" hover-class="vsheet__close--hover">
+        <view class="vsheet__close-line"></view>
+        <view class="vsheet__close-line vsheet__close-line--two"></view>
+      </view>
+    </view>
+
+    <scroll-view scroll-y class="vsheet__body" enhanced show-scrollbar="{{false}}">
+      <slot></slot>
+      <view class="vsheet__safe"></view>
+    </scroll-view>
+  </view>
+</view>
