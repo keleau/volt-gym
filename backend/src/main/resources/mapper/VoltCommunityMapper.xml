@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltCommunityMapper">
+
+    <sql id="eventColumns">
+        event_id, title, day_text, month_text, tag_text, desc_text, time_text,
+        event_date, venue_code, venue_name, cap_count, signed_count, sort_order
+    </sql>
+
+    <select id="findEvents" resultType="communityEvent">
+        SELECT <include refid="eventColumns"/>
+        FROM volt_event
+        ORDER BY sort_order, event_id
+    </select>
+
+    <select id="findEvent" resultType="communityEvent">
+        SELECT <include refid="eventColumns"/>
+        FROM volt_event
+        WHERE event_id = #{eventId}
+    </select>
+
+    <update id="increaseEventSigned">
+        UPDATE volt_event
+        SET signed_count = signed_count + 1
+        WHERE event_id = #{eventId}
+          AND signed_count &lt; cap_count
+    </update>
+
+    <select id="findSignup" resultType="eventSignup">
+        SELECT signup_id, event_id, member_id, member_name, member_phone, signup_no, created_at
+        FROM volt_event_signup
+        WHERE event_id = #{eventId}
+          AND member_phone = #{phone}
+        LIMIT 1
+    </select>
+
+    <select id="findSignedEventIds" resultType="string">
+        SELECT event_id
+        FROM volt_event_signup
+        WHERE member_phone = #{phone}
+    </select>
+
+    <insert id="insertSignup" parameterType="eventSignup">
+        INSERT INTO volt_event_signup
+        (signup_id, event_id, member_id, member_name, member_phone, signup_no, created_at)
+        VALUES
+        (#{signupId}, #{eventId}, #{memberId}, #{memberName}, #{memberPhone}, #{signupNo}, #{createdAt})
+    </insert>
+
+    <select id="findCurrentChallenge" resultType="challenge">
+        SELECT challenge_id, title, desc_text, target_sessions, days, joined_count,
+               percent, week_start, status
+        FROM volt_challenge
+        WHERE status = 'active'
+        ORDER BY week_start DESC
+        LIMIT 1
+    </select>
+
+    <select id="findChallenge" resultType="challenge">
+        SELECT challenge_id, title, desc_text, target_sessions, days, joined_count,
+               percent, week_start, status
+        FROM volt_challenge
+        WHERE challenge_id = #{challengeId}
+    </select>
+
+    <select id="findChallengeJoin" resultType="challengeJoin">
+        SELECT join_id, challenge_id, member_id, member_phone, member_no, created_at
+        FROM volt_challenge_join
+        WHERE challenge_id = #{challengeId}
+          AND member_phone = #{phone}
+        LIMIT 1
+    </select>
+
+    <insert id="insertChallengeJoin" parameterType="challengeJoin">
+        INSERT INTO volt_challenge_join
+        (join_id, challenge_id, member_id, member_phone, member_no, created_at)
+        VALUES
+        (#{joinId}, #{challengeId}, #{memberId}, #{memberPhone}, #{memberNo}, #{createdAt})
+    </insert>
+
+    <update id="increaseChallengeJoined">
+        UPDATE volt_challenge
+        SET joined_count = joined_count + 1
+        WHERE challenge_id = #{challengeId}
+    </update>
+
+</mapper>

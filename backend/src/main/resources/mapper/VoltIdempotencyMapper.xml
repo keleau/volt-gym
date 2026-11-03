@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltIdempotencyMapper">
+
+    <select id="findResponse" resultType="string">
+        SELECT response_json
+        FROM volt_idempotency
+        WHERE idempotency_key = #{idempotencyKey}
+          AND endpoint = #{endpoint}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO volt_idempotency (idempotency_key, endpoint, response_json, created_at)
+        VALUES (#{idempotencyKey}, #{endpoint}, #{responseJson}, #{createdAt})
+    </insert>
+
+</mapper>

@@ -1,0 +1,24 @@
+# 依赖与构建产物
+node_modules/
+dist/
+target/
+*.class
+
+# 日志与本地运行
+*.log
+dev-server.log
+run.log
+
+# 环境变量（示例文件除外）
+.env
+.env.*
+!.env.example
+
+# IDE / 工具
+.idea/
+.vscode/
+.DS_Store
+*.iml
+
+# 微信开发者工具本地配置
+miniprogram/project.private.config.json

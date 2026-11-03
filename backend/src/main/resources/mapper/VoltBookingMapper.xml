@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltBookingMapper">
+
+    <sql id="columns">
+        booking_id, order_no, entry_code, member_id, session_id, status, seat_no,
+        lock_expires_at, reminder_opt_in, source, plan_code, plan_name, amount,
+        member_name, member_phone, created_at
+    </sql>
+
+    <select id="findById" resultType="booking">
+        SELECT <include refid="columns"/>
+        FROM volt_booking
+        WHERE booking_id = #{bookingId}
+    </select>
+
+    <select id="countByOrderNo" resultType="int">
+        SELECT COUNT(*) FROM volt_booking WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="findActiveByPhoneAndSession" resultType="booking">
+        SELECT <include refid="columns"/>
+        FROM volt_booking
+        WHERE member_phone = #{phone}
+          AND session_id = #{sessionId}
+          AND status IN ('locked', 'confirmed')
+        LIMIT 1
+        FOR UPDATE
+    </select>
+
+    <select id="findActiveByMemberAndSession" resultType="booking">
+        SELECT <include refid="columns"/>
+        FROM volt_booking
+        WHERE member_id = #{memberId}
+          AND session_id = #{sessionId}
+          AND status IN ('locked', 'confirmed')
+        LIMIT 1
+        FOR UPDATE
+    </select>
+
+    <select id="findByMember" resultType="booking">
+        SELECT <include refid="columns"/>
+        FROM volt_booking
+        WHERE member_id = #{memberId}
+        ORDER BY created_at DESC, booking_id DESC
+    </select>
+
+    <select id="findByPhone" resultType="booking">
+        SELECT <include refid="columns"/>
+        FROM volt_booking
+        WHERE member_phone = #{phone}
+        ORDER BY created_at DESC, booking_id DESC
+    </select>
+
+    <insert id="insert" parameterType="booking" useGeneratedKeys="false">
+        INSERT INTO volt_booking
+        (booking_id, order_no, entry_code, member_id, session_id, status, seat_no,
+         lock_expires_at, reminder_opt_in, source, plan_code, plan_name, amount,
+         member_name, member_phone, created_at)
+        VALUES
+        (#{bookingId}, #{orderNo}, #{entryCode}, #{memberId}, #{sessionId}, #{status}, #{seatNo},
+         #{lockExpiresAt}, #{reminderOptIn}, #{source}, #{planCode}, #{planName}, #{amount},
+         #{memberName}, #{memberPhone}, #{createdAt})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE volt_booking
+        SET status = #{status}
+        WHERE booking_id = #{bookingId}
+    </update>
+
+    <update id="confirm">
+        UPDATE volt_booking
+        SET status = 'confirmed', lock_expires_at = NULL
+        WHERE booking_id = #{bookingId}
+    </update>
+
+    <update id="confirmIfLocked">
+        UPDATE volt_booking
+        SET status = 'confirmed', lock_expires_at = NULL
+        WHERE booking_id = #{bookingId}
+          AND status = 'locked'
+    </update>
+
+    <update id="cancel">
+        UPDATE volt_booking
+        SET status = 'cancelled', lock_expires_at = NULL
+        WHERE booking_id = #{bookingId}
+    </update>
+
+    <update id="cancelIfActive">
+        UPDATE volt_booking
+        SET status = 'cancelled', lock_expires_at = NULL
+        WHERE booking_id = #{bookingId}
+          AND status IN ('locked', 'confirmed')
+    </update>
+
+    <update id="markCheckedIn">
+        UPDATE volt_booking
+        SET status = 'checked-in'
+        WHERE booking_id = #{bookingId}
+    </update>
+
+    <update id="markCheckedInIfConfirmed">
+        UPDATE volt_booking
+        SET status = 'checked-in'
+        WHERE booking_id = #{bookingId}
+          AND status = 'confirmed'
+    </update>
+
+</mapper>

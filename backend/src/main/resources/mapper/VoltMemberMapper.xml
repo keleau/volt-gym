@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltMemberMapper">
+
+    <sql id="memberColumns">
+        member_id, member_no, nickname, phone, phone_bound, avatar_url, openid, unionid, goal,
+        height_cm, weight_kg, credits, credits_total, plan_code, plan_name, expires_at, tier,
+        referral_code, joined_at
+    </sql>
+
+    <select id="findById" resultType="voltMember">
+        SELECT <include refid="memberColumns"/>
+        FROM volt_member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="findByPhone" resultType="voltMember">
+        SELECT <include refid="memberColumns"/>
+        FROM volt_member
+        WHERE phone = #{phone}
+    </select>
+
+    <select id="findByOpenid" resultType="voltMember">
+        SELECT <include refid="memberColumns"/>
+        FROM volt_member
+        WHERE openid = #{openid}
+    </select>
+
+    <insert id="insert" parameterType="voltMember">
+        INSERT INTO volt_member
+        (member_id, member_no, nickname, phone, phone_bound, avatar_url, openid, unionid, goal, height_cm, weight_kg,
+         credits, credits_total, plan_code, plan_name, expires_at, tier, referral_code, joined_at)
+        VALUES
+        (#{memberId}, #{memberNo}, #{nickname}, #{phone}, #{phoneBound}, #{avatarUrl}, #{openid}, #{unionid},
+         #{goal}, #{heightCm}, #{weightKg}, #{credits}, #{creditsTotal}, #{planCode}, #{planName},
+         #{expiresAt}, #{tier}, #{referralCode}, #{joinedAt})
+    </insert>
+
+    <update id="updateProfile" parameterType="voltMember">
+        UPDATE volt_member
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="goal != null">goal = #{goal},</if>
+            <if test="heightCm != null">height_cm = #{heightCm},</if>
+            <if test="weightKg != null">weight_kg = #{weightKg},</if>
+        </set>
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updatePhone">
+        UPDATE volt_member
+        SET phone = #{phone}, phone_bound = 1
+        WHERE member_id = #{memberId}
+    </update>
+
+    <insert id="insertToken" parameterType="voltToken">
+        INSERT INTO volt_token (token, member_id, expires_at, created_at)
+        VALUES (#{token}, #{memberId}, #{expiresAt}, #{createdAt})
+    </insert>
+
+    <select id="findToken" resultType="voltToken">
+        SELECT token, member_id, expires_at, created_at
+        FROM volt_token
+        WHERE token = #{token}
+    </select>
+
+    <insert id="insertOtp" parameterType="voltOtp">
+        INSERT INTO volt_otp (phone, code, purpose, expires_at, consumed, created_at)
+        VALUES (#{phone}, #{code}, #{purpose}, #{expiresAt}, #{consumed}, #{createdAt})
+    </insert>
+
+    <select id="findLatestOtp" resultType="voltOtp">
+        SELECT id, phone, code, purpose, expires_at, consumed, attempts, created_at
+        FROM volt_otp
+        WHERE phone = #{phone}
+          AND purpose = #{purpose}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <update id="consumeOtpIfUnused">
+        UPDATE volt_otp SET consumed = 1 WHERE id = #{id} AND consumed = 0
+    </update>
+
+    <update id="consumeOtp">
+        UPDATE volt_otp SET consumed = 1 WHERE id = #{id}
+    </update>
+
+    <update id="increaseOtpAttempts">
+        UPDATE volt_otp SET attempts = attempts + 1 WHERE id = #{id}
+    </update>
+
+</mapper>

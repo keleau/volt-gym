@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltCatalogMapper">
+
+    <select id="findVenues" resultType="venue">
+        SELECT venue_code, venue_name, venue_en, address, metro, hours, image_url,
+               latitude, longitude, sort_order
+        FROM volt_venue
+        ORDER BY sort_order, venue_code
+    </select>
+
+    <select id="findVenue" resultType="venue">
+        SELECT venue_code, venue_name, venue_en, address, metro, hours, image_url,
+               latitude, longitude, sort_order
+        FROM volt_venue
+        WHERE venue_code = #{venueCode}
+    </select>
+
+    <select id="countTodaySlots" resultType="int">
+        SELECT COUNT(*)
+        FROM volt_session
+        WHERE venue_code = #{venueCode}
+          AND session_date = #{date}
+          AND status = 'open'
+          AND booked &lt; capacity
+          AND start_time &gt; #{now}
+    </select>
+
+    <select id="findPrograms" resultType="program">
+        SELECT program_no, program_name, program_en, program_desc, intensity,
+               duration_min, kcal, image_url, sort_order
+        FROM volt_program
+        ORDER BY sort_order, program_no
+    </select>
+
+    <select id="findProgram" resultType="program">
+        SELECT program_no, program_name, program_en, program_desc, intensity,
+               duration_min, kcal, image_url, sort_order
+        FROM volt_program
+        WHERE program_no = #{programNo}
+    </select>
+
+    <select id="findPlans" resultType="plan">
+        SELECT plan_code, plan_name, plan_en, price, unit_text, featured,
+               points_json, cta_text, sort_order
+        FROM volt_plan
+        ORDER BY sort_order, plan_code
+    </select>
+
+    <select id="findPlan" resultType="plan">
+        SELECT plan_code, plan_name, plan_en, price, unit_text, featured,
+               points_json, cta_text, sort_order
+        FROM volt_plan
+        WHERE plan_code = #{planCode}
+    </select>
+
+    <select id="findCoaches" resultType="coach">
+        SELECT coach_id, coach_name, title_text, avatar_url, bio, program_no, venue_codes
+        FROM volt_coach
+        ORDER BY coach_id
+    </select>
+
+    <select id="findCoach" resultType="coach">
+        SELECT coach_id, coach_name, title_text, avatar_url, bio, program_no, venue_codes
+        FROM volt_coach
+        WHERE coach_id = #{coachId}
+    </select>
+
+</mapper>

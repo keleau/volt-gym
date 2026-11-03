@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltSessionMapper">
+
+    <sql id="columns">
+        session_id, session_code, session_date, start_time, end_time,
+        venue_code, program_no, coach_id, capacity, booked, status
+    </sql>
+
+    <select id="findByDateVenueProgram" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_date = #{date}
+          AND venue_code = #{venueCode}
+          AND program_no = #{programNo}
+          AND status = 'open'
+        ORDER BY start_time
+    </select>
+
+    <select id="findByDate" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_date = #{date}
+          AND status = 'open'
+        ORDER BY start_time, session_code
+    </select>
+
+    <select id="findBetween" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_date BETWEEN #{from} AND #{to}
+          AND status = 'open'
+        ORDER BY session_date, start_time, session_code
+    </select>
+
+    <select id="findFiltered" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        <where>
+            status = 'open'
+            <if test="date != null">
+                AND session_date = #{date}
+            </if>
+            <if test="date == null and from != null">
+                AND session_date &gt;= #{from}
+            </if>
+            <if test="date == null and to != null">
+                AND session_date &lt;= #{to}
+            </if>
+            <if test="venueCode != null">
+                AND venue_code = #{venueCode}
+            </if>
+            <if test="coachId != null">
+                AND coach_id = #{coachId}
+            </if>
+            <if test="programNo != null">
+                AND program_no = #{programNo}
+            </if>
+        </where>
+        ORDER BY session_date, start_time, session_code
+    </select>
+
+    <select id="findById" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <select id="findByIdForUpdate" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_id = #{sessionId}
+        FOR UPDATE
+    </select>
+
+    <select id="findFirstOpen" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE session_date = #{date}
+          AND venue_code = #{venueCode}
+          AND program_no = #{programNo}
+          AND status = 'open'
+          AND booked &lt; capacity
+          AND (session_date &gt; #{today} OR start_time &gt; #{now})
+        ORDER BY start_time
+        LIMIT 1
+    </select>
+
+    <select id="findNextByCoach" resultType="voltSession">
+        SELECT <include refid="columns"/>
+        FROM volt_session
+        WHERE coach_id = #{coachId}
+          AND status = 'open'
+          AND session_date &gt;= #{from}
+          AND (session_date &gt; #{from} OR start_time &gt; #{now})
+        ORDER BY session_date, start_time
+        LIMIT 1
+    </select>
+
+    <update id="increaseBooked">
+        UPDATE volt_session
+        SET booked = booked + 1
+        WHERE session_id = #{sessionId}
+          AND status = 'open'
+          AND booked &lt; capacity
+    </update>
+
+    <update id="decreaseBooked">
+        UPDATE volt_session
+        SET booked = GREATEST(booked - 1, 0)
+        WHERE session_id = #{sessionId}
+    </update>
+
+</mapper>
