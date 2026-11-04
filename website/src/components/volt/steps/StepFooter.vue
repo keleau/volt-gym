@@ -45,7 +45,7 @@
           <div class="pass-phone" aria-hidden="true">
             <img
               class="pp-img"
-              src="/images/mini-screen-home.jpg"
+              src="/images/mini-screen-home.png"
               alt=""
               loading="lazy"
               decoding="async"
