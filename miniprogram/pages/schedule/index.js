@@ -60,15 +60,27 @@ Page({
   },
 
   onShow() {
+    this._visible = true
     tab.select(this, 1)
     tab.setHidden(this, false)
     const app = getApp()
     if (app.globalData.schedulePreset) {
-      const preset = app.globalData.schedulePreset
+      this.pendingPreset = Object.assign({}, this.pendingPreset, app.globalData.schedulePreset)
       app.globalData.schedulePreset = null
-      if (this.loadedOnce) this.applyPreset(preset)
-      else this.pendingPreset = Object.assign({}, this.pendingPreset, preset)
     }
+    if (this.loadedOnce) {
+      // 等 Tab 首帧渲染完成再静默刷新，避免渲染层收到错位的数据版本。
+      setTimeout(() => {
+        if (this._alive && this._visible) this.load(true)
+      }, 120)
+    }
+  },
+
+  onHide() {
+    this._visible = false
+    this.stopLockTicker()
+    if (this.data.sheetVisible) this.setData({ sheetVisible: false })
+    tab.setHidden(this, false)
   },
 
   onHide() {
@@ -82,12 +94,14 @@ Page({
     this.stopLockTicker()
   },
 
-  load() {
-    this.setData({ loading: true })
+  load(silent) {
+    const token = (this.loadToken || 0) + 1
+    this.loadToken = token
+    if (!silent) this.setData({ loading: true })
     return api.schedule
       .get()
       .then((data) => {
-        if (!this._alive) return
+        if (!this._alive || token !== this.loadToken) return
         this.loadedOnce = true
         this.allSessions = data.sessions || []
         this.allDays = data.days || []
@@ -99,43 +113,39 @@ Page({
           programs: data.programs || [],
           member: data.member || { credits: 0 },
         })
-        const preset = Object.assign({}, this.pendingPreset || {})
+        const hasPreset = this.pendingPreset && Object.keys(this.pendingPreset).length > 0
+        const current = {
+          venueCode: this.data.selectedVenueCode,
+          mode: this.data.mode,
+          coachId: this.data.selectedCoachId,
+          date: this.data.selectedDate,
+          programNo: this.data.programNo,
+        }
+        const selection = hasPreset ? this.pendingPreset : current
         this.pendingPreset = null
         const lastVenue = wx.getStorageSync(volt.lastVenueKey)
-        let venueCode = preset.venueCode || lastVenue || ''
+        let venueCode = selection.venueCode || (this.venueListMode ? '' : lastVenue) || ''
         if (!this.data.venues.some((venue) => venue.code === venueCode)) venueCode = ''
-        if (preset.sessionId) this.openPresetSession(preset.sessionId, preset)
-        else if (venueCode) this.selectVenueByCode(venueCode, preset)
+        if (selection.sessionId) this.openPresetSession(selection.sessionId, selection)
+        else if (venueCode) this.selectVenueByCode(venueCode, selection)
         else this.chooseVenueState()
       })
       .catch((error) => {
-        if (!this._alive) return
+        if (!this._alive || token !== this.loadToken) return
         this.setData({ loading: false })
         wx.showToast({ title: format.errorText(error), icon: 'none' })
       })
   },
 
-  applyPreset(preset) {
-    if (!preset) return
-    this.pendingPreset = Object.assign({}, preset)
-    if (!this.loadedOnce) return
-    if (preset.sessionId) {
-      this.openPresetSession(preset.sessionId, preset)
-      return
-    }
-    if (preset.venueCode) {
-      this.selectVenueByCode(preset.venueCode, preset)
-      return
-    }
-    if (this.data.selectedVenueCode) this.selectVenueByCode(this.data.selectedVenueCode, preset)
-  },
-
   chooseVenueState() {
+    this.venueListMode = true
     this.setData({
       selectedVenueCode: '',
       selectedVenue: null,
       selectedCoachId: '',
       selectedCoach: null,
+      selectedDate: '',
+      selectedDateLabel: '',
       programNo: '',
       programName: '',
       sessions: [],
@@ -170,13 +180,29 @@ Page({
   selectVenue(event) {
     const code = event.currentTarget.dataset.code
     if (!code) return
-    this.selectVenueByCode(code, {})
+    this.setData(
+      {
+        selectedDate: '',
+        selectedDateLabel: '',
+        selectedCoachId: '',
+        selectedCoach: null,
+        programNo: '',
+        programName: '',
+        sessions: [],
+        timeGroups: [],
+        dayViews: [],
+        venueCoaches: [],
+      },
+      () => this.selectVenueByCode(code, { mode: 'coach' }),
+    )
   },
 
   selectVenueByCode(code, preset) {
     const venue = this.data.venues.find((item) => item.code === code)
     if (!venue) return
+    this.venueListMode = false
     wx.setStorageSync(volt.lastVenueKey, code)
+    const sameVenue = code === this.data.selectedVenueCode
     const venueCoaches = this.buildCoachViews(code)
     const wantedCoach =
       preset && preset.coachId
@@ -188,13 +214,20 @@ Page({
     const program = programNo
       ? this.data.programs.find((item) => item.no === programNo)
       : null
-    const selectedDate = this.chooseDateFor(
-      code,
-      mode,
-      coachId,
-      preset && preset.date,
-      program ? programNo : '',
-    )
+    const preferredDate = preset && preset.date
+      ? preset.date
+      : sameVenue ? this.data.selectedDate : ''
+    const keepPreferredDate = preferredDate
+      && this.data.days.some((day) => day.iso === preferredDate)
+    const selectedDate = keepPreferredDate
+      ? preferredDate
+      : this.chooseDateFor(
+          code,
+          mode,
+          coachId,
+          preferredDate,
+          program ? programNo : '',
+        )
     this.setData(
       {
         selectedVenueCode: code,
@@ -250,13 +283,10 @@ Page({
         session.venueCode === venueCode &&
         !session.isPast &&
         (!programNo || session.programNo === programNo) &&
-        (mode !== 'coach' || (coachId && session.coachId === coachId)),
+        (mode !== 'coach' || !coachId || session.coachId === coachId),
     )
     if (preferredDate && list.some((session) => session.date === preferredDate)) {
       return preferredDate
-    }
-    if (this.data.selectedDate && list.some((session) => session.date === this.data.selectedDate)) {
-      return this.data.selectedDate
     }
     const first = list.sort((a, b) =>
       `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`),
@@ -306,9 +336,17 @@ Page({
     )
   },
 
-  changeCoach() {
-    this.setData({ selectedCoachId: '', selectedCoach: null, selectedDate: '' }, () =>
-      this.refreshView(),
+  clearCoach() {
+    const selectedDate = this.chooseDateFor(
+      this.data.selectedVenueCode,
+      'coach',
+      '',
+      this.data.selectedDate,
+      this.data.programNo,
+    )
+    this.setData(
+      { selectedCoachId: '', selectedCoach: null, selectedDate },
+      () => this.refreshView(),
     )
   },
 
@@ -327,7 +365,7 @@ Page({
           return
         }
         const venues = this.data.venues.map((venue) => {
-          const geoInfo = volt.venueGeo[venue.code]
+          const geoInfo = geo.venuePoint(venue.code, venue)
           if (!geoInfo) return venue
           const meters = geo.distanceMeters(location, geoInfo)
           return Object.assign({}, venue, {
@@ -495,7 +533,7 @@ Page({
     if (stillLocked) {
       wx.showToast({ title: '名额已锁定，10 分钟内可确认', icon: 'none' })
     }
-    if (state === 'confirmed' || state === 'waitlisted') this.load()
+    if (state === 'confirmed' || state === 'waitlisted') this.load(true)
   },
 
   onToggleReminder(event) {
@@ -515,7 +553,7 @@ Page({
         this.setData({ sheetVisible: false })
         tab.setHidden(this, false)
         wx.showToast({ title: '锁位超时，名额已释放', icon: 'none' })
-        this.load()
+        this.load(true)
         return
       }
       this.setData({ lockText: dateUtil.formatLock(remain) })
@@ -545,6 +583,10 @@ Page({
   onBook() {
     const session = this.data.selected
     if (!session || this.data.submitting) return
+    if (!this.data.member.phoneBound) {
+      this.goBindPhone()
+      return
+    }
     if (this.data.member.credits <= 0) {
       wx.showModal({
         title: '充电次数不足',
@@ -599,7 +641,7 @@ Page({
           wx.showToast({ title: '这一场已经约过', icon: 'none' })
           this.setData({ sheetVisible: false })
           tab.setHidden(this, false)
-          this.load()
+          this.load(true)
         } else if (error && (error.code === 'NO_CREDITS' || error.code === 'PASS_EXPIRED')) {
           this.setData({ sheetVisible: false })
           tab.setHidden(this, false)
@@ -751,6 +793,17 @@ Page({
               confirmColor: '#A33B2B',
             })
           })
+      },
+    })
+  },
+
+  goBindPhone() {
+    wx.showModal({
+      title: '先绑定手机号',
+      content: '绑定手机号后才能预约、购卡和进场。',
+      confirmText: '去绑定',
+      success: (res) => {
+        if (res.confirm) wx.navigateTo({ url: '/pages/bind-phone/index' })
       },
     })
   },

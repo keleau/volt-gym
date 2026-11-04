@@ -15,11 +15,11 @@ public final class CommunityContent {
             Map.of("value", "84,206", "label", "累计训练人次", "en", "WORKOUTS"));
 
     public static final List<Map<String, Object>> RANKING = List.of(
-            Map.of("no", "01", "code", "VOLT-0457", "sessions", 23, "minutes", 1720, "weeks", 6, "me", false),
-            Map.of("no", "02", "code", "VOLT-1120", "sessions", 21, "minutes", 1585, "weeks", 5, "me", false),
-            Map.of("no", "03", "code", "VOLT-0893", "sessions", 19, "minutes", 1460, "weeks", 5, "me", false),
-            Map.of("no", "04", "code", "VOLT-2008", "sessions", 17, "minutes", 1295, "weeks", 4, "me", false),
-            Map.of("no", "05", "code", "VOLT-3371", "sessions", 15, "minutes", 1180, "weeks", 4, "me", true));
+            Map.of("no", "01", "code", "VOLT-0457", "sessions", 23, "minutes", 1720, "weeks", 6),
+            Map.of("no", "02", "code", "VOLT-1120", "sessions", 21, "minutes", 1585, "weeks", 5),
+            Map.of("no", "03", "code", "VOLT-0893", "sessions", 19, "minutes", 1460, "weeks", 5),
+            Map.of("no", "04", "code", "VOLT-2008", "sessions", 17, "minutes", 1295, "weeks", 4),
+            Map.of("no", "05", "code", "VOLT-3371", "sessions", 15, "minutes", 1180, "weeks", 4));
 
     public static final List<Map<String, Object>> STORIES = List.of(
             Map.of("name", "阿 K", "role", "搏击教练 · 天河工场", "tag", "01",

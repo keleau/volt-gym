@@ -4,4 +4,10 @@ export { getMemberHome, sendOtp, verifyOtp } from './member.js'
 export { clearWebSession, getWebSession, saveWebSession } from './session.js'
 export { getAvailability, listPlans, listPrograms, listVenues } from './catalog.js'
 export { createBooking } from './bookings.js'
+export {
+  activateStaffCardOrder,
+  createCardOrder,
+  getMemberCardOrders,
+  getStaffCardOrders,
+} from './cards.js'
 export { joinChallenge, joinEvent, listCommunity } from './community.js'

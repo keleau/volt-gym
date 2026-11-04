@@ -16,7 +16,7 @@ Component({
       const index = Number(event.currentTarget.dataset.index)
       const item = this.data.list[index]
       if (!item) return
-      this.setData({ selected: index })
+      // 高亮交给目标页 onShow 里的 tab.select 更新，避免切 Tab 前对复用组件 setData。
       wx.switchTab({ url: item.pagePath })
     },
   },

@@ -84,6 +84,9 @@ public class VoltDataSeeder implements ApplicationRunner {
             throw new IllegalStateException("初始化 VOLT 库表失败", ex);
         }
         ensureMemberSchema();
+        // 旧库的 PLAN-01 还叫“首次接入包”，与官网体验课文案对齐。
+        jdbcTemplate.update("UPDATE volt_plan SET plan_name = '首次体验课', plan_en = 'FIRST TRIAL', "
+                + "unit_text = '单次' WHERE plan_code = 'PLAN-01'");
         int sessions = seedSessions();
         seedChallenge();
         seedDemoData();

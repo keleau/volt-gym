@@ -4,15 +4,18 @@
       :plans="pricingPlans"
       :selected="selectedPlan.code"
       :active="active"
-      :locked="memberActive"
       @select="selectPlan"
     />
+    <CardRegisterForm
+      v-if="selectedPlan.kind === 'card'"
+      :active="active"
+      :selected-plan="selectedPlan"
+    />
     <BookingForm
+      v-else
       :active="active"
       :preset="preset"
       :selected-plan="selectedPlan"
-      @select-plan="selectPlan"
-      @member-change="memberActive = $event"
     />
   </div>
 </template>
@@ -21,6 +24,7 @@
 import { ref, watch } from 'vue'
 import OfferPlans from '../offer/OfferPlans.vue'
 import BookingForm from '../offer/BookingForm.vue'
+import CardRegisterForm from '../offer/CardRegisterForm.vue'
 import { pricingPlans } from '../../../data/pricing.js'
 import { setSelection } from '../../../services/selection.js'
 
@@ -32,7 +36,6 @@ const props = defineProps({
 const selectedPlan = ref(
   pricingPlans.find((plan) => plan.code === props.preset.plan) || pricingPlans[0]
 )
-const memberActive = ref(false)
 
 function selectPlan(plan) {
   selectedPlan.value = plan
@@ -41,8 +44,6 @@ function selectPlan(plan) {
 watch(
   () => props.preset.plan,
   (code) => {
-    // 会员登录后价格由会员次卡接管，导航 CTA 不能把方案改回体验包。
-    if (memberActive.value) return
     const next = pricingPlans.find((plan) => plan.code === code)
     if (next) selectedPlan.value = next
   }

@@ -25,7 +25,10 @@ function mapFields(fields) {
   return mapped
 }
 
-export async function request(path, { method = 'GET', body, idempotencyKey, retryAnonymous = true } = {}) {
+export async function request(
+  path,
+  { method = 'GET', body, idempotencyKey, retryAnonymous = true, auth = true, headers = {} } = {}
+) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   let response
@@ -35,8 +38,9 @@ export async function request(path, { method = 'GET', body, idempotencyKey, retr
       headers: {
         Accept: 'application/json',
         ...(body ? { 'Content-Type': 'application/json' } : {}),
-        ...authHeaders(),
+        ...(auth ? authHeaders() : {}),
         ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+        ...headers,
       },
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
@@ -51,11 +55,11 @@ export async function request(path, { method = 'GET', body, idempotencyKey, retr
   }
 
   const data = await response.json().catch(() => null)
-  if (response.status === 401) {
+  if (response.status === 401 && auth) {
     clearWebSession()
     // 读取类请求清掉失效会话后按游客重试一次；写请求不重试，避免重复下单
     if (method === 'GET' && retryAnonymous) {
-      return request(path, { method, body, idempotencyKey, retryAnonymous: false })
+      return request(path, { method, body, idempotencyKey, retryAnonymous: false, auth })
     }
   }
 

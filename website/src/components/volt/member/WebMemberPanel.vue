@@ -2,7 +2,7 @@
   <section class="member-panel" :class="{ 'is-connected': Boolean(member), 'is-blocked': isBlocked }">
     <div class="member-top">
       <span class="member-kicker mono">MEMBER / 会员接入</span>
-      <span class="member-state mono">{{ member ? 'CONNECTED' : 'SIGN IN' }}</span>
+      <span class="member-state mono">{{ stateLabel }}</span>
     </div>
 
     <template v-if="member">
@@ -10,23 +10,30 @@
         <div class="member-id">
           <b>{{ member.nickname || 'VOLT 会员' }}</b>
           <span class="mono">
-            {{ member.planName || '按次充电' }} · 余 {{ member.credits }} 次 · 有效至 {{ member.expiresAt || '--' }}
+            {{ member.planName || '暂无次卡' }} · 余 {{ member.credits }} 次 · 有效至 {{ member.expiresAt || '--' }}
           </span>
         </div>
         <button type="button" class="member-link mono" @click="logout">退出</button>
       </div>
 
+      <p v-if="pendingCard" class="member-pending mono">
+        PENDING / {{ pendingCard.orderNo }} · {{ pendingCard.planName }} · 到店付款后开卡
+      </p>
       <p v-if="nextBooking" class="member-next mono">
         NEXT / {{ nextBooking.date }} {{ nextBooking.time }} · {{ nextBooking.programName }} · {{ nextBooking.venueName }}
       </p>
       <p v-if="error" class="member-error">{{ error }}</p>
       <p class="member-hint">
-        {{ isBlocked ? '次卡余额不足或已过期，暂不能预约。' : '预约不扣次，到店核销时扣 1 次；官网和小程序共用同一份余额。' }}
+        {{ memberHint }}
       </p>
+      <button type="button" class="member-mini" @click="$emit('mini')">
+        打开会员小程序
+        <span aria-hidden="true">→</span>
+      </button>
     </template>
 
     <template v-else>
-      <p class="member-help">登录后，官网预约会记入你的次卡，并与小程序共用会员资料。</p>
+      <p class="member-help">登录后查看会员卡、购卡登记和预约；约课请使用小程序。</p>
 
       <div class="member-form">
         <input
@@ -61,7 +68,7 @@
 
       <p v-if="devCode" class="member-dev mono">本地联调验证码：{{ devCode }}</p>
       <p v-if="error" class="member-error">{{ error }}</p>
-      <p class="member-hint">登录即认领同手机号的历史预约；短信通道未配置时使用联调验证码。</p>
+      <p class="member-hint">登录即认领同手机号的历史预约和购卡登记；短信通道未配置时使用联调验证码。</p>
     </template>
   </section>
 </template>
@@ -81,9 +88,10 @@ import { useCooldown } from '../../../composables/useCooldown.js'
 import { isMemberBlocked } from '../../../utils/member.js'
 import { isValidPhone, normalizePhone } from '../../../utils/phone.js'
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['change', 'mini'])
 const member = ref(null)
 const nextBooking = ref(null)
+const cardOrders = ref([])
 const phone = ref('')
 const code = ref('')
 const devCode = ref('')
@@ -95,7 +103,28 @@ const error = ref('')
 const allowDevCode = import.meta.env.DEV
 let suppressExpired = false
 
-const isBlocked = computed(() => isMemberBlocked(member.value))
+const pendingCard = computed(() =>
+  (cardOrders.value || []).find((order) => order.status === 'pending') || null
+)
+const isBlocked = computed(() => !pendingCard.value && isMemberBlocked(member.value))
+const hasActivePass = computed(() => Boolean(member.value) && !isMemberBlocked(member.value))
+const stateLabel = computed(() => {
+  if (!member.value) return 'SIGN IN'
+  if (hasActivePass.value) return 'CONNECTED'
+  return pendingCard.value ? 'PENDING' : 'NO PASS'
+})
+const memberHint = computed(() => {
+  if (pendingCard.value && hasActivePass.value) {
+    return '次卡已生效；另有一张购卡登记待到店付款开卡。'
+  }
+  if (pendingCard.value) {
+    return '购卡已登记，到店付款开卡后次数自动到账；开卡后在小程序约课。'
+  }
+  if (isBlocked.value) {
+    return '次卡已用完或已过期；可到店续卡，或先在小程序查看会员卡。'
+  }
+  return '次卡已生效；约课请使用小程序，官网和小程序共用同一份余额。'
+})
 
 function emitChange() {
   emit('change', { member: member.value, phone: phone.value })
@@ -110,6 +139,7 @@ function applySession(session) {
 function resetMember(message = '') {
   member.value = null
   nextBooking.value = null
+  cardOrders.value = []
   codeSent.value = false
   code.value = ''
   error.value = message
@@ -184,6 +214,7 @@ function refresh() {
       if (!home?.member) return
       member.value = home.member
       nextBooking.value = home.nextBooking || null
+      cardOrders.value = home.cardOrders || []
       saveWebSession({ ...session, member: home.member, phone: session.phone || phone.value })
       emitChange()
     })
@@ -301,6 +332,15 @@ defineExpose({ refresh })
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.member-pending {
+  margin: 7px 0 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--acid);
+  background: color-mix(in srgb, #F59E0B 12%, transparent);
+  font-size: 8px;
+  line-height: 1.5;
+  color: #7A3B00;
+}
 .member-link {
   flex: none;
   padding: 0;
@@ -378,4 +418,22 @@ defineExpose({ refresh })
 .is-blocked .member-hint {
   color: #8A3B00;
 }
+.member-mini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 9px;
+  padding: 8px 10px;
+  border: 1px solid #0D0B08;
+  background: #0D0B08;
+  color: var(--acid);
+  font-family: var(--font-cn);
+  font-size: 11px;
+  font-weight: 700;
+}
+.member-mini span { font-size: 16px; line-height: 1; }
+.member-mini:hover { background: #8A5200; border-color: #8A5200; color: #FFF7E6; }
 </style>

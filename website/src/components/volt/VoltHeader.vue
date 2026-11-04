@@ -23,6 +23,17 @@
       <div class="actions">
         <button
           type="button"
+          class="member-entry"
+          :aria-label="member ? '查看会员卡' : '会员登录'"
+          @click="$emit('member')"
+        >
+          <span class="member-entry__label">{{ member ? member.nickname || '会员' : '会员登录' }}</span>
+          <small v-if="member" class="mono">
+            {{ member.credits > 0 ? `余 ${member.credits} 次` : '查看会员卡' }}
+          </small>
+        </button>
+        <button
+          type="button"
           class="header-cta"
           @click="go(cta ?? steps.length - 1, { plan: 'PLAN-01' })"
         >
@@ -57,6 +68,13 @@
         </button>
         <button
           type="button"
+          class="btn drawer-member"
+          @click="openMember"
+        >
+          {{ member ? `${member.nickname || '会员'} · 查看会员卡` : '会员登录 / 会员卡' }}
+        </button>
+        <button
+          type="button"
           class="btn btn-acid drawer-cta"
           @click="go(cta ?? steps.length - 1, { plan: 'PLAN-01' })"
         >
@@ -77,13 +95,18 @@ const props = defineProps({
   active: { type: Number, default: 0 },
   activePage: { type: String, default: '' },
   cta: { type: Number, default: null },
+  member: { type: Object, default: null },
 })
-const emit = defineEmits(['go', 'community'])
+const emit = defineEmits(['go', 'community', 'member'])
 const menuOpen = ref(false)
 
 function go(index, payload) {
   menuOpen.value = false
   emit('go', index, payload)
+}
+function openMember() {
+  menuOpen.value = false
+  emit('member')
 }
 function isActive(item) {
   if (item.page) return props.activePage === 'community'
@@ -179,6 +202,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
 .actions { display: flex; align-items: center; gap: 12px; flex: none; }
 
+.member-entry {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid color-mix(in srgb, oldlace 26%, transparent);
+  background: transparent;
+  color: var(--paper);
+  transition: border-color .2s ease, color .2s ease;
+}
+.member-entry:hover { border-color: var(--acid); color: var(--acid); }
+.member-entry__label {
+  font-family: var(--font-cn);
+  font-size: 11px;
+  font-weight: 700;
+}
+.member-entry small {
+  font-size: 7px;
+  letter-spacing: .04em;
+  color: color-mix(in srgb, oldlace 58%, transparent);
+}
+.member-entry:hover small { color: var(--acid); }
+
 .header-cta {
   display: inline-flex;
   align-items: center;
@@ -234,6 +281,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 .drawer-item .label { font-family: var(--font-cn); font-size: 22px; font-weight: 900; }
 .drawer-item .en { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; opacity: .5; }
 .drawer-cta { width: 100%; margin-top: 18px; }
+.drawer-member {
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, oldlace 24%, transparent);
+  color: var(--paper);
+  text-align: left;
+  font-family: var(--font-cn);
+  font-size: 12px;
+  font-weight: 700;
+}
+.drawer-member:hover { border-color: var(--acid); color: var(--acid); }
 
 .drawer-enter-active,
 .drawer-leave-active { transition: opacity .18s ease, transform .18s ease; }
@@ -247,7 +306,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
 @media (max-width: 900px) {
   .nav,
-  .header-cta { display: none; }
+  .header-cta,
+  .member-entry { display: none; }
   .burger { display: block; }
   .drawer { display: block; }
   .brand { font-size: 26px; }

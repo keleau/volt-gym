@@ -29,6 +29,14 @@ public class VoltAuthController {
         return authService.sendOtp(text(body.get("phone")));
     }
 
+    @PostMapping("/phone/send")
+    public Map<String, Object> sendBindOtp(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        VoltMember member = authService.requireMember(authorization);
+        return authService.sendBindOtp(member, text(body.get("phone")));
+    }
+
     @PostMapping("/otp/verify")
     public Map<String, Object> verifyOtp(@RequestBody Map<String, Object> body) {
         return authService.verifyOtp(text(body.get("phone")), text(body.get("code")));
@@ -44,7 +52,7 @@ public class VoltAuthController {
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         VoltMember member = authService.requireMember(authorization);
-        return authService.linkPhone(member, text(body.get("phone")));
+        return authService.linkPhone(member, text(body.get("phone")), text(body.get("code")));
     }
 
     private String text(Object value) {

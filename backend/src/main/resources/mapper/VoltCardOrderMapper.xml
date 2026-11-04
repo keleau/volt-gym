@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gym.gymmanagementsystem.mapper.VoltCardOrderMapper">
+
+    <sql id="cardOrderColumns">
+        card_order_id, order_no, member_id, member_name, member_phone, plan_code, plan_name,
+        amount, credits, valid_days, venue_code, note, status, created_at, activated_at,
+        activated_by, applied_at
+    </sql>
+
+    <insert id="insert" parameterType="cardOrder">
+        INSERT INTO volt_card_order
+        (card_order_id, order_no, member_id, member_name, member_phone, plan_code, plan_name,
+         amount, credits, valid_days, venue_code, note, status, created_at)
+        VALUES
+        (#{cardOrderId}, #{orderNo}, #{memberId}, #{memberName}, #{memberPhone}, #{planCode}, #{planName},
+         #{amount}, #{credits}, #{validDays}, #{venueCode}, #{note}, #{status}, #{createdAt})
+    </insert>
+
+    <select id="findByOrderNo" resultType="cardOrder">
+        SELECT <include refid="cardOrderColumns"/>
+        FROM volt_card_order
+        WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="findByPhone" resultType="cardOrder">
+        SELECT <include refid="cardOrderColumns"/>
+        FROM volt_card_order
+        WHERE member_phone = #{phone}
+        ORDER BY created_at DESC
+        LIMIT 20
+    </select>
+
+    <select id="findForStaff" resultType="cardOrder">
+        SELECT <include refid="cardOrderColumns"/>
+        FROM volt_card_order
+        <where>
+            <if test="phone != null and phone != ''">
+                AND member_phone = #{phone}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT 50
+    </select>
+
+    <select id="findUnappliedForPhone" resultType="cardOrder">
+        SELECT <include refid="cardOrderColumns"/>
+        FROM volt_card_order
+        WHERE member_phone = #{phone}
+          AND status = 'activated'
+          AND applied_at IS NULL
+        ORDER BY activated_at ASC, created_at ASC
+    </select>
+
+    <select id="countPending" resultType="int">
+        SELECT COUNT(*) FROM volt_card_order
+        WHERE member_phone = #{phone} AND plan_code = #{planCode} AND status = 'pending'
+    </select>
+
+    <select id="countByOrderNo" resultType="int">
+        SELECT COUNT(*) FROM volt_card_order WHERE order_no = #{orderNo}
+    </select>
+
+    <update id="activate">
+        UPDATE volt_card_order
+        SET status = 'activated', activated_at = NOW(), activated_by = #{activatedBy}
+        WHERE order_no = #{orderNo} AND status = 'pending'
+    </update>
+
+    <update id="markApplied">
+        UPDATE volt_card_order
+        SET member_id = #{memberId}, applied_at = NOW()
+        WHERE card_order_id = #{cardOrderId} AND applied_at IS NULL
+    </update>
+
+    <update id="attachMember">
+        UPDATE volt_card_order
+        SET member_id = #{memberId}
+        WHERE member_phone = #{phone} AND (member_id IS NULL OR member_id = '')
+    </update>
+
+</mapper>

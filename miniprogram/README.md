@@ -65,7 +65,7 @@ node scripts/sync-catalog.mjs
 ## 已知限制
 
 - 后端 `/auth/wx/login` 在未配置 AppSecret 时映射到演示会员；生产上线需接 `jscode2session` 与 openid 绑定。
-- 未接入微信支付；购卡方案只展示。
+- 未接入真实微信支付；购卡登记与本地「演示支付并开卡」可用，正式收款仍需微信支付商户号。
 - 订阅消息模板 ID 为占位值；`config.USE_REAL_SUBSCRIBE` 默认关闭，避免演示时弹授权失败。
-- 手机号绑定目前直接调用 `/auth/link-phone`，生产建议接入微信手机号快速验证或 OTP。
+- 手机号绑定使用短信 OTP：本地 `VOLT_EXPOSE_OTP=true` 显示 `devCode`，生产需接真实短信通道或微信手机号快速验证。
 - 小程序主包约 1.5MB，已移除 ECharts/ec-canvas，改用原生 Canvas 2D。

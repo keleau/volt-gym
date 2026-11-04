@@ -132,6 +132,63 @@
   color: #72654f;
 }
 
+.pass-pending {
+  margin-top: 18rpx;
+  padding: 16rpx;
+  border-left: 6rpx solid #a33b2b;
+  background: #f6e7df;
+}
+
+.pass-pending__label {
+  display: block;
+  font-size: 17rpx;
+  letter-spacing: 0.08em;
+  color: #873023;
+}
+
+.pass-pending__name {
+  display: block;
+  margin-top: 5rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.pass-pending__hint {
+  display: block;
+  margin-top: 3rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.pass-demo-pay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 14rpx !important;
+  padding: 16rpx 20rpx;
+  min-height: 72rpx;
+  background: #1b1712 !important;
+  color: #f6e7df !important;
+  font-size: 24rpx;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.pass-demo-pay[disabled] {
+  opacity: 0.6;
+}
+
+.pass-demo-note {
+  display: block;
+  margin-top: 7rpx;
+  font-family: "Plex Mono", Consolas, monospace;
+  font-size: 17rpx;
+  color: #873023;
+  text-align: center;
+}
+
 .pass-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(52rpx, 1fr));
@@ -262,6 +319,19 @@
   gap: 10rpx;
 }
 
+.plan-row__cta {
+  margin-left: 4rpx;
+  padding: 4rpx 10rpx;
+  border: 1rpx solid #a33b2b;
+  color: #873023;
+  font-size: 18rpx;
+  line-height: 1.4;
+}
+
+.plan-row--hover {
+  background: #fbf5e9;
+}
+
 .plan-row__price {
   font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
   font-size: 30rpx;
@@ -288,6 +358,157 @@
   font-size: 17rpx;
   color: #72654f;
   text-align: center;
+}
+
+.pass-ledger {
+  margin-top: 34rpx;
+}
+
+.ledger-list {
+  margin-top: 8rpx;
+}
+
+.ledger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx dashed #d9cbb6;
+}
+
+.ledger-row__main,
+.ledger-row__right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.ledger-row__right {
+  align-items: flex-end;
+}
+
+.ledger-row__label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1b1712;
+}
+
+.ledger-row__date,
+.ledger-row__balance {
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.ledger-row__change {
+  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.ledger-row__change.is-plus {
+  color: #66705b;
+}
+
+.ledger-row__change.is-minus {
+  color: #a33b2b;
+}
+
+.buy-sheet {
+  padding-top: 4rpx;
+}
+
+.buy-plan {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 18rpx;
+  border: 1rpx solid #d9cbb6;
+  background: #fdf9f0;
+}
+
+.buy-plan__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.buy-plan__label {
+  font-size: 16rpx;
+  letter-spacing: 0.08em;
+  color: #873023;
+}
+
+.buy-plan__name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.buy-plan__right {
+  text-align: right;
+}
+
+.buy-plan__price {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #a33b2b;
+}
+
+.buy-plan__unit {
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.buy-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border: 1rpx solid #d9cbb6;
+  background: #fdf9f0;
+}
+
+.buy-field__label {
+  font-size: 24rpx;
+  color: #635846;
+}
+
+.buy-field__value {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #1b1712;
+}
+
+.buy-field__arrow {
+  font-size: 28rpx;
+  color: #8b7e68;
+}
+
+.buy-note {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: #635846;
+}
+
+.buy-note.is-warn {
+  color: #873023;
+}
+
+.buy-submit {
+  margin-top: 20rpx !important;
+}
+
+.buy-safe {
+  height: calc(20rpx + env(safe-area-inset-bottom));
 }
 
 .pass-bottom {

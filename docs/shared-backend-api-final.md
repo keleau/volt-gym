@@ -336,6 +336,29 @@
 - **Subscription**：`{ classReminder, classChange, waitlist }` 布尔偏好。
 - **Invitation**：`{ code, invitedCount, trialCount, records }`。
 
+### 3.11 CardOrder（官网购卡登记）
+
+```json
+{
+  "orderNo": "C202611030001",
+  "name": "林一",
+  "phone": "138****8000",
+  "planCode": "PLAN-03",
+  "planName": "10 次充电卡",
+  "amount": 899,
+  "credits": 10,
+  "validDays": 180,
+  "venueCode": "V-01",
+  "venueName": "天河工场",
+  "status": "pending",
+  "applied": false,
+  "createdAt": "2026-11-03T22:33:45",
+  "activatedAt": null
+}
+```
+
+`status`：`pending`（待开卡）→ `activated`（店员已确认）。`applied=true` 表示次数已并入会员；未登录/未绑定手机号时先保持 `false`，登录或刷新会员信息时自动领取。
+
 ## 4. 最终接口总表
 
 | Method | Path | 鉴权 | 端 | 用途 |
@@ -350,8 +373,9 @@
 | GET | `/availability?venue&program&date` | - | Web | 日期汇总余位 |
 | POST | `/auth/wx/login` | - | 小程序 | `wx.login` code 换 token |
 | POST | `/auth/otp/send` | - | Web | 验证码发送 |
+| POST | `/auth/phone/send` | 是 | 小程序 | 绑定手机号验证码（`purpose=bind`） |
 | POST | `/auth/otp/verify` | - | Web | 验证码登录 |
-| POST | `/auth/link-phone` | 是 | 小程序 | 绑定手机号 |
+| POST | `/auth/link-phone` | 是 | 小程序 | 校验绑定验证码并绑定手机号 |
 | GET | `/member/home` | 是 | 小程序 | 首页 |
 | GET | `/member/account` | 是 | 小程序 | 我的 |
 | GET | `/member/bookings` | 是 | 双端 | 预约台账 |
@@ -377,7 +401,12 @@
 | GET | `/invites/:ref` | - | 双端 | 邀请落地 |
 | GET | `/invites/me` | 是 | 小程序 | 我的邀请 |
 | POST | `/invites/:ref/accept` | 是 | 双端 | 绑定邀请 |
-| POST | `/payments/orders` | 是 | 预留 | 购卡下单 |
+| POST | `/card-orders` | 可选 | Web | 购卡登记（pending，不收款、不占座） |
+| GET | `/member/card-orders` | 是 | 双端 | 会员购卡登记列表 |
+| GET | `/staff/card-orders` | 店员密钥 | Web | 按手机号/状态查待开卡 |
+| POST | `/staff/card-orders/:orderNo/activate` | 店员密钥 | Web | 店员确认收款后开卡 |
+| POST | `/demo/card-orders/:orderNo/pay` | 是 | 小程序 | 演示支付并开卡；仅 `VOLT_DEMO_PAY=true`，不调用微信支付 |
+| POST | `/payments/orders` | 是 | 预留 | 在线支付购卡（本期不做） |
 | POST | `/payments/miniprogram/notify` | 微信签名 | 预留 | 支付回调 |
 
 ## 5. 页面与接口映射
@@ -475,9 +504,16 @@
 - 报名使用当前 Member，不重复传姓名手机号；匿名 Web 才传 `name/phone`。
 - 挑战重复加入返回 `already: true`，不新增记录；首页与社区页共用同一个 challenge 状态。
 
-### 6.6 手机号合并
+### 6.6 手机号合并与购卡开卡
 
-- `POST /auth/link-phone` 绑定后，官网同一手机号登录返回同一 Member。
+- `POST /auth/link-phone` 必须携带 `{phone, code}`；`code` 来自 `/auth/phone/send` 的 `bind` 验证码，验证通过后才允许绑定/合并。
+- 微信新会员默认 `phoneBound=false`；小程序启动登录后进入手机号验证页，未绑定前限制约课、购卡与进场。
+- 绑定后，官网同一手机号登录返回同一 Member。
+- 手机号已属于另一个会员时自动合并：微信会员有次卡时保留微信会员，并把手机号会员的次数累加过去；微信会员没有次卡时以手机号会员为主账号。
+- 合并后可能换发新 token，响应为 `{member, merged, token?}`；小程序需要把新 token 写回本地会话。
+- 官网 `/card-orders` 只生成 `pending` 登记单，不生成预约、不占座、不收款。店员 `/staff/card-orders/:orderNo/activate` 确认后状态变 `activated`。
+- 本地演示可开 `VOLT_DEMO_PAY=true`，小程序调用 `/demo/card-orders/:orderNo/pay` 把待开卡单标记为已开卡；该接口只改业务状态，不调用微信支付，生产必须关闭。
+- 已开卡权益在会员登录、绑定手机号、刷新 `/member/home` 或 `/member/account` 时，按手机号领取并写入 `credits / planCode / expiresAt`，同时写一条 `CARD` 次卡流水。
 - 官网游客预约按手机号认领，认领幂等，不重复创建预约。
 - openid/unionid/手机号各自唯一；AppSecret、session_key 只存在服务端。
 

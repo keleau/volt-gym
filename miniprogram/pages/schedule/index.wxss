@@ -136,12 +136,12 @@
   display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 16rpx;
+  padding: 12rpx 14rpx;
 }
 
 .store-bar__img {
-  width: 92rpx;
-  height: 92rpx;
+  width: 78rpx;
+  height: 78rpx;
   border-radius: 2rpx;
   object-fit: cover;
   flex: none;
@@ -174,17 +174,17 @@
 .mode-switch {
   display: flex;
   padding: 5rpx;
-  margin-top: 14rpx;
+  margin-top: 10rpx;
   border-radius: 4rpx;
   background: #efebe3;
 }
 
 .mode-item {
   flex: 1;
-  height: 68rpx;
+  height: 62rpx;
   border-radius: 4rpx;
-  font-size: 26rpx;
-  line-height: 68rpx;
+  font-size: 24rpx;
+  line-height: 62rpx;
   text-align: center;
   color: #635846;
 }
@@ -206,6 +206,61 @@
   background: #f0ddd6;
   color: #873023;
   font-size: 23rpx;
+}
+
+.coach-strip-wrap {
+  margin-top: 12rpx;
+}
+
+.coach-strip {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.coach-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-right: 8rpx;
+  padding: 10rpx 14rpx;
+  border: 1rpx solid #d9cbb6;
+  border-radius: 4rpx;
+  background: #fdf9f0;
+  vertical-align: top;
+}
+
+.coach-chip.is-active {
+  border-color: #1b1712;
+  background: #1b1712;
+  color: #fbf5e9;
+}
+
+.coach-chip__avatar {
+  width: 46rpx;
+  height: 46rpx;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+
+.coach-chip__main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rpx;
+}
+
+.coach-chip__name {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.coach-chip__meta {
+  font-size: 18rpx;
+  color: #72654f;
+}
+
+.coach-chip.is-active .coach-chip__meta {
+  color: #d9cbb6;
 }
 
 .coach-step {
@@ -278,7 +333,7 @@
 }
 
 .date-section {
-  margin-top: 20rpx;
+  margin-top: 16rpx;
 }
 
 .coach-bar {

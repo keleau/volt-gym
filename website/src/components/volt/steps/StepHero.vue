@@ -17,7 +17,6 @@
     ></video>
 
     <div class="hero-wash" aria-hidden="true"></div>
-    <div class="hero-grain" aria-hidden="true"></div>
     <span class="hero-frame mono" aria-hidden="true">FRAME 01 / 05 · 1280 × 720</span>
 
     <div class="hero-inner">
@@ -50,7 +49,7 @@
         <div class="ledger-head mono">
           <span>VOLT MEMBER</span>
           <i aria-hidden="true"></i>
-          <span>FREE TO JOIN</span>
+          <span>FREE ACCOUNT</span>
         </div>
 
         <div class="member-mini">
@@ -66,8 +65,8 @@
               height="88"
             />
             <div class="mm-qr-copy">
-              <p class="mm-qr-title">微信扫一扫，免费入会</p>
-              <p class="mm-qr-sub">新人首节 ¥{{ brand.trialPrice }} · 预约到店扫码核销</p>
+              <p class="mm-qr-title">微信扫一扫，免费注册</p>
+              <p class="mm-qr-sub">新人首节 ¥{{ brand.trialPrice }} · 次卡到店开卡后生效</p>
             </div>
           </div>
 
@@ -221,16 +220,6 @@ onBeforeUnmount(() => {
   background:
     linear-gradient(90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .52) 44%, rgba(0, 0, 0, .12) 78%),
     linear-gradient(0deg, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .18) 42%, rgba(0, 0, 0, .38) 100%);
-}
-
-.hero-grain {
-  position: absolute;
-  inset: 0;
-  background-image: url('/images/grain.png');
-  background-size: 220px;
-  opacity: .07;
-  mix-blend-mode: overlay;
-  pointer-events: none;
 }
 
 .hero-frame {

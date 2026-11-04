@@ -31,6 +31,8 @@ WX_DEMO_FALLBACK=true         # 本地没有 AppSecret 时落到演示会员；�
 WX_APP_ID=
 WX_APP_SECRET=
 VOLT_CORS_ORIGINS=http://localhost:[*],http://127.0.0.1:[*]
+VOLT_STAFF_KEY=volt-staff-demo   # 官网 /staff 店员开卡页；生产换成强随机值
+VOLT_DEMO_PAY=true               # 小程序演示支付并开卡；只改业务状态，生产必须 false
 ```
 
 ## 目录
@@ -63,6 +65,10 @@ Base URL `/api/v1`：
 | POST | `/events/{id}/signups` \| `/challenges/current/join` | 可选 |
 | POST | `/auth/otp/send` \| `/auth/otp/verify` \| `/auth/wx/login` | - |
 | POST | `/auth/link-phone` | 是 |
+| POST | `/card-orders` | 可选 |
+| GET | `/member/card-orders` | 是 |
+| POST | `/demo/card-orders/{orderNo}/pay` | 是（需 `VOLT_DEMO_PAY=true`） |
+| GET | `/staff/card-orders`；`POST /staff/card-orders/{orderNo}/activate` | `X-Staff-Key` |
 | GET | `/member/home` \| `/member/account` \| `/member/archive?month=` \| `/member/checkin` | 是 |
 | GET | `/member/bookings` \| `/member/credits/ledger` \| `/member/messages` | 是 |
 | PATCH | `/member/me` \| `/member/subscriptions` | 是 |
@@ -99,7 +105,9 @@ node ../tools/api-check.mjs http://localhost:8080/api/v1
 
 ## 已知边界
 
-- 支付、退款、购卡下单未接入；`amount` 仅作展示。
+- 在线支付、退款未接入；官网 `/card-orders` 只生成待开卡登记单，到店付款后由店员确认开卡。
+- `VOLT_DEMO_PAY=true` 时小程序可「演示支付并开卡」，只改业务状态，不调用微信支付；生产必须 false。
+- 会员账号免费，次卡是付费权益；开卡确认后在登录/刷新时按手机号领取次数。
 - 短信通道未接；本地用 `VOLT_EXPOSE_OTP=true` 从响应取 `devCode`。
 - 小程序 `/auth/wx/login` 在未配置 AppSecret 时是演示映射，生产必须接真实 `jscode2session`。
 - 服务连续运行超过 60 天需要重启补齐场次。

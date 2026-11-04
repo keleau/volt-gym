@@ -10,7 +10,9 @@ import com.gym.gymmanagementsystem.pojo.Booking;
 import com.gym.gymmanagementsystem.pojo.Program;
 import com.gym.gymmanagementsystem.pojo.VoltMember;
 import com.gym.gymmanagementsystem.pojo.VoltSession;
+import com.gym.gymmanagementsystem.service.VoltCardOrderService;
 import com.gym.gymmanagementsystem.service.VoltViewService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -34,20 +36,27 @@ public class VoltMemberCenterService {
     private final VoltCatalogMapper catalogMapper;
     private final VoltSessionMapper sessionMapper;
     private final VoltViewService viewService;
+    private final VoltCardOrderService cardOrderService;
+
+    @Value("${volt.demo.pay-enabled:false}")
+    private boolean demoPayEnabled;
 
     public VoltMemberCenterService(VoltMiniSupport support,
                                    JdbcTemplate jdbcTemplate,
                                    VoltCatalogMapper catalogMapper,
                                    VoltSessionMapper sessionMapper,
-                                   VoltViewService viewService) {
+                                   VoltViewService viewService,
+                                   VoltCardOrderService cardOrderService) {
         this.support = support;
         this.jdbcTemplate = jdbcTemplate;
         this.catalogMapper = catalogMapper;
         this.sessionMapper = sessionMapper;
         this.viewService = viewService;
+        this.cardOrderService = cardOrderService;
     }
 
     public Map<String, Object> home(VoltMember member) {
+        member = cardOrderService.claimForMember(member);
         support.expireLocks(member.getMemberId());
         List<Booking> active = support.activeBookings(member);
         LocalDate today = LocalDate.now();
@@ -63,10 +72,13 @@ public class VoltMemberCenterService {
         resp.put("brand", support.brand());
         resp.put("messagesUnread", support.unreadMessages(member.getMemberId()));
         resp.put("subscriptions", support.subscriptions(member.getMemberId()));
+        resp.put("cardOrders", cardOrderService.memberOrders(member));
+        resp.put("demoPayEnabled", demoPayEnabled);
         return resp;
     }
 
     public Map<String, Object> account(VoltMember member) {
+        member = cardOrderService.claimForMember(member);
         support.expireLocks(member.getMemberId());
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("member", viewService.memberView(member));
@@ -80,6 +92,8 @@ public class VoltMemberCenterService {
         resp.put("counts", bookingCounts(member));
         resp.put("nextBooking", support.nextBooking(support.activeBookings(member)));
         resp.put("venues", support.venueViews(sessionMapper.findBetween(LocalDate.now(), LocalDate.now())));
+        resp.put("cardOrders", cardOrderService.memberOrders(member));
+        resp.put("demoPayEnabled", demoPayEnabled);
         return resp;
     }
 

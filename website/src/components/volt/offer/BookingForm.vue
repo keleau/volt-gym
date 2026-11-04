@@ -8,11 +8,9 @@
       <div class="form-chosen">
         <span class="mono">已选 {{ selectedPlan.code }}</span>
         <b>{{ selectedPlan.name }}</b>
-        <strong>{{ memberSession ? '会员次卡' : '¥' + selectedPlan.price }}</strong>
+        <strong>¥{{ selectedPlan.price }}</strong>
       </div>
     </header>
-
-    <WebMemberPanel ref="memberPanel" @change="onMemberChange" />
 
     <form class="booking-form" novalidate @submit.prevent="submit">
       <div class="field-row">
@@ -27,7 +25,6 @@
             maxlength="24"
             autocomplete="name"
             placeholder="怎么称呼你"
-            :readonly="Boolean(memberSession)"
             :aria-invalid="Boolean(errors.name)"
             @input="errors.name = ''"
           />
@@ -46,7 +43,6 @@
             maxlength="11"
             autocomplete="tel"
             placeholder="11 位手机号"
-            :readonly="Boolean(memberSession)"
             :aria-invalid="Boolean(errors.phone)"
             @input="onPhoneInput"
           />
@@ -139,17 +135,17 @@
         ref="submitBtn"
         type="submit"
         class="execute-btn"
-        :disabled="loading || availability?.soldOut || cooldown > 0 || memberBlocked"
+        :disabled="loading || availability?.soldOut || cooldown > 0"
       >
         <span>{{ submitLabel }}</span>
-        <span class="submit-price mono">{{ memberSession ? '会员次卡' : '¥' + selectedPlan.price }}</span>
+        <span class="submit-price mono">¥{{ selectedPlan.price }}</span>
         <b aria-hidden="true">→</b>
       </button>
       <p class="privacy mono">提交即代表同意门店服务条款，信息仅用于本次预约。</p>
     </form>
 
     <div class="form-foot mono">
-      <span>无年卡</span>
+      <span>体验课到店付款</span>
       <span>无推销</span>
       <span>三店通用</span>
     </div>
@@ -157,7 +153,6 @@
     <BookingSuccessModal
       v-if="confirmed && order"
       :booking="order"
-      :member-session="memberSession"
       @close="reset"
     />
   </section>
@@ -165,13 +160,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import WebMemberPanel from '../member/WebMemberPanel.vue'
 import BookingSuccessModal from './BookingSuccessModal.vue'
 import SessionPicker from './SessionPicker.vue'
 import { venues } from '../../../data/site.js'
 import { featuredPrograms } from '../../../data/programs.js'
 
-import { pricingPlans } from '../../../data/pricing.js'
 import { formatCnDate } from '../../../utils/date.js'
 import { useBooking } from '../../../composables/useBooking.js'
 
@@ -180,10 +173,7 @@ const props = defineProps({
   preset: { type: Object, default: () => ({ program: '', venue: '', plan: '' }) },
   selectedPlan: { type: Object, required: true },
 })
-const emit = defineEmits(['select-plan', 'member-change'])
 
-const memberPanel = ref(null)
-const memberSession = ref(null)
 const submitBtn = ref(null)
 const courses = featuredPrograms
 
@@ -198,35 +188,21 @@ const {
   availabilityError,
   availabilityLoading,
   cooldown,
-  memberBlocked,
   submitLabel,
   today,
   maxDate,
   submit,
   reset,
-  applyMember,
   onPhoneInput,
 } = useBooking({
   preset: () => props.preset,
   active: () => props.active,
   selectedPlan: () => props.selectedPlan,
-  memberSession,
   submitButton: submitBtn,
-  onBooked: () => memberPanel.value?.refresh(),
 })
 
 function selectSession(session) {
   form.sessionId = session.id
-}
-
-function onMemberChange(payload) {
-  memberSession.value = payload?.member ? payload : null
-  emit('member-change', Boolean(payload?.member))
-  applyMember(payload)
-  const planCode = payload?.member?.planCode
-  if (!planCode) return
-  const memberPlan = pricingPlans.find((plan) => plan.code === planCode)
-  if (memberPlan) emit('select-plan', memberPlan)
 }
 </script>
 

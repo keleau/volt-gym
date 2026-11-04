@@ -23,15 +23,15 @@
 
       <aside class="member-pass" aria-label="VOLT 社员微信会员小程序">
         <div class="pass-top">
-          <span class="pass-kicker mono">VOLT 社员 / 微信会员小程序</span>
-          <span class="pass-free mono">免费加入</span>
+          <span class="pass-kicker mono">VOLT 会员 / 微信小程序</span>
+          <span class="pass-free mono">免费注册</span>
         </div>
 
         <div class="pass-main">
           <div class="pass-copy">
             <p class="pass-eyebrow mono">MEMBER MINI-PROGRAM</p>
             <h3>课在手机里。</h3>
-            <p class="pass-line">约课 · 查余位 · 进场</p>
+            <p class="pass-line">次卡到店开卡后，约课 · 查余位 · 进场</p>
             <button
               type="button"
               class="pass-search mono"
@@ -54,7 +54,7 @@
         </div>
 
         <div class="pass-foot mono">
-          <span>VOLT MEMBER / FREE</span>
+          <span>VOLT MEMBER / ACCOUNT</span>
           <button type="button" class="pass-community" @click="$emit('community')">
             进入社区 →
           </button>

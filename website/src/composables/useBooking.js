@@ -7,7 +7,6 @@ import {
 } from '../services/api/index.js'
 import { clearSelection } from '../services/selection.js'
 import { addDaysIso, isBeyondDays, isPastDate, todayIso } from '../utils/date.js'
-import { isMemberBlocked } from '../utils/member.js'
 import { isValidPhone, normalizePhone } from '../utils/phone.js'
 import { useCooldown } from './useCooldown.js'
 
@@ -15,9 +14,7 @@ export function useBooking({
   preset,
   active,
   selectedPlan,
-  memberSession,
   submitButton,
-  onBooked,
 }) {
   const today = todayIso()
   const maxDate = addDaysIso(BOOKING_WINDOW_DAYS)
@@ -33,8 +30,6 @@ export function useBooking({
   const { remaining: cooldown, start: startCooldown, stop: stopCooldown } = useCooldown()
   let availabilityToken = 0
   let lastFocused = null
-
-  const memberBlocked = computed(() => isMemberBlocked(memberSession.value?.member))
 
   const submitLabel = computed(() => {
     if (loading.value) return '正在接入…'
@@ -124,11 +119,9 @@ export function useBooking({
   }
 
   function validate() {
-    const asMember = Boolean(memberSession.value?.member)
-    // 会员身份由 token 决定，旧版本地会话可能没有完整手机号，仍允许提交。
-    errors.name = asMember || form.name ? '' : '请填写姓名'
-    errors.phone = asMember || isValidPhone(form.phone) ? '' : '请填写正确的 11 位手机号'
-    errors.plan = selectedPlan().code ? '' : '请选择次卡方案'
+    errors.name = form.name ? '' : '请填写姓名'
+    errors.phone = isValidPhone(form.phone) ? '' : '请填写正确的 11 位手机号'
+    errors.plan = selectedPlan().code ? '' : '请选择价格'
     errors.venue = form.venue ? '' : '请选择充电站'
     errors.program = form.program ? '' : '请选择课程'
     errors.date = !form.date
@@ -144,10 +137,6 @@ export function useBooking({
   async function submit() {
     if (loading.value || confirmed.value || cooldown.value > 0) return
     formError.value = ''
-    if (memberBlocked.value) {
-      formError.value = '会员次卡余额不足或已过期，请先续卡。'
-      return
-    }
     if (!validate()) return
 
     lastFocused = submitButton.value
@@ -164,7 +153,6 @@ export function useBooking({
       })
       order.value = created
       confirmed.value = true
-      onBooked?.()
       if (availability.value) {
         const bookedSessionId = form.sessionId || created.sessionId
         const sessions = availability.value.sessions?.map((session) => {
@@ -211,8 +199,8 @@ export function useBooking({
     confirmed.value = false
     order.value = null
     formError.value = ''
-    form.name = memberSession.value?.member?.nickname || ''
-    form.phone = memberSession.value?.phone || ''
+    form.name = ''
+    form.phone = ''
     form.venue = ''
     form.program = ''
     form.date = ''
@@ -233,18 +221,6 @@ export function useBooking({
     })
   }
 
-  function applyMember(payload) {
-    if (payload?.member) {
-      form.name = payload.member.nickname || form.name
-      form.phone = normalizePhone(payload.phone || form.phone)
-      errors.name = ''
-      errors.phone = ''
-      return
-    }
-    form.name = ''
-    form.phone = ''
-  }
-
   return {
     form,
     errors,
@@ -256,13 +232,11 @@ export function useBooking({
     availabilityError,
     availabilityLoading,
     cooldown,
-    memberBlocked,
     submitLabel,
     today,
     maxDate,
     submit,
     reset,
-    applyMember,
     onPhoneInput,
   }
 }

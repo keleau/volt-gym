@@ -24,11 +24,26 @@
           </view>
           <view class="pass-ticket__main">
             <view class="pass-credits">
-              <text class="pass-credits__num serif">{{member.credits}}</text>
-              <text class="pass-credits__unit">次可用</text>
+              <text class="pass-credits__num serif">{{pendingCard && !member.credits ? '待' : member.credits}}</text>
+              <text class="pass-credits__unit">{{pendingCard && !member.credits ? '开卡' : '次可用'}}</text>
             </view>
-            <text class="pass-plan serif">{{member.planName}}</text>
-            <text class="pass-expire mono">有效至 {{member.expiresAt}}</text>
+            <text class="pass-plan serif">{{pendingCard && !member.credits ? pendingCard.planName : member.planName}}</text>
+            <text wx:if="{{pendingCard && !member.credits}}" class="pass-expire mono">到店付款后生效</text>
+            <text wx:else class="pass-expire mono">有效至 {{member.expiresAt}}</text>
+            <view wx:if="{{pendingCard}}" class="pass-pending">
+              <text class="pass-pending__label mono">PENDING / 待开卡</text>
+              <text class="pass-pending__name">{{pendingCard.planName}} · {{pendingCard.credits}} 次</text>
+              <text class="pass-pending__hint">到店付款后由店员开卡，次数自动到账</text>
+              <button
+                wx:if="{{demoPayEnabled}}"
+                class="pass-demo-pay"
+                bindtap="onDemoPay"
+                disabled="{{paying}}"
+              >
+                {{paying ? '演示支付中…' : '演示支付并开卡'}}
+              </button>
+              <text wx:if="{{demoPayEnabled}}" class="pass-demo-note">演示用 · 不会真实扣款</text>
+            </view>
           </view>
           <view wx:if="{{passCells.length}}" class="pass-grid">
             <view
@@ -40,7 +55,7 @@
               <text wx:else class="pass-cell__num mono">{{item.label}}</text>
             </view>
           </view>
-          <view wx:else class="pass-empty">暂无次卡，联系前台开通后开始充电。</view>
+          <view wx:else class="pass-empty">{{pendingCard ? '购卡已登记，到店付款后开卡。' : '暂无次卡，点下方方案登记购卡。'}}</view>
           <view class="pass-ticket__foot">
             <text class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 余 {{member.credits}} 次</text>
             <view class="pass-barcode"></view>
@@ -50,11 +65,18 @@
 
       <view class="pass-plans wrap">
         <view class="pass-section-head">
-          <text class="pass-section-title serif">续卡选项</text>
+          <text class="pass-section-title serif">次卡选项</text>
           <text class="pass-section-aside mono">PLANS / 按次</text>
         </view>
         <view class="plan-list">
-          <view wx:for="{{plans}}" wx:key="code" class="plan-row {{item.code === member.planCode ? 'is-current' : ''}}">
+          <view
+            wx:for="{{plans}}"
+            wx:key="code"
+            class="plan-row {{item.code === member.planCode ? 'is-current' : ''}}"
+            data-code="{{item.code}}"
+            bindtap="onBuyPlan"
+            hover-class="plan-row--hover"
+          >
             <view class="plan-row__main">
               <text class="plan-row__name serif">{{item.name}}</text>
               <text class="plan-row__unit">{{item.unit}}</text>
@@ -62,14 +84,77 @@
             <view class="plan-row__right">
               <text class="plan-row__price serif">¥{{item.price}}</text>
               <text wx:if="{{item.code === member.planCode}}" class="plan-row__tag">当前</text>
+              <text class="plan-row__cta">{{item.code === member.planCode ? '续卡' : '购卡'}}</text>
             </view>
           </view>
         </view>
         <button class="btn btn--ghost btn--block pass-contact" bindtap="onContact">联系前台购卡</button>
-        <text class="pass-note">按次购卡 · 前台办理 · 不自动续费</text>
+        <text class="pass-note">按次购卡 · 前台办理 · 官网或小程序登记的购卡单开卡后都会显示在这里</text>
+      </view>
+
+      <view class="pass-ledger wrap">
+        <view class="pass-section-head">
+          <text class="pass-section-title serif">次卡流水</text>
+          <text class="pass-section-aside mono">LEDGER / 最近 {{ledgerEntries.length}} 条</text>
+        </view>
+        <view wx:if="{{ledgerEntries.length}}" class="ledger-list">
+          <view wx:for="{{ledgerEntries}}" wx:key="id" class="ledger-row">
+            <view class="ledger-row__main">
+              <text class="ledger-row__label">{{item.label}}</text>
+              <text class="ledger-row__date mono">{{item.date}}</text>
+            </view>
+            <view class="ledger-row__right">
+              <text class="ledger-row__change {{item.positive ? 'is-plus' : 'is-minus'}}">{{item.change}}</text>
+              <text class="ledger-row__balance mono">余 {{item.balance}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="pass-empty">还没有次卡流水。</view>
       </view>
 
       <view class="pass-bottom"></view>
     </block>
   </scroll-view>
+
+  <volt-sheet
+    visible="{{buySheetVisible}}"
+    title="登记购卡"
+    subtitle="到店付款后由店员开卡"
+    maxHeight="78vh"
+    bind:close="closeBuySheet"
+  >
+    <view wx:if="{{buyPlan}}" class="buy-sheet">
+      <view class="buy-plan">
+        <view class="buy-plan__main">
+          <text class="buy-plan__label mono">SELECTED / 已选</text>
+          <text class="buy-plan__name serif">{{buyPlan.name}}</text>
+        </view>
+        <view class="buy-plan__right">
+          <text class="buy-plan__price serif">¥{{buyPlan.price}}</text>
+          <text class="buy-plan__unit">{{buyPlan.unit}}</text>
+        </view>
+      </view>
+
+      <view class="buy-field">
+        <text class="buy-field__label">开卡门店</text>
+        <picker mode="selector" range="{{venues}}" range-key="name" bindchange="onVenueChange">
+          <view class="buy-field__value">
+            <text>{{buyVenueName || '选择到店付款的门店'}}</text>
+            <text class="buy-field__arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <text wx:if="{{!member.phoneBound}}" class="buy-note is-warn">购卡需要先绑定手机号，提交时会引导去绑定。</text>
+      <text class="buy-note">提交后到店付款，店员确认开卡；开卡后次数自动到账，不会在线扣款。</text>
+      <button
+        class="btn btn--primary btn--block buy-submit"
+        bindtap="submitBuy"
+        disabled="{{buying}}"
+      >
+        {{buying ? '提交中…' : '提交购卡登记'}}
+      </button>
+      <view class="buy-safe"></view>
+    </view>
+  </volt-sheet>
 </view>

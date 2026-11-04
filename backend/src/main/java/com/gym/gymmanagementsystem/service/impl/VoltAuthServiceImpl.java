@@ -7,6 +7,7 @@ import com.gym.gymmanagementsystem.pojo.VoltMember;
 import com.gym.gymmanagementsystem.pojo.VoltOtp;
 import com.gym.gymmanagementsystem.pojo.VoltToken;
 import com.gym.gymmanagementsystem.service.VoltAuthService;
+import com.gym.gymmanagementsystem.service.VoltCardOrderService;
 import com.gym.gymmanagementsystem.service.VoltViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +34,14 @@ public class VoltAuthServiceImpl implements VoltAuthService {
 
     private static final Logger log = LoggerFactory.getLogger(VoltAuthServiceImpl.class);
     private static final String PURPOSE_LOGIN = "login";
+    private static final String PURPOSE_BIND = "bind";
     private static final String DEMO_MEMBER_ID = "MBR-DEMO";
     private static final String DEMO_PHONE = "13800006688";
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final VoltMemberMapper memberMapper;
     private final VoltViewService viewService;
+    private final VoltCardOrderService cardOrderService;
     private final JdbcTemplate jdbcTemplate;
     private final RestClient restClient = RestClient.create();
 
@@ -55,18 +58,32 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     private boolean wxDemoFallback;
 
     public VoltAuthServiceImpl(VoltMemberMapper memberMapper, VoltViewService viewService,
-                               JdbcTemplate jdbcTemplate) {
+                               VoltCardOrderService cardOrderService, JdbcTemplate jdbcTemplate) {
         this.memberMapper = memberMapper;
         this.viewService = viewService;
+        this.cardOrderService = cardOrderService;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Map<String, Object> sendOtp(String phone) {
+        return sendOtp(phone, PURPOSE_LOGIN);
+    }
+
+    @Override
+    public Map<String, Object> sendBindOtp(VoltMember member, String phone) {
+        if (member != null && Boolean.TRUE.equals(member.getPhoneBound())
+                && member.getPhone() != null && !member.getPhone().isBlank()) {
+            throw ApiException.conflict("PHONE_ALREADY_BOUND", "当前微信账号已绑定手机号。");
+        }
+        return sendOtp(phone, PURPOSE_BIND);
+    }
+
+    private Map<String, Object> sendOtp(String phone, String purpose) {
         if (!VoltContract.isPhone(phone)) {
             throw ApiException.validation("请输入正确的 11 位手机号。", Map.of("phone", "请输入正确的 11 位手机号"));
         }
-        VoltOtp latest = memberMapper.findLatestOtp(phone, PURPOSE_LOGIN);
+        VoltOtp latest = memberMapper.findLatestOtp(phone, purpose);
         long now = System.currentTimeMillis();
         if (latest != null && latest.getCreatedAt() != null) {
             long sentAt = latest.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -80,7 +97,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
         VoltOtp otp = new VoltOtp();
         otp.setPhone(phone);
         otp.setCode(String.format("%06d", RANDOM.nextInt(1_000_000)));
-        otp.setPurpose(PURPOSE_LOGIN);
+        otp.setPurpose(purpose);
         otp.setExpiresAt(now + VoltContract.OTP_TTL_SECONDS * 1000L);
         otp.setConsumed(false);
         otp.setAttempts(0);
@@ -101,6 +118,24 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     @Override
     @Transactional
     public Map<String, Object> verifyOtp(String phone, String code) {
+        verifyOtpCode(phone, code, PURPOSE_LOGIN);
+
+        VoltMember member = memberMapper.findByPhone(phone);
+        if (member == null) {
+            member = createMember(phone, null, null, null, null);
+        }
+        claimGuestRecords(member);
+        member = cardOrderService.claimForMember(member);
+
+        String token = issueToken(member.getMemberId());
+
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("token", token);
+        resp.put("member", viewService.memberView(member));
+        return resp;
+    }
+
+    private void verifyOtpCode(String phone, String code, String purpose) {
         if (!VoltContract.isPhone(phone)) {
             throw ApiException.validation("请输入正确的 11 位手机号。", Map.of("phone", "请输入正确的 11 位手机号"));
         }
@@ -108,7 +143,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
             throw ApiException.validation("请输入验证码。", Map.of("code", "请输入验证码"));
         }
 
-        VoltOtp otp = memberMapper.findLatestOtp(phone, PURPOSE_LOGIN);
+        VoltOtp otp = memberMapper.findLatestOtp(phone, purpose);
         long now = System.currentTimeMillis();
         if (otp == null || Boolean.TRUE.equals(otp.getConsumed()) || otp.getExpiresAt() == null || otp.getExpiresAt() < now) {
             throw ApiException.validation("验证码不正确或已过期。", Map.of("code", "验证码不正确或已过期"));
@@ -125,19 +160,6 @@ public class VoltAuthServiceImpl implements VoltAuthService {
         if (memberMapper.consumeOtpIfUnused(otp.getId()) == 0) {
             throw ApiException.validation("验证码已使用，请重新获取。", Map.of("code", "验证码已使用，请重新获取"));
         }
-
-        VoltMember member = memberMapper.findByPhone(phone);
-        if (member == null) {
-            member = createMember(phone, null, null, null, null);
-        }
-        claimGuestRecords(member);
-
-        String token = issueToken(member.getMemberId());
-
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("token", token);
-        resp.put("member", viewService.memberView(member));
-        return resp;
     }
 
     @Override
@@ -190,6 +212,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
             }
         }
         claimGuestRecords(member);
+        member = cardOrderService.claimForMember(member);
         String token = issueToken(member.getMemberId());
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("token", token);
@@ -199,19 +222,148 @@ public class VoltAuthServiceImpl implements VoltAuthService {
 
     @Override
     @Transactional
-    public Map<String, Object> linkPhone(VoltMember member, String phone) {
-        if (!VoltContract.isPhone(phone)) {
-            throw ApiException.validation("请输入正确的 11 位手机号。", Map.of("phone", "请输入正确的 11 位手机号"));
+    public Map<String, Object> linkPhone(VoltMember member, String phone, String code) {
+        if (member == null) {
+            throw ApiException.unauthorized("登录状态已失效，请重新登录。");
         }
+        if (Boolean.TRUE.equals(member.getPhoneBound())
+                && member.getPhone() != null && !member.getPhone().isBlank()) {
+            throw ApiException.conflict("PHONE_ALREADY_BOUND", "当前微信账号已绑定手机号。");
+        }
+        verifyOtpCode(phone, code, PURPOSE_BIND);
+
+        VoltMember existing = memberMapper.findByPhone(phone);
+        if (existing != null && !existing.getMemberId().equals(member.getMemberId())) {
+            return mergeIntoPhoneMember(member, existing);
+        }
+
         try {
             memberMapper.updatePhone(member.getMemberId(), phone);
         } catch (DuplicateKeyException ex) {
             throw ApiException.conflict("PHONE_TAKEN", "该手机号已绑定其他会员。");
         }
+        member.setPhone(phone);
+        member.setPhoneBound(true);
         // 绑定后把同手机号的官网游客预约/报名认领到当前会员，认领幂等。
-        claimGuestRecords(memberMapper.findById(member.getMemberId()));
-        VoltMember fresh = memberMapper.findById(member.getMemberId());
-        return viewService.memberView(fresh == null ? member : fresh);
+        claimGuestRecords(member);
+        VoltMember fresh = cardOrderService.claimForMember(member);
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("merged", false);
+        resp.put("member", viewService.memberView(fresh == null ? member : fresh));
+        return resp;
+    }
+
+    /**
+     * 小程序微信会员绑定了一个已有手机号的会员（例如官网先购卡/登录过）：
+     * 谁有次卡谁做主账号，迁移另一边数据；小程序拿到主账号的 token 或继续用原 token。
+     */
+    private Map<String, Object> mergeIntoPhoneMember(VoltMember wechat, VoltMember phoneMember) {
+        if (phoneMember.getOpenid() != null && !phoneMember.getOpenid().isBlank()
+                && !phoneMember.getOpenid().equals(wechat.getOpenid())) {
+            throw ApiException.conflict("PHONE_TAKEN", "该手机号已绑定其他微信，请联系前台处理。");
+        }
+        boolean wechatHasPass = wechat.getCredits() != null && wechat.getCredits() > 0;
+        boolean phoneHasPass = phoneMember.getCredits() != null && phoneMember.getCredits() > 0;
+
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("merged", true);
+        if (wechatHasPass) {
+            // 微信账号已有次卡：保留微信会员（openid 身份可继续用于 wx.login），把手机号会员的权益和历史迁过来。
+            String phone = phoneMember.getPhone();
+            if (phoneHasPass) {
+                combineCredits(phoneMember, wechat);
+            }
+            moveMemberData(phoneMember.getMemberId(), wechat.getMemberId());
+            detachMember(phoneMember.getMemberId());
+            jdbcTemplate.update("UPDATE volt_member SET phone = ?, phone_bound = 1 WHERE member_id = ?",
+                    phone, wechat.getMemberId());
+            wechat.setPhone(phone);
+            wechat.setPhoneBound(true);
+            claimGuestRecords(wechat);
+            VoltMember fresh = cardOrderService.claimForMember(wechat);
+            resp.put("member", viewService.memberView(fresh == null ? wechat : fresh));
+            return resp;
+        }
+
+        // 微信账号还没有次卡：手机号会员做主账号，把微信身份挂过去并换发 token。
+        String source = wechat.getMemberId();
+        String target = phoneMember.getMemberId();
+        moveMemberData(source, target);
+        detachMember(source);
+        jdbcTemplate.update("UPDATE volt_member SET openid = ?, unionid = ?, "
+                + "avatar_url = CASE WHEN avatar_url = '' THEN ? ELSE avatar_url END, "
+                + "nickname = CASE WHEN nickname = '' OR nickname LIKE '电%' THEN ? ELSE nickname END, "
+                + "phone_bound = 1 WHERE member_id = ?",
+                wechat.getOpenid(), wechat.getUnionid(), wechat.getAvatarUrl(),
+                wechat.getNickname(), target);
+        phoneMember.setOpenid(wechat.getOpenid());
+        phoneMember.setUnionid(wechat.getUnionid());
+        if (phoneMember.getAvatarUrl() == null || phoneMember.getAvatarUrl().isBlank()) {
+            phoneMember.setAvatarUrl(wechat.getAvatarUrl());
+        }
+        String nickname = phoneMember.getNickname();
+        if (nickname == null || nickname.isBlank() || nickname.startsWith("电")) {
+            phoneMember.setNickname(wechat.getNickname());
+        }
+        phoneMember.setPhoneBound(true);
+
+        claimGuestRecords(phoneMember);
+        VoltMember fresh = cardOrderService.claimForMember(phoneMember);
+        resp.put("token", issueToken(target));
+        resp.put("member", viewService.memberView(fresh == null ? phoneMember : fresh));
+        return resp;
+    }
+
+    private void combineCredits(VoltMember source, VoltMember target) {
+        int credits = source.getCredits() == null ? 0 : source.getCredits();
+        int total = source.getCreditsTotal() == null ? 0 : source.getCreditsTotal();
+        if (credits <= 0 && total <= 0) {
+            return;
+        }
+        java.time.LocalDate sourceExpiry = source.getExpiresAt();
+        java.time.LocalDate targetExpiry = target.getExpiresAt();
+        boolean useSourcePlan = sourceExpiry != null
+                && (targetExpiry == null || sourceExpiry.isAfter(targetExpiry));
+        java.time.LocalDate expiry = useSourcePlan ? sourceExpiry : targetExpiry;
+        jdbcTemplate.update(
+                "UPDATE volt_member SET credits = credits + ?, credits_total = credits_total + ?, "
+                        + "expires_at = ? WHERE member_id = ?",
+                credits, total, expiry, target.getMemberId());
+        if (useSourcePlan) {
+            jdbcTemplate.update("UPDATE volt_member SET plan_code = ?, plan_name = ? WHERE member_id = ?",
+                    source.getPlanCode(), source.getPlanName(), target.getMemberId());
+            target.setPlanCode(source.getPlanCode());
+            target.setPlanName(source.getPlanName());
+        }
+        target.setCredits((target.getCredits() == null ? 0 : target.getCredits()) + credits);
+        target.setCreditsTotal((target.getCreditsTotal() == null ? 0 : target.getCreditsTotal()) + total);
+        target.setExpiresAt(expiry);
+    }
+
+    private void moveMemberData(String source, String target) {
+        jdbcTemplate.update("UPDATE volt_booking SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_event_signup SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_challenge_join SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_record SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE IGNORE volt_credit_ledger SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_message SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_card_order SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE volt_invite SET inviter_member_id = ? WHERE inviter_member_id = ?", target, source);
+        jdbcTemplate.update("UPDATE IGNORE volt_invite SET invitee_member_id = ? WHERE invitee_member_id = ?", target, source);
+        jdbcTemplate.update("DELETE FROM volt_invite WHERE invitee_member_id = ?", source);
+        jdbcTemplate.update("UPDATE IGNORE volt_waitlist SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("DELETE FROM volt_waitlist WHERE member_id = ?", source);
+        jdbcTemplate.update("UPDATE IGNORE volt_body_log SET member_id = ? WHERE member_id = ?", target, source);
+        jdbcTemplate.update("DELETE FROM volt_body_log WHERE member_id = ?", source);
+        jdbcTemplate.update("INSERT IGNORE INTO volt_subscription (member_id) VALUES (?)", target);
+        jdbcTemplate.update("DELETE FROM volt_subscription WHERE member_id = ?", source);
+        jdbcTemplate.update("DELETE FROM volt_token WHERE member_id = ?", source);
+    }
+
+    private void detachMember(String memberId) {
+        jdbcTemplate.update("UPDATE volt_member SET openid = NULL, unionid = NULL, phone = NULL, "
+                + "phone_bound = 0, credits = 0, credits_total = 0, plan_code = '', plan_name = '', "
+                + "expires_at = NULL, nickname = CONCAT('已合并-', member_id) WHERE member_id = ?", memberId);
     }
 
     @Override

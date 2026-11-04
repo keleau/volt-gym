@@ -70,7 +70,6 @@
 
       <block wx:else>
         <view class="sch-head wrap">
-          <view class="sch-kicker mono"><view class="sch-kicker__node"></view>VOLT / SCHEDULE · 把这一格留给今天</view>
           <view class="store-bar card">
             <image class="store-bar__img" src="{{selectedVenue.imageUrl}}" mode="aspectFill"></image>
             <view class="store-bar__main">
@@ -91,109 +90,83 @@
           </view>
         </view>
 
-        <view wx:if="{{mode === 'coach' && !selectedCoach}}" class="coach-step wrap">
-          <view class="step-head">
-            <view class="step-head__main">
-              <text class="step-head__no">02</text>
-              <text class="step-head__title">选择教练</text>
+        <view wx:if="{{mode === 'coach'}}" class="coach-strip-wrap wrap">
+          <scroll-view scroll-x class="coach-strip" enhanced show-scrollbar="{{false}}">
+            <view class="coach-chip {{!selectedCoachId ? 'is-active' : ''}}" bindtap="clearCoach">
+              <view class="coach-chip__main">
+                <text class="coach-chip__name">全部教练</text>
+                <text class="coach-chip__meta mono">{{venueCoaches.length}} 位</text>
+              </view>
             </view>
-            <text class="step-head__action">{{venueCoaches.length}} 位在店</text>
-          </view>
-
-          <view wx:if="{{venueCoaches.length}}" class="coach-grid">
             <view
               wx:for="{{venueCoaches}}"
               wx:key="id"
-              class="coach-card card"
+              class="coach-chip {{selectedCoachId === item.id ? 'is-active' : ''}}"
               data-id="{{item.id}}"
               bindtap="selectCoach"
-              hover-class="coach-card--hover"
             >
-              <image class="coach-card__avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
-              <view class="coach-card__main">
-                <text class="coach-card__name">{{item.name}}</text>
-                <text class="coach-card__title">{{item.title}}</text>
-                <text class="coach-card__program">{{item.programLabel}}</text>
-              </view>
-              <view class="coach-card__foot">
-                <text class="coach-card__slots">{{item.slotsLeft}} 节可约</text>
-                <text class="coach-card__next">{{item.nextLabel}}</text>
+              <image class="coach-chip__avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+              <view class="coach-chip__main">
+                <text class="coach-chip__name">{{item.name}}</text>
+                <text class="coach-chip__meta mono">{{item.slotsLeft}} 节可约</text>
               </view>
             </view>
-          </view>
-
-          <view wx:else class="empty">
-            <view class="empty__icon">—</view>
-            <text class="empty__title">该门店暂无排班教练</text>
-            <text class="empty__desc">换一家门店，或查看本周课表。</text>
-            <button class="empty__btn" bindtap="changeVenue">更换门店</button>
-          </view>
+          </scroll-view>
         </view>
 
-        <block wx:else>
-          <view class="date-section wrap">
-            <view wx:if="{{mode === 'coach'}}" class="coach-bar" bindtap="changeCoach">
-              <image class="coach-bar__avatar" src="{{selectedCoach.avatarUrl}}" mode="aspectFill"></image>
-              <view class="coach-bar__main">
-                <text class="coach-bar__name">{{selectedCoach.name}}</text>
-                <text class="coach-bar__meta">{{selectedCoach.title}} · 更换教练</text>
-              </view>
-              <text class="coach-bar__arrow">›</text>
-            </view>
-
-            <scroll-view scroll-x class="date-scroll" enhanced show-scrollbar="{{false}}">
-              <view class="date-row">
-                <view
-                  wx:for="{{dayViews}}"
-                  wx:key="iso"
-                  class="date {{item.isActive ? 'is-active' : ''}} {{item.isToday ? 'is-today' : ''}}"
-                  data-date="{{item.iso}}"
-                  bindtap="selectDate"
-                >
-                  <text class="date__cn">{{item.cn}}</text>
-                  <text class="date__num">{{item.short}}</text>
-                  <text class="date__tag">{{item.isToday ? '今天' : item.tag}}</text>
-                  <text class="date__count">{{item.availableCount}} 可约</text>
-                </view>
-              </view>
-            </scroll-view>
-          </view>
-
-          <view class="list-head wrap">
-            <text class="list-head__day">{{selectedDateLabel}}</text>
-            <text class="list-head__count">{{sessions.length}} 节 · {{selectedVenue.name}}</text>
-          </view>
-
-          <view wx:if="{{loadingSessions}}" class="loading"><view class="loading__bar"></view><text>正在加载场次</text></view>
-
-          <block wx:elif="{{sessions.length}}">
-            <view wx:if="{{mode === 'time'}}" class="time-list wrap">
-              <view wx:for="{{timeGroups}}" wx:key="key" class="time-group">
-                <view class="time-group__head">
-                  <text class="time-group__label">{{item.label}}</text>
-                  <text class="time-group__range">{{item.range}}</text>
-                </view>
-                <block wx:for="{{item.sessions}}" wx:for-item="session" wx:key="id">
-                  <template is="session-card" data="{{...session}}" />
-                </block>
+        <view class="date-section wrap">
+          <scroll-view scroll-x class="date-scroll" enhanced show-scrollbar="{{false}}">
+            <view class="date-row">
+              <view
+                wx:for="{{dayViews}}"
+                wx:key="iso"
+                class="date {{item.isActive ? 'is-active' : ''}} {{item.isToday ? 'is-today' : ''}}"
+                data-date="{{item.iso}}"
+                bindtap="selectDate"
+              >
+                <text class="date__cn">{{item.cn}}</text>
+                <text class="date__num">{{item.short}}</text>
+                <text class="date__tag">{{item.isToday ? '今天' : item.tag}}</text>
+                <text class="date__count">{{item.availableCount}} 可约</text>
               </view>
             </view>
-            <view wx:else class="sch-list wrap">
-              <block wx:for="{{sessions}}" wx:for-item="session" wx:key="id">
+          </scroll-view>
+        </view>
+
+        <view class="list-head wrap">
+          <text class="list-head__day">{{selectedDateLabel}}</text>
+          <text class="list-head__count">{{sessions.length}} 节 · {{selectedVenue.name}}</text>
+        </view>
+
+        <view wx:if="{{loadingSessions}}" class="loading"><view class="loading__bar"></view><text>正在加载场次</text></view>
+
+        <block wx:elif="{{sessions.length}}">
+          <view wx:if="{{mode === 'time'}}" class="time-list wrap">
+            <view wx:for="{{timeGroups}}" wx:key="key" class="time-group">
+              <view class="time-group__head">
+                <text class="time-group__label">{{item.label}}</text>
+                <text class="time-group__range">{{item.range}}</text>
+              </view>
+              <block wx:for="{{item.sessions}}" wx:for-item="session" wx:key="id">
                 <template is="session-card" data="{{...session}}" />
               </block>
             </view>
-          </block>
-
-          <view wx:else class="sch-empty wrap">
-            <view class="empty">
-              <view class="empty__icon">—</view>
-              <text class="empty__title">这天没有可约场次</text>
-              <text class="empty__desc">换一个日期，或切换其他教练/门店。</text>
-              <button class="empty__btn" bindtap="changeVenue">更换门店</button>
-            </view>
+          </view>
+          <view wx:else class="sch-list wrap">
+            <block wx:for="{{sessions}}" wx:for-item="session" wx:key="id">
+              <template is="session-card" data="{{...session}}" />
+            </block>
           </view>
         </block>
+
+        <view wx:else class="sch-empty wrap">
+          <view class="empty">
+            <view class="empty__icon">—</view>
+            <text class="empty__title">这天没有可约场次</text>
+            <text class="empty__desc">换一个日期，或切换其他教练/门店。</text>
+            <button class="empty__btn" bindtap="changeVenue">更换门店</button>
+          </view>
+        </view>
 
         <view class="sch-note wrap">先选门店，再按教练或时间约课；锁位后 10 分钟内确认。</view>
       </block>

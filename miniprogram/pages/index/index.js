@@ -20,9 +20,11 @@ Page({
     events: [],
     nextEvent: null,
     passCells: [],
+    pendingCard: null,
     expiresShort: '',
     entryVisible: false,
     entryBooking: null,
+    purchasePromptVisible: false,
     joiningChallenge: false,
     joiningEventId: '',
     brand: {},
@@ -38,6 +40,7 @@ Page({
   },
 
   onLoad() {
+    this._alive = true
     this.setData({ nav: navUtil.getNavMetrics(), greeting: dateUtil.greeting() })
     this.load()
   },
@@ -51,12 +54,16 @@ Page({
 
   onHide() {
     this.stopLockTicker()
+    clearTimeout(this.purchasePromptTimer)
     tab.setHidden(this, false)
     if (this.data.entryVisible) this.setData({ entryVisible: false })
+    if (this.data.purchasePromptVisible) this.setData({ purchasePromptVisible: false })
   },
 
   onUnload() {
+    this._alive = false
     this.stopLockTicker()
+    clearTimeout(this.purchasePromptTimer)
   },
 
   onRefresh() {
@@ -77,6 +84,7 @@ Page({
     if (showLoading) this.setData({ loading: true, error: '' })
     return Promise.all([api.home.get(), api.community.get().catch(() => null)])
       .then(([data, community]) => {
+        if (!this._alive) return
         const next = data.nextBooking
         const challenge = community ? community.challenge : null
         const challengePercent = challenge
@@ -115,6 +123,7 @@ Page({
           events,
           nextEvent,
           passCells,
+          pendingCard: (data.cardOrders || []).find((order) => order.status === 'pending') || null,
           expiresShort: String(data.member.expiresAt || '').replace(/-/g, '.'),
           messagesUnread: data.messagesUnread,
           greeting: dateUtil.greeting(),
@@ -126,11 +135,53 @@ Page({
           entryBooking: data.todayBooking || null,
         })
         this.startLockTicker()
+        this.maybePromptPurchase(data)
         if (auth.isLoggedIn() && data.member) auth.refreshUser(data.member)
       })
       .catch((error) => {
+        if (!this._alive) return
         this.setData({ loading: false, error: format.errorText(error) })
       })
+  },
+
+  maybePromptPurchase(data) {
+    const member = data.member || {}
+    const hasPending = (data.cardOrders || []).some((order) => order.status === 'pending')
+    if (Number(member.credits) > 0 || hasPending || this.purchasePromptShown) return
+    let shown = false
+    try {
+      shown = Boolean(wx.getStorageSync('volt.purchasePromptShown'))
+    } catch (error) {
+      shown = false
+    }
+    if (shown) return
+    this.purchasePromptShown = true
+    this.purchasePromptTimer = setTimeout(() => {
+      if (this._alive) this.setData({ purchasePromptVisible: true })
+    }, 420)
+  },
+
+  markPurchasePromptSeen() {
+    try {
+      wx.setStorageSync('volt.purchasePromptShown', true)
+    } catch (error) {
+      // storage blocked; still hide for this session
+    }
+  },
+
+  closePurchasePrompt() {
+    this.markPurchasePromptSeen()
+    this.setData({ purchasePromptVisible: false })
+  },
+
+  goPurchase() {
+    this.markPurchasePromptSeen()
+    this.setData({ purchasePromptVisible: false })
+    if (this.data.member && this.data.member.phoneBound === false) {
+      wx.navigateTo({ url: '/pages/bind-phone/index' })
+      return
+    }
+    wx.navigateTo({ url: '/pages/pass/index?buy=1' })
   },
 
   startLockTicker() {

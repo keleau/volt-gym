@@ -115,7 +115,7 @@
         <view class="pass-ticket" bindtap="goPass" hover-class="pass-ticket--hover">
           <view class="pass-ticket__top">
             <text class="pass-ticket__label mono">MEMBER PASS / 次卡</text>
-            <text class="pass-ticket__stamp mono">VALID</text>
+            <text class="pass-ticket__stamp mono">{{pendingCard ? 'PENDING' : 'VALID'}}</text>
           </view>
 
           <view class="pass-ticket__main">
@@ -129,6 +129,11 @@
             </view>
           </view>
 
+          <view wx:if="{{pendingCard}}" class="pass-ticket__pending">
+            <text class="mono">PENDING / 待开卡</text>
+            <text>{{pendingCard.planName}} · {{pendingCard.credits}} 次 · 到店付款后生效</text>
+          </view>
+
           <view class="pass-punches">
             <view
               wx:for="{{passCells}}"
@@ -140,7 +145,8 @@
           </view>
 
           <view class="pass-ticket__foot">
-            <text class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 按次付费</text>
+            <text wx:if="{{pendingCard}}" class="mono">到店付款后开卡</text>
+            <text wx:else class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 按次付费</text>
             <text class="pass-ticket__link">查看会员卡 →</text>
           </view>
         </view>
@@ -214,6 +220,29 @@
         <text>去进场</text><text class="today-btn__arrow">→</text>
       </button>
       <view class="entry-sheet__safe"></view>
+    </view>
+  </volt-sheet>
+
+  <volt-sheet
+    visible="{{purchasePromptVisible}}"
+    eyebrow="MEMBER PASS / 会员卡"
+    title="还没有次卡"
+    subtitle="先开一张，约课更顺手"
+    maxHeight="64vh"
+    bind:close="closePurchasePrompt"
+  >
+    <view class="purchase-prompt">
+      <view class="purchase-prompt__plan">
+        <view>
+          <text class="purchase-prompt__name serif">10 次充电卡</text>
+          <text class="purchase-prompt__meta">10 节 · 180 天 · 三店通用</text>
+        </view>
+        <text class="purchase-prompt__price serif">¥899</text>
+      </view>
+      <text class="purchase-prompt__note">到店付款后由店员开卡；开卡后次数自动到账，可直接约课。</text>
+      <button class="btn btn--primary btn--block purchase-prompt__buy" bindtap="goPurchase">去购卡</button>
+      <button class="btn btn--ghost btn--block" bindtap="closePurchasePrompt">先看看</button>
+      <view class="purchase-prompt__safe"></view>
     </view>
   </volt-sheet>
 

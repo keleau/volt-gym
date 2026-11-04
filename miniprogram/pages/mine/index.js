@@ -24,13 +24,11 @@ Page({
     invites: { records: [] },
     counts: {},
     nextBooking: null,
+    pendingCard: null,
     nextDayText: '',
     expiryDays: 0,
     planVisible: false,
     reminderVisible: false,
-    phoneVisible: false,
-    phoneInput: '',
-    bindingPhone: false,
     loginVisible: false,
   },
 
@@ -73,6 +71,7 @@ Page({
           invites: data.invites,
           counts: data.counts,
           nextBooking: next,
+          pendingCard: (data.cardOrders || []).find((order) => order.status === 'pending') || null,
           nextDayText: next
             ? `${dateUtil.relativeDay(next.date)} ${next.time} · ${next.venueName}`
             : '',
@@ -124,6 +123,10 @@ Page({
     wx.navigateTo({ url: `/pages/bookings/index?tab=${tabName}` })
   },
 
+  goBuyPass() {
+    wx.navigateTo({ url: '/pages/pass/index?buy=1' })
+  },
+
   onGoMessages() {
     wx.navigateTo({ url: '/pages/messages/index' })
   },
@@ -149,43 +152,11 @@ Page({
   },
 
   openPhoneBind() {
-    tab.setHidden(this, true)
-    this.setData({
-      phoneVisible: true,
-      phoneInput: '',
-    })
-  },
-
-  closePhoneBind() {
-    tab.setHidden(this, false)
-    this.setData({ phoneVisible: false })
-  },
-
-  onPhoneInput(event) {
-    this.setData({ phoneInput: event.detail.value })
-  },
-
-  bindPhone() {
-    if (this.data.bindingPhone) return
-    const phone = String(this.data.phoneInput || '').trim()
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({ title: '请填写正确的 11 位手机号', icon: 'none' })
+    if (this.data.member && this.data.member.phoneBound) {
+      wx.showToast({ title: `已绑定 ${this.data.member.phone}`, icon: 'none' })
       return
     }
-    this.setData({ bindingPhone: true })
-    api.auth
-      .linkPhone({ phone })
-      .then((member) => {
-        auth.refreshUser(member)
-        tab.setHidden(this, false)
-        this.setData({ bindingPhone: false, phoneVisible: false, member })
-        wx.showToast({ title: '手机号已绑定', icon: 'success' })
-        this.load(false)
-      })
-      .catch((error) => {
-        this.setData({ bindingPhone: false })
-        wx.showToast({ title: format.errorText(error), icon: 'none' })
-      })
+    wx.navigateTo({ url: '/pages/bind-phone/index' })
   },
 
   onToggleSub(event) {

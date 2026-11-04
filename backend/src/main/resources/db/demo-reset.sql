@@ -5,6 +5,7 @@
 DELETE FROM volt_event_signup;
 DELETE FROM volt_challenge_join;
 DELETE FROM volt_booking;
+DELETE FROM volt_card_order;
 DELETE FROM volt_idempotency;
 DELETE FROM volt_credit_ledger;
 DELETE FROM volt_invite;

@@ -8,6 +8,9 @@ public interface VoltAuthService {
 
     Map<String, Object> sendOtp(String phone);
 
+    /** 微信登录后绑定手机号专用验证码。 */
+    Map<String, Object> sendBindOtp(VoltMember member, String phone);
+
     Map<String, Object> verifyOtp(String phone, String code);
 
     /**
@@ -16,7 +19,8 @@ public interface VoltAuthService {
      */
     Map<String, Object> loginWithWechat(Map<String, Object> input);
 
-    Map<String, Object> linkPhone(VoltMember member, String phone);
+    /** 校验绑定验证码后，把手机号绑定/合并到当前微信会员。 */
+    Map<String, Object> linkPhone(VoltMember member, String phone, String code);
 
     /**
      * 解析 Bearer token：

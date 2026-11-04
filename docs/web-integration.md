@@ -111,6 +111,21 @@ node tools/api-check.mjs
 | POST | `/api/v1/auth/otp/verify` | - | 换 token |
 | GET | `/api/v1/member/bookings` | 是 | 会员预约台账 |
 | PATCH | `/api/v1/member/me` | 是 | 会员资料 |
+| POST | `/api/v1/card-orders` | 可选 | 官网购卡登记，生成 `pending` 单，不收款 |
+| GET | `/api/v1/member/card-orders` | 是 | 会员购卡登记列表 |
+| GET | `/api/v1/staff/card-orders` | 店员密钥 | 店员按手机号/状态查待开卡 |
+| POST | `/api/v1/staff/card-orders/{orderNo}/activate` | 店员密钥 | 店员确认收款后开卡 |
+
+### 2.5 官网体验课与购卡登记是两条路径
+
+04 屏不再把“买卡”做成一次预约：
+
+- `PLAN-01` 首次体验课：走 `POST /bookings`，生成普通预约，金额仅展示，到店付款。
+- `PLAN-03` 10 次充电卡：走 `POST /card-orders`，生成购卡登记单，**不生成预约、不占座**。
+- 到店付款后，店员在官网 `/staff` 页面确认开卡；会员下次登录官网或刷新会员面板时，权益按手机号领取。
+- 本地演示可设 `VOLT_DEMO_PAY=true`，小程序会员卡页会出现「演示支付并开卡」；它只改业务状态，不调用微信支付。
+- 会员账号与次卡权益分开：OTP 登录只代表有账号，开卡确认后才写入 `credits / planCode / expiresAt`。
+- 小程序绑定同一手机号时会合并账号；如果官网先登录过，绑定不会丢卡。
 
 后端与契约的一致性由 `tools/api-check.mjs` 自动核对，改后端后跑一遍即可。
 
@@ -185,8 +200,8 @@ function authHeaders() {
 }
 ```
 
-- 匿名预约：不带 `Authorization`，由后端按手机号识别游客；
-- 已登录会员：带 token，后端直接挂到 Member；
+- 官网体验课预约固定按游客提交（`createBooking` 传 `auth:false`），即使已登录也不带 token；登录只用于查看会员卡/购卡登记，次卡约课在小程序；
+- 社区报名等需要会员归属的写请求仍按登录态带 token；
 - token 过期返回 401 `UNAUTHORIZED`：清除本地会话，提示重新登录；不要静默降级为游客再提交一次，避免生成重复预约。
 
 后端当前的判定：**带了 token 但无效或过期一律返回 401**（可选鉴权接口也不例外），让前端有机会清掉失效会话。为此适配层做了区分处理：
@@ -379,7 +394,7 @@ Idempotency-Key: 8f4c2b1e-...
 - 日期超出窗口：400 `DATE_OUT_OF_RANGE`；
 - 当天场次全部已开课：409 `PAST_SESSION`（不是 `SLOT_FULL`，避免误导成“约满”）；
 - 写入必须幂等，重复提交不得生成第二张预约；
-- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 99 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次。
+- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 99 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。官网本期只把 `PLAN-01` 作为体验课预约；`PLAN-03` 走 `/card-orders` 登记，不占用场次。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次。
 
 后端实现补充：
 
@@ -402,7 +417,7 @@ Idempotency-Key: 8f4c2b1e-...
     "lockExpiresAt": null,
     "source": "web",
     "planCode": "PLAN-01",
-    "planName": "首次接入包",
+    "planName": "首次体验课",
     "amount": 49,
     "name": "林一",
     "phone": "138****8000",
@@ -702,7 +717,7 @@ localStorage.removeItem('volt.selection.v1')
 
 - 官网完整会员中心（历史档案/消息/资料编辑/取消改期）；
 - 官网周课表与按教练筛选（小程序已有）；
-- 微信支付、退款、改期、转赠、优惠券；
+- 微信支付、在线收款、退款、改期、转赠、优惠券；
 - 短信通知；
 - 官网候补。
 

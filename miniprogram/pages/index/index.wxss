@@ -479,6 +479,24 @@
   color: #72654f;
 }
 
+.pass-ticket__pending {
+  display: flex;
+  flex-direction: column;
+  gap: 3rpx;
+  margin-top: 14rpx;
+  padding: 12rpx 14rpx;
+  border-left: 6rpx solid #a33b2b;
+  background: #f6e7df;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.pass-ticket__pending .mono {
+  font-size: 16rpx;
+  letter-spacing: 0.08em;
+  color: #873023;
+}
+
 .pass-punches {
   display: flex;
   gap: 6rpx;
@@ -888,3 +906,55 @@
   }
 }
 
+
+/* ---------- purchase prompt ---------- */
+
+.purchase-prompt {
+  padding-top: 4rpx;
+}
+
+.purchase-prompt__plan {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 18rpx;
+  border: 1rpx solid #d9cbb6;
+  background: #fdf9f0;
+}
+
+.purchase-prompt__name {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1b1712;
+}
+
+.purchase-prompt__meta {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: #635846;
+}
+
+.purchase-prompt__price {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #a33b2b;
+}
+
+.purchase-prompt__note {
+  display: block;
+  margin: 16rpx 0;
+  font-size: 21rpx;
+  line-height: 1.6;
+  color: #635846;
+}
+
+.purchase-prompt__buy {
+  margin-top: 6rpx !important;
+}
+
+.purchase-prompt__safe {
+  height: calc(20rpx + env(safe-area-inset-bottom));
+}

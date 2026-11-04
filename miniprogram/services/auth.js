@@ -43,11 +43,12 @@ function bootstrap() {
   const session = getSession()
   if (isSessionFresh(session)) {
     api.setAuthGate(Promise.resolve(session))
-    return session
+    return Promise.resolve(session)
   }
   if (session) clearSession()
-  api.setAuthGate(startAutoLogin())
-  return null
+  const login = startAutoLogin()
+  api.setAuthGate(login)
+  return login.catch(() => null)
 }
 
 function startAutoLogin() {
@@ -119,6 +120,14 @@ function refreshUser(member) {
   return saveSession(session)
 }
 
+function applyMember(member, token) {
+  const session = getSession()
+  if (!session) return null
+  if (token) session.token = token
+  session.user = member
+  return saveSession(session)
+}
+
 function logout() {
   clearSession()
   autoLogin = null
@@ -141,5 +150,6 @@ module.exports = {
   isLoggedIn,
   loginWithWechat,
   refreshUser,
+  applyMember,
   logout,
 }

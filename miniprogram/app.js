@@ -2,7 +2,14 @@ const auth = require('./services/auth')
 
 App({
   onLaunch() {
-    auth.bootstrap()
+    auth.bootstrap().then((session) => {
+      const member = session && session.user
+      if (member && !member.phoneBound) {
+        setTimeout(() => {
+          wx.reLaunch({ url: '/pages/bind-phone/index' })
+        }, 50)
+      }
+    }).catch(() => {})
 
     if (wx.getUpdateManager) {
       const updateManager = wx.getUpdateManager()

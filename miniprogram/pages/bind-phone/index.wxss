@@ -1,0 +1,135 @@
+.bind-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f2e6;
+}
+
+.bind-scroll {
+  width: 100%;
+  height: 100vh;
+}
+
+.bind-head {
+  padding-top: 34rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #d9cbb6;
+}
+
+.bind-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #635846;
+}
+
+.bind-kicker__node {
+  width: 12rpx;
+  height: 12rpx;
+  background: #a33b2b;
+}
+
+.bind-title {
+  display: block;
+  margin-top: 10rpx;
+  font-family: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: 52rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1b1712;
+}
+
+.bind-sub {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.65;
+  color: #635846;
+}
+
+.bind-current {
+  margin-top: 18rpx;
+}
+
+.bind-card {
+  margin-top: 24rpx;
+  padding: 24rpx;
+}
+
+.bind-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin-bottom: 22rpx;
+}
+
+.bind-field__label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #1b1712;
+}
+
+.bind-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.bind-input {
+  flex: 1;
+  min-width: 0;
+  height: 84rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #c6b69e;
+  border-radius: 0;
+  background: #ffffff;
+  font-size: 28rpx;
+  color: #1b1712;
+}
+
+.bind-code-btn {
+  flex: none;
+  height: 84rpx;
+  padding: 0 20rpx;
+  background: #1b1712;
+  color: #fbf5e9;
+  font-size: 24rpx;
+  line-height: 84rpx;
+  text-align: center;
+}
+
+.bind-code-btn[disabled] {
+  opacity: 0.55;
+}
+
+.bind-dev {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 20rpx;
+  color: #873023;
+}
+
+.bind-error {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #873023;
+}
+
+.bind-submit {
+  margin-top: 8rpx !important;
+}
+
+.bind-note {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: #72654f;
+}
+
+.bind-bottom {
+  height: calc(40rpx + env(safe-area-inset-bottom));
+}

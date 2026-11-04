@@ -23,7 +23,7 @@
           <text class="challenge-card__title serif">{{challenge.title}}</text>
           <text class="challenge-card__desc">{{challenge.desc}}</text>
           <view class="challenge-card__progress">
-            <view class="challenge-card__progress-bar" style="width:{{challenge.percent}}%"></view>
+            <view class="challenge-card__progress-bar" style="width:{{challengePercent}}%"></view>
           </view>
           <view class="challenge-card__foot">
             <text>本周进度 {{challenge.myProgress}} / {{challenge.sessions}} 次</text>

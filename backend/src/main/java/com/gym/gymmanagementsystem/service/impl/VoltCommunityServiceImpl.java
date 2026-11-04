@@ -58,6 +58,7 @@ public class VoltCommunityServiceImpl implements VoltCommunityService {
         Challenge challenge = communityMapper.findCurrentChallenge();
         boolean joinedByMe = challenge != null && phone != null
                 && communityMapper.findChallengeJoin(challenge.getChallengeId(), phone) != null;
+        Map<String, Object> memberStats = member == null ? null : support.stats(member.getMemberId());
 
         List<String> signedEventIds = phone == null ? List.of() : communityMapper.findSignedEventIds(phone);
 
@@ -67,18 +68,48 @@ public class VoltCommunityServiceImpl implements VoltCommunityService {
 
         Map<String, Object> challengeView = challenge == null ? null : viewService.challengeView(challenge, joinedByMe);
         if (challengeView != null) {
-            challengeView.put("myProgress", member == null ? 0
-                    : support.stats(member.getMemberId()).get("weekSessions"));
+            challengeView.put("myProgress", memberStats == null ? 0 : memberStats.get("weekSessions"));
         }
 
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("stats", CommunityContent.STATS);
-        resp.put("ranking", CommunityContent.RANKING);
+        resp.put("ranking", ranking(member, memberStats));
         resp.put("stories", CommunityContent.STORIES);
         resp.put("events", events);
         resp.put("challenge", challengeView);
         resp.put("membership", membership);
         return resp;
+    }
+
+    private List<Map<String, Object>> ranking(VoltMember member, Map<String, Object> stats) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (Map<String, Object> row : CommunityContent.RANKING) {
+            Map<String, Object> copy = new LinkedHashMap<>(row);
+            copy.put("me", false);
+            rows.add(copy);
+        }
+        if (member != null && stats != null) {
+            String code = member.getReferralCode();
+            if (code == null || code.isBlank()) {
+                code = member.getMemberNo() == null ? member.getMemberId() : member.getMemberNo();
+            }
+            Map<String, Object> me = new LinkedHashMap<>();
+            me.put("code", code);
+            me.put("sessions", number(stats.get("totalSessions")));
+            me.put("minutes", Math.round(((Number) stats.getOrDefault("totalHours", 0)).floatValue() * 60));
+            me.put("weeks", number(stats.get("streakWeeks")));
+            me.put("me", true);
+            rows.add(me);
+        }
+        rows.sort((a, b) -> Integer.compare(number(b.get("sessions")), number(a.get("sessions"))));
+        for (int i = 0; i < rows.size(); i++) {
+            rows.get(i).put("no", String.format("%02d", i + 1));
+        }
+        return rows;
+    }
+
+    private int number(Object value) {
+        return value instanceof Number number ? number.intValue() : 0;
     }
 
     @Override

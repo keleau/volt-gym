@@ -109,6 +109,17 @@ Page({
 
   triggerScan() {
     if (this.data.phase === 'checking') return
+    if (this.data.member && this.data.member.phoneBound === false) {
+      wx.showModal({
+        title: '先绑定手机号',
+        content: '绑定手机号后才能核销课程和记录训练。',
+        confirmText: '去绑定',
+        success: (res) => {
+          if (res.confirm) wx.navigateTo({ url: '/pages/bind-phone/index' })
+        },
+      })
+      return
+    }
     if (this.data.platform === 'devtools') {
       this.onSimulate()
       return
@@ -177,7 +188,7 @@ Page({
       setTimeout(() => this.setData({ checkStage: 1 }), 420),
       setTimeout(() => this.setData({ checkStage: 2 }), 940),
     ]
-    Promise.all([geo.verifyVenue(code), delay(1180)])
+    Promise.all([geo.verifyVenue(code, venue), delay(1180)])
       .then((results) => {
         const location = results[0]
         this.locationMeta = location
@@ -354,7 +365,9 @@ Page({
   },
 
   onOpenVenue(event) {
-    geo.openVenueMap(event.currentTarget.dataset.code)
+    const code = event.currentTarget.dataset.code
+    const venue = this.data.venues.find((item) => item.code === code)
+    geo.openVenueMap(code, venue)
   },
 
   onCall() {

@@ -3,7 +3,7 @@
     <header class="price-head">
       <p class="offer-no mono">04 / PRICE + BOOKING</p>
       <h2>今夜<em>电价</em></h2>
-      <p class="price-note">选一个价格，填一下，位置就留下。</p>
+      <p class="price-note">先约一节体验，或者直接把 10 次卡记到手机号上。</p>
     </header>
 
     <div class="plan-list" role="radiogroup" aria-label="选择价格">
@@ -14,7 +14,6 @@
         class="plan-row"
         :class="{ selected: selected === plan.code }"
         :aria-pressed="selected === plan.code"
-        :disabled="locked"
         :style="{ '--i': i }"
         @click="$emit('select', plan)"
       >
@@ -30,11 +29,9 @@
       </button>
     </div>
 
-    <p v-if="locked" class="plan-locked mono">MEMBER PASS · 会员次卡已接管价格选择</p>
-
     <footer class="price-foot mono">
-      <span>按次付费 · 不办年卡</span>
-      <span>03 STATIONS</span>
+      <span>体验课到店付款 · 次卡开卡后小程序约课</span>
+      <span>单次到店 ¥99</span>
     </footer>
   </section>
 </template>
@@ -44,14 +41,12 @@ defineProps({
   plans: { type: Array, required: true },
   selected: { type: String, default: '' },
   active: { type: Boolean, default: false },
-  locked: { type: Boolean, default: false },
 })
 defineEmits(['select'])
 
 const planLines = {
   'PLAN-01': '团课 1 节 + InBody 体测 + 教练建议',
-  'PLAN-02': '按次付，不绑卡，小程序选课',
-  'PLAN-03': '10 节 / 180 天，可与朋友共用',
+  'PLAN-03': '10 节 / 180 天，到店付款后开卡',
 }
 </script>
 
@@ -92,15 +87,6 @@ const planLines = {
   color: color-mix(in srgb, #F2EFE4 62%, transparent);
 }
 
-.plan-row:disabled {
-  cursor: default;
-}
-.plan-locked {
-  margin: 8px 0 0;
-  font-size: 8px;
-  letter-spacing: .08em;
-  color: color-mix(in srgb, oldlace 58%, transparent);
-}
 .plan-list {
   flex: none;
   min-height: 0;

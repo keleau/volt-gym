@@ -1,5 +1,6 @@
 <template>
-  <CommunityPage v-if="view === 'community'" />
+  <StaffPage v-if="view === 'staff'" />
+  <CommunityPage v-else-if="view === 'community'" />
   <VoltExperience v-else />
 </template>
 
@@ -7,11 +8,13 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import VoltExperience from './components/volt/VoltExperience.vue'
 import CommunityPage from './components/community/CommunityPage.vue'
+import StaffPage from './components/staff/StaffPage.vue'
 
 const view = ref(readHash())
 
 function readHash() {
   const h = typeof window === 'undefined' ? '' : window.location.hash
+  if (h === '#staff' || h === '#staff/' || h.startsWith('#staff/')) return 'staff'
   return h === '#community' || h === '#community/' ? 'community' : 'home'
 }
 

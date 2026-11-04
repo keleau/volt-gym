@@ -2,7 +2,6 @@ const api = require('../../services/api')
 const navUtil = require('../../utils/nav')
 const format = require('../../utils/format')
 const geo = require('../../services/geo')
-const volt = require('../../data/volt')
 
 Page({
   data: {
@@ -41,7 +40,7 @@ Page({
         }
         const venues = this.data.venues
           .map((venue) => {
-            const target = volt.venueGeo[venue.code]
+            const target = geo.venuePoint(venue.code, venue)
             if (!target) return venue
             const meters = geo.distanceMeters(location, target)
             return Object.assign({}, venue, {
@@ -62,7 +61,9 @@ Page({
   },
 
   onNavigate(event) {
-    geo.openVenueMap(event.currentTarget.dataset.code)
+    const code = event.currentTarget.dataset.code
+    const venue = this.data.venues.find((item) => item.code === code)
+    geo.openVenueMap(code, venue)
   },
 
   onShareAppMessage() {

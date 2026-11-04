@@ -40,6 +40,31 @@ CREATE TABLE IF NOT EXISTS volt_plan (
     sort_order   INT           NOT NULL DEFAULT 0
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
+-- 官网购卡登记：pending = 已登记待付款；activated = 店员已确认开卡；
+-- applied_at 为空表示权益还没合并到会员（例如用户尚未登录/绑定手机号）。
+CREATE TABLE IF NOT EXISTS volt_card_order (
+    card_order_id VARCHAR(32)  NOT NULL PRIMARY KEY,
+    order_no      VARCHAR(32)  NOT NULL,
+    member_id     VARCHAR(32)  NULL,
+    member_name   VARCHAR(32)  NOT NULL DEFAULT '',
+    member_phone  VARCHAR(20)  NOT NULL,
+    plan_code     VARCHAR(16)  NOT NULL,
+    plan_name     VARCHAR(32)  NOT NULL DEFAULT '',
+    amount        INT          NOT NULL DEFAULT 0,
+    credits       INT          NOT NULL DEFAULT 0,
+    valid_days    INT          NOT NULL DEFAULT 0,
+    venue_code    VARCHAR(16)  NOT NULL DEFAULT '',
+    note          VARCHAR(255) NOT NULL DEFAULT '',
+    status        VARCHAR(16)  NOT NULL DEFAULT 'pending',
+    created_at    DATETIME     NOT NULL,
+    activated_at  DATETIME     NULL,
+    activated_by  VARCHAR(32)  NOT NULL DEFAULT '',
+    applied_at    DATETIME     NULL,
+    UNIQUE KEY uk_card_order_no (order_no),
+    KEY idx_card_order_phone (member_phone, status),
+    KEY idx_card_order_member (member_id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS volt_coach (
     coach_id    VARCHAR(8)   NOT NULL PRIMARY KEY,
     coach_name  VARCHAR(32)  NOT NULL,

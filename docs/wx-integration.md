@@ -216,42 +216,48 @@ class ApiError extends Error {
 
 ### 4.3 手机号绑定
 
-当前实现是手动输入（`miniprogram/pages/mine/index.js:174-190`）：
+微信登录后，未绑定手机号的会员会进入 `pages/bind-phone/index`，完成“手机号 + 短信验证码”绑定：
+
+1. `wx.login` → 后端按 openid 找到/创建会员，`phoneBound=false`；
+2. 绑定页输入手机号，调用 `POST /auth/phone/send`（需 token）；
+3. 输入验证码，调用 `POST /auth/link-phone`，body 为 `{ phone, code }`；
+4. 后端校验 `purpose=bind` 的 OTP，再绑定/合并会员，返回 `{ member, merged, token? }`。
 
 ```js
-api.auth.linkPhone({ phone })
+api.auth.sendBindCode(phone)
+api.auth.linkPhone({ phone, code })
 ```
 
-Mock 接受 `{ phone }`。正式小程序应改为微信手机号授权：
-
-```html
-<button open-type="getPhoneNumber" bindgetphonenumber="onGetPhone" />
-```
-
-```js
-onGetPhone(e) {
-  const code = e.detail.code
-  api.auth.linkPhone({ code })
-}
-```
-
-后端用 `code` 换取手机号并完成绑定，客户端不接触加密数据。适配层可以按模式分流：
-
-```js
-linkPhone(payload) {
-  const body = config.USE_MOCK ? { phone: payload.phone } : { code: payload.code }
-  ...
-}
-```
-
-注意：手机号快速验证组件要求非个人主体小程序，并按成功调用次数计费；资质或成本不适合时，可以保留手动输入，或引导用户到官网走 OTP 登录后再合并。
+本地联调设置 `VOLT_EXPOSE_OTP=true`，`/auth/phone/send` 会在响应里返回 `devCode`；生产接短信通道。微信手机号快速验证组件 `getPhoneNumber` 要求非个人主体小程序，且按成功调用计费，当前 Demo 不使用。
 
 绑定后：
 
+- 返回 `{ member, merged, token? }`：`merged=true` 表示该手机号已有官网会员，后端已把微信会员合并过去；如果换了主账号，会额外返回新 `token`，小程序要写回 `volt.session`。
 - 返回最新 Member，页面刷新 `phoneBound`、`phone`；
 - 同一手机号的官网游客预约必须能认领；
 - 认领幂等，不重复创建预约、不重复占库存；
-- 手机号唯一，冲突时返回 409 或明确业务码（需后端确认）。
+- 手机号唯一；如果手机号已绑定其他微信，返回 409 `PHONE_TAKEN`，提示联系前台处理。两边都有次卡时会合并次数，不会丢卡。
+
+### 4.4 官网购卡单
+
+官网 `/card-orders` 生成的登记单会随 `/member/home`、`/member/account` 的 `cardOrders[]` 返回：
+
+- `status=pending`：会员卡页显示「待开卡 · 到店付款后生效」，不显示“余额不足”；
+- `status=activated` 且 `applied=true`：次数已并入会员，正常展示 `credits`；
+- 小程序登录、绑定手机号、进入首页/会员卡页时，后端会自动领取已开卡但未入账的权益，不需要单独点“同步”。
+
+小程序会员卡页也可以直接登记购卡：
+
+- 点次卡方案行 → 底部弹层选择开卡门店 → `POST /card-orders`；
+- 登记成功后显示「待开卡」，到店付款后由店员开卡；
+- 会员卡页同时读取 `GET /member/credits/ledger`，展示 `CARD` / `CHECKIN` 等次卡流水；
+- 新用户（无次卡、无待开卡）首次进入首页会收到一次购卡提示，关闭后仍可从「我的 → 购买会员卡」进入。
+
+本地演示打开 `VOLT_DEMO_PAY=true` 后，会员卡页会出现「演示支付并开卡」：
+
+- 按钮会二次确认，并明确标注“演示用 · 不会真实扣款”；
+- 调用 `POST /demo/card-orders/{orderNo}/pay`，只把购卡单标记为已开卡，不调用 `wx.requestPayment`；
+- 成功后刷新会员卡页，次数自动到账。生产必须关闭该开关，不能把它当真实微信支付。
 
 ### 4.4 邀请绑定
 
@@ -292,7 +298,7 @@ linkPhone(payload) {
 | 记录页加载 | `miniprogram/pages/archive/index.js:67` | `api.archive.get()` | `GET /member/archive?month=` |
 | 记录身体数据 | `miniprogram/pages/archive/index.js:261` | `api.archive.addBodyLog({ heightCm, weightKg })` | `POST /member/body-logs` |
 | 我的加载 | `miniprogram/pages/mine/index.js:59` | `api.mine.get()` | `GET /member/account` |
-| 手机号绑定 | `miniprogram/pages/mine/index.js:174` | `api.auth.linkPhone(payload)` | `POST /auth/link-phone` |
+| 手机号绑定 | `pages/bind-phone/index.js` | `api.auth.sendBindCode` → `api.auth.linkPhone({phone, code})` | `POST /auth/phone/send` → `POST /auth/link-phone` |
 | 提醒偏好 | `miniprogram/pages/mine/index.js:197` | `api.messages.setSubscription(key, value)` | `PATCH /member/subscriptions` |
 | 重置演示数据 | `miniprogram/pages/mine/index.js:243` | `api.demo.reset()` | 真实模式禁用 |
 | 消息列表 | `miniprogram/pages/messages/index.js:47` | `api.messages.list()` | `GET /member/messages` |
@@ -956,7 +962,7 @@ wx.removeStorageSync('volt.lastVenue')
 
 ## 13. 本期不做
 
-- 微信支付、退款、购卡下单；
+- 微信支付、退款、在线收款；
 - 改期、转赠、多人同行、优惠券；
 - 管理后台、短信通道；
 - 跨城门店；

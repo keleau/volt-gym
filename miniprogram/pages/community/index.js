@@ -14,6 +14,7 @@ Page({
     stories: [],
     stats: [],
     challenge: null,
+    challengePercent: 0,
     joiningEventId: '',
     joiningChallenge: false,
   },
@@ -41,6 +42,15 @@ Page({
             monthShort: view.eventMonthShort(event.month),
           }),
         )
+        const challenge = community.challenge || null
+        const challengePercent = challenge
+          ? Math.min(
+              100,
+              Math.round(
+                (Number(challenge.myProgress || 0) / Math.max(1, Number(challenge.sessions || 1))) * 100,
+              ),
+            )
+          : 0
         this.setData({
           loading: false,
           community,
@@ -49,7 +59,8 @@ Page({
           rankingPreview: (community.ranking || []).slice(0, 3),
           stories,
           stats: community.stats || [],
-          challenge: community.challenge || null,
+          challenge,
+          challengePercent,
         })
       })
       .catch((error) => {

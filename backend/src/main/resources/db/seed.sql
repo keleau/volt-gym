@@ -31,7 +31,7 @@ VALUES
 INSERT IGNORE INTO volt_plan
 (plan_code, plan_name, plan_en, price, unit_text, featured, points_json, cta_text, sort_order)
 VALUES
-('PLAN-01', '首次接入包', 'FIRST ACCESS', 49, '一次性', 1,
+('PLAN-01', '首次体验课', 'FIRST TRIAL', 49, '单次', 1,
  '["团课 1 节，任选课程","InBody 体测 1 次","教练 1 对 1 训练建议","三店通用，到期自动失效"]',
  'RUN > 立即接入', 1),
 ('PLAN-02', '按次充电', 'PAY PER SESSION', 99, '每节起', 0,

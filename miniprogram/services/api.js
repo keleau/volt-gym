@@ -163,6 +163,12 @@ module.exports = {
         data: payload,
       })
     },
+    sendBindCode(phone) {
+      return call('/auth/phone/send', {
+        method: 'POST',
+        data: { phone },
+      })
+    },
   },
 
   catalog: {
@@ -278,6 +284,24 @@ module.exports = {
         method: 'PATCH',
         data: payload,
       })
+    },
+  },
+
+  credits: {
+    ledger() {
+      return call('/member/credits/ledger')
+    },
+  },
+
+  card: {
+    create(payload) {
+      return call('/card-orders', {
+        method: 'POST',
+        data: payload,
+      })
+    },
+    demoPay(orderNo) {
+      return call(`/demo/card-orders/${orderNo}/pay`, { method: 'POST' })
     },
   },
 

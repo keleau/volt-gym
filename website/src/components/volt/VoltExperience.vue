@@ -1,6 +1,15 @@
 <template>
   <div class="volt-app" :data-step="chromeStep.id">
-    <VoltHeader :steps="steps" :nav="navMain" :active="chromeIndex" :cta="3" @go="handleGo" @community="goCommunity" />
+    <VoltHeader
+      :steps="steps"
+      :nav="navMain"
+      :active="chromeIndex"
+      :cta="3"
+      :member="memberSession?.member || null"
+      @go="handleGo"
+      @community="goCommunity"
+      @member="openMember"
+    />
 
     <main class="stage">
       <section
@@ -61,6 +70,12 @@
 
     <VoltRail :steps="steps" :active="chromeIndex" @go="handleGo" />
     <VoltGateFooter ref="gateRef" :steps="steps" :active="chromeIndex" />
+    <MemberModal
+      :open="memberOpen"
+      @close="memberOpen = false"
+      @change="onMemberChange"
+      @mini="goMini"
+    />
 
     <p class="sr-only" aria-live="polite">{{ announcement }}</p>
   </div>
@@ -83,6 +98,8 @@ import StepStations from './steps/StepStations.vue'
 import StepPrograms from './steps/StepPrograms.vue'
 import StepOffer from './steps/StepOffer.vue'
 import StepFooter from './steps/StepFooter.vue'
+import MemberModal from './member/MemberModal.vue'
+import { getWebSession } from '../../services/api/index.js'
 import { selection, setSelection } from '../../services/selection.js'
 import { HOME_STEPS as steps, NAV_MAIN as navMain } from '../../data/steps.js'
 
@@ -154,6 +171,26 @@ const seamGlow = ref(null)
 const seamLine = ref(null)
 const dissolveEl = ref(null)
 const screenEls = []
+
+const memberOpen = ref(false)
+const memberSession = ref(getWebSession())
+
+function openMember() {
+  memberOpen.value = true
+}
+
+function syncMemberSession() {
+  memberSession.value = getWebSession()
+}
+
+function onMemberChange() {
+  syncMemberSession()
+}
+
+function goMini() {
+  memberOpen.value = false
+  if (typeof window !== 'undefined') window.location.hash = 'footer'
+}
 
 const chromeIndex = computed(() => chromeAt.value ?? active.value)
 const chromeStep = computed(() => steps[chromeIndex.value] ?? steps[0])
@@ -344,7 +381,7 @@ function goCommunity() {
 
 function onHashChange() {
   const id = decodeURIComponent(String(window.location.hash || '').replace(/^#\/?/, ''))
-  if (id === 'community') return
+  if (id === 'community' || id === 'staff') return
   const index = indexFromHash(window.location.hash)
   if (index !== active.value) goTo(index)
 }
@@ -435,6 +472,8 @@ function onResize() {
 
 onMounted(() => {
   reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  window.addEventListener('volt:session-changed', syncMemberSession)
+  window.addEventListener('volt:session-expired', syncMemberSession)
   window.addEventListener('wheel', onWheel, { passive: false })
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -458,6 +497,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   clearTimeout(introTimer)
+  window.removeEventListener('volt:session-changed', syncMemberSession)
+  window.removeEventListener('volt:session-expired', syncMemberSession)
   window.removeEventListener('wheel', onWheel)
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('touchstart', onTouchStart)

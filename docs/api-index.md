@@ -15,7 +15,7 @@
 | 幂等 | 写请求可带 `Idempotency-Key`；同一 key + endpoint 重试时返回首次结果 |
 | 时间 | 日期 `yyyy-MM-dd`，时间 `HH:mm`，毫秒时间戳为 number |
 
-常见错误码：`VALIDATION_ERROR`、`UNAUTHORIZED`、`NOT_FOUND`、`NO_CREDITS`、`PASS_EXPIRED`、`SLOT_FULL`、`LOCK_EXPIRED`、`BAD_STATE`、`CANCEL_WINDOW_CLOSED`、`HAS_SEAT`、`RATE_LIMITED`、`SERVER_ERROR`。
+常见错误码：`VALIDATION_ERROR`、`UNAUTHORIZED`、`NOT_FOUND`、`NO_CREDITS`、`PASS_EXPIRED`、`SLOT_FULL`、`LOCK_EXPIRED`、`BAD_STATE`、`CANCEL_WINDOW_CLOSED`、`HAS_SEAT`、`RATE_LIMITED`、`DUPLICATE_CARD_ORDER`、`CARD_ORDER_CLOSED`、`STAFF_DISABLED`、`DEMO_PAY_DISABLED`、`PHONE_ALREADY_BOUND`、`SERVER_ERROR`。
 
 ## 2. 服务职责
 
@@ -29,15 +29,17 @@
 | `service/mini/VoltScheduleService` | 课表、场次、锁位/确认/取消、候补、锁位超时任务 | `/catalog/schedule`、`/sessions/{id}`、`/sessions/{id}/bookings`、`/sessions/{id}/waitlist` |
 | `service/mini/VoltMiniSupport` | 共享查询 / 视图 / ID / 格式化，无 HTTP 入口 | 被以上四个服务注入 |
 | `service/VoltMemberServiceImpl` | 只保留会员资料修改 | `PATCH /member/me` |
+| `service/VoltCardOrderServiceImpl` | 官网购卡登记、店员开卡、登录时领取已开卡权益 | `/card-orders`、`/staff/card-orders` |
 
 ## 3. 登录与目录
 
 | 方法 | 路径 | 登录 | 说明 |
 | --- | --- | --- | --- |
 | POST | `/auth/otp/send` | 否 | body `{phone}`；本地 `VOLT_EXPOSE_OTP=true` 时额外返回 `devCode` |
+| POST | `/auth/phone/send` | 是 | 微信换绑/首次绑定手机号专用验证码，`purpose=bind`；已绑定账号返回 `PHONE_ALREADY_BOUND` |
 | POST | `/auth/otp/verify` | 否 | body `{phone, code}`；返回 `{token, member}`，登录后认领同手机号的游客预约/报名/挑战 |
 | POST | `/auth/wx/login` | 否 | body `{code, nickname?}`；小程序 wx.login 换会员 |
-| POST | `/auth/link-phone` | 是 | body `{phone}`；把当前微信会员绑定到手机号并合并记录 |
+| POST | `/auth/link-phone` | 是 | body `{phone, code}`；先校验 `bind` 验证码，再绑定/合并手机号记录；返回 `{member, merged, token?}` |
 | GET | `/catalog/venues` | 否 | 门店 |
 | GET | `/catalog/programs` | 否 | 课程 |
 | GET | `/catalog/plans` | 否 | 次卡价格 |
@@ -52,6 +54,13 @@
 | GET | `/community` | 否/可选 | — | 社区聚合 |
 | POST | `/events/{eventId}/signups` | 否/可选 | 是 | 活动报名 |
 | POST | `/challenges/current/join` | 否/可选 | 是 | 加入本周挑战 |
+| POST | `/card-orders` | 否/可选 | 否 | 官网购卡登记；`PLAN-03` = 10 次 / 180 天，`PLAN-02` = 1 次 / 30 天；不收款，`status=pending` |
+| GET | `/member/card-orders` | 是 | — | 当前会员的购卡登记列表 |
+| GET | `/staff/card-orders?phone=&status=` | 店员密钥 | — | 店员查询待开卡登记；请求头 `X-Staff-Key` |
+| POST | `/staff/card-orders/{orderNo}/activate` | 店员密钥 | 天然幂等 | 店员确认开卡；`activated`，会员下次登录/刷新时领取次数 |
+| POST | `/demo/card-orders/{orderNo}/pay` | 是 | 天然幂等 | 小程序「演示支付并开卡」；仅 `VOLT_DEMO_PAY=true` 时可用，不调用微信支付 |
+
+店员接口的密钥来自后端环境变量 `VOLT_STAFF_KEY`；未配置时返回 503 `STAFF_DISABLED`。官网 `/staff` 页面把密钥保存在 sessionStorage，不写入前端构建产物。
 
 ## 5. 小程序会员与档案
 
@@ -59,8 +68,8 @@
 | --- | --- | --- | --- | --- |
 | GET | `/catalog/schedule` | 可选 | — | 未来 7 天课表 + 我的预约/候补状态 |
 | GET | `/sessions/{sessionId}` | 可选 | — | 单个场次详情 |
-| GET | `/member/home` | 是 | — | 首页聚合：会员、次卡、本周、下一节、未读数 |
-| GET | `/member/account` | 是 | — | 我的页聚合 |
+| GET | `/member/home` | 是 | — | 首页聚合：会员、次卡、本周、下一节、未读数、`cardOrders[]` |
+| GET | `/member/account` | 是 | — | 我的页聚合；含 `cardOrders[]` |
 | GET | `/member/bookings` | 是 | — | 预约台账：upcoming / waitlists / history / counts |
 | GET | `/member/archive?month=YYYY-MM` | 是 | — | 档案与趋势图数据；`month` 可选，不传返回全部记录 |
 | POST | `/member/body-logs` | 是 | — | 记录身高/体重，`weightKg` 保留一位小数 |

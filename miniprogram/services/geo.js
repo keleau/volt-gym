@@ -40,8 +40,23 @@ function locate() {
   })
 }
 
-function verifyVenue(venueCode) {
-  const target = volt.venueGeo[venueCode]
+function venuePoint(venueCode, venue) {
+  if (venue && venue.latitude != null && venue.longitude != null) {
+    const latitude = Number(venue.latitude)
+    const longitude = Number(venue.longitude)
+    if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+      return {
+        latitude,
+        longitude,
+        name: venue.name || venueCode,
+      }
+    }
+  }
+  return volt.venueGeo[venueCode] || null
+}
+
+function verifyVenue(venueCode, venue) {
+  const target = venuePoint(venueCode, venue)
   if (!target) {
     return Promise.resolve({ status: 'unknown', label: '场馆码已校验' })
   }
@@ -63,8 +78,8 @@ function verifyVenue(venueCode) {
   })
 }
 
-function openVenueMap(venueCode) {
-  const geo = volt.venueGeo[venueCode]
+function openVenueMap(venueCode, venue) {
+  const geo = venuePoint(venueCode, venue)
   if (!geo) return
   wx.openLocation({
     latitude: geo.latitude,
@@ -78,6 +93,7 @@ function openVenueMap(venueCode) {
 module.exports = {
   distanceMeters,
   locate,
+  venuePoint,
   verifyVenue,
   openVenueMap,
 }
