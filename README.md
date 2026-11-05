@@ -1,18 +1,90 @@
-# VOLT 电压健身 · 全栈 Demo
+# VOLT 健身｜官网 + 微信小程序 + 后端
 
-VOLT 是一个「官网获客 + 微信小程序会员端 + 共用后端」的健身品牌 Demo。官网负责体验课预约和 10 次卡购卡登记；到店付款后店员在 `/staff` 确认开卡，用户再用同一手机号登录小程序，按次约课、扫码核销、查看训练档案。小程序会员卡页也支持登记购卡、查看待开卡与次卡流水。
+**一个把「官网获客 → 购卡登记 → 到店开卡 → 小程序约课 → 扫码核销」串起来的健身品牌全栈 Demo。**
 
-## 技术栈
+<p align="center">
+  <img src="docs/screenshots/website-home.png" alt="VOLT 官网首页" width="100%">
+</p>
 
-| 部分 | 目录 | 技术 |
+## 30 秒了解
+
+| 项目 | 说明 |
+| --- | --- |
+| 项目定位 | 健身品牌的三端 Demo：Vue 3 官网、原生微信小程序、Spring Boot 后端 |
+| 解决的业务 | 官网卖体验课、登记次卡；到店付款后店员开卡；会员在小程序约课、签到、扣次 |
+| 我的角色 | 全栈开发（AI 辅助）：页面、接口与联调在 AI 辅助下完成，业务流程拆解、关键逻辑确认和验收自行负责 |
+| 项目规模 | 官网 5 屏、小程序 15 页、30+ 后端接口、MySQL 8 数据库 |
+| 工程验证 | 接口契约自检 **56/56 通过**；官网 Vite 构建通过；小程序 JS/JSON 静态检查通过 |
+| 重要边界 | 支付是「演示支付」，不调用微信支付；短信 OTP 本地显示 devCode，生产需接真实短信通道 |
+
+## 核心流程
+
+```mermaid
+flowchart LR
+  A[官网<br/>体验课 / 10 次卡] --> B[店员 /staff<br/>确认开卡]
+  B --> C[小程序<br/>微信登录 + 手机号 OTP]
+  C --> D[约课 / 查看课表]
+  D --> E[到店扫码核销]
+  E --> F[扣次 + 训练档案]
+```
+
+- 官网只做「体验课预约」和「购卡登记」，不会把买卡伪装成一次预约。
+- 会员账号和次卡权益分开：微信登录只是账号，开卡确认后才写入次数。
+- 小程序支持待开卡、购卡登记、演示支付、次卡流水和训练档案。
+- 未绑定手机号的新会员会先进入手机号验证页，绑定后才可约课、购卡、进场。
+
+## 界面截图
+
+### 官网
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/website-home.png" alt="VOLT 官网首页" width="100%"><br><sub>首页：品牌影片、体验课入口、会员小程序入口</sub></td>
+    <td width="50%"><img src="docs/screenshots/website-offer.png" alt="VOLT 官网预约与购卡" width="100%"><br><sub>04 屏：体验课预约与 10 次卡登记拆成两条路径</sub></td>
+  </tr>
+</table>
+
+### 微信小程序
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/mini-home.png" width="160" alt="小程序首页"><br><sub>会员首页</sub></td>
+    <td align="center"><img src="docs/screenshots/mini-schedule.png" width="160" alt="小程序预约页"><br><sub>选店约课</sub></td>
+    <td align="center"><img src="docs/screenshots/mini-checkin.png" width="160" alt="小程序进场页"><br><sub>到店进场</sub></td>
+    <td align="center"><img src="docs/screenshots/mini-records.png" width="160" alt="小程序训练记录"><br><sub>训练记录</sub></td>
+    <td align="center"><img src="docs/screenshots/mini-mine.png" width="160" alt="小程序我的页"><br><sub>我的 / 会员卡入口</sub></td>
+  </tr>
+</table>
+
+> 小程序截图为开发者工具/真机实际页面；支付相关按钮为本地「演示支付」，不代表真实微信支付。
+
+## 技术架构
+
+```mermaid
+flowchart TB
+  W[Vue 3 + Vite 官网] --> API[Spring Boot 3 /api/v1]
+  M[原生微信小程序] --> API
+  S[店员开卡页 /staff] --> API
+  API --> DB[(MySQL 8)]
+  API --> WX[微信 jscode2session]
+```
+
+| 层 | 技术 | 负责什么 |
 | --- | --- | --- |
-| 后端 | [`backend/`](backend/) | Spring Boot 3.5 · Java 17 · MyBatis · MySQL 8 |
-| 官网 | [`website/`](website/) | Vue 3 · Vite |
-| 会员小程序 | [`miniprogram/`](miniprogram/) | 原生微信小程序 · Canvas 2D |
-| 共享文档 | [`docs/`](docs/) | 接口契约、接入说明、历史归档 |
-| 联调工具 | [`tools/api-check.mjs`](tools/api-check.mjs) | 56 项真实接口自检 |
+| 官网 | Vue 3 · Vite · 原生 CSS | 品牌展示、体验课预约、购卡登记、会员登录、店员开卡 |
+| 小程序 | 原生微信小程序 · Canvas 2D | 微信登录、手机号 OTP 绑定、课表、约课、进场、会员卡、次卡流水、训练档案 |
+| 后端 | Spring Boot 3.5 · Java 17 · MyBatis | 场次库存、预约、候补、核销、卡单、会员合并、幂等 |
+| 数据库 | MySQL 8 | 会员、场次、预约、购卡单、次卡流水、训练档案 |
 
-## 快速启动
+## 这个项目不只做 CRUD
+
+- **场次库存**：锁位 10 分钟、超时释放、原子扣库存，满员进入候补，取消后按顺序递补。
+- **重复提交**：预约、锁位、核销等写请求带幂等键，同一操作重试不生成第二张单、不重复扣次。
+- **会员身份**：微信登录创建账号，手机号 OTP 验证后绑定/合并官网会员与购卡单；合并时保留次卡并换发 token。
+- **次卡状态**：购卡登记 → 店员开卡 → 权益入账 → 核销扣次 → 次卡流水，每一步都有明确状态。
+- **契约自检**：`tools/api-check.mjs` 覆盖 56 项真实接口，改后端后可快速回归。
+
+## 快速体验
 
 ### 1. 后端（端口 8080）
 
@@ -22,15 +94,18 @@ cp .env.example .env      # 第一次运行：填写本地 MySQL 账号密码
 mvn spring-boot:run
 ```
 
-首次启动会自动建库、建表并生成 60 天场次。`backend/.env` 已被 gitignore，不要提交真实密码。
+首次启动会自动建库、建表并生成今天起 60 天的场次。`backend/.env` 已被 gitignore，不要提交真实密码。
 
-本地没有配置微信 AppSecret 时，在 `.env` 设置 `WX_DEMO_FALLBACK=true`，小程序 `wx.login` 会落到演示会员 `MBR-DEMO`；生产必须保持 `false`。
+本地演示可配置：
 
-店员开卡页需要 `VOLT_STAFF_KEY`（示例值 `volt-staff-demo`）。未配置时 `/api/v1/staff/**` 一律拒绝，避免开卡接口裸奔。
+```dotenv
+VOLT_EXPOSE_OTP=true       # 手机号验证码在接口响应里返回 devCode
+VOLT_STAFF_KEY=volt-staff-demo
+VOLT_DEMO_PAY=true         # 小程序显示「演示支付并开卡」
+WX_DEMO_FALLBACK=true      # 未配置 AppSecret 时落到演示会员 MBR-DEMO
+```
 
-本地演示可设 `VOLT_DEMO_PAY=true`，小程序会员卡页会多一个「演示支付并开卡」按钮；它只改业务状态，不调用微信支付、不会真实扣款，生产必须关闭。
-
-### 2. 官网（端口 5173）
+### 2. 官网（默认 5173）
 
 ```bash
 cd website
@@ -38,45 +113,56 @@ npm install
 npm run dev
 ```
 
-`website/.env.local` 指向 `http://127.0.0.1:8080/api/v1`。生产构建时把 `VITE_API_BASE` 改成正式域名，或留空使用同源 `/api/v1`。
-
 - 官网：`http://localhost:5173/`
-- 店员开卡：`http://localhost:5173/#staff`，输入 `VOLT_STAFF_KEY` 后可按手机号查待开卡登记。
+- 店员开卡：`http://localhost:5173/#staff`，密钥使用 `VOLT_STAFF_KEY`
 
 ### 3. 微信小程序
 
-微信开发者工具导入 [`miniprogram/`](miniprogram/) 目录（不是仓库根目录），关闭「校验合法域名」，然后编译。真机联调把 [`miniprogram/config/index.js`](miniprogram/config/index.js) 的 `API_BASE` 改成电脑局域网 IP。
+微信开发者工具导入 [`miniprogram/`](miniprogram/) 目录（不是仓库根目录），关闭「校验合法域名」后编译。真机联调把 [`miniprogram/config/index.js`](miniprogram/config/index.js) 的 `API_BASE` 改成电脑局域网 IP。
+
+未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。本地 `WX_DEMO_FALLBACK=true` 时演示会员已绑定手机号，不会触发绑定页；要验收新用户绑定，请用真实新微信账号，或临时清空演示会员的手机号。
 
 ## 验证
 
 ```bash
-# 后端接口契约（需先启动后端；会写入预约/报名数据，建议用临时库）
+# 后端契约自检（需先启动后端；会写入测试数据，建议用临时库）
 node tools/api-check.mjs http://localhost:8080/api/v1
 
 # 官网生产构建
 cd website && npm run build
 
-# 小程序目录与 JS 语法
-cd miniprogram && node --check services/api.js
+# 小程序 JS / JSON 静态检查
+find miniprogram -name "*.js" -not -path "*/node_modules/*" -print0 | xargs -0 -n1 node --check
 ```
 
-当前验证结果：后端契约 **56/56 通过**；官网 `vite build` 通过；小程序 JS/JSON 静态检查通过。
+当前结果：后端契约 **56/56 通过**；官网构建通过；小程序 JS/JSON 静态检查通过。
 
-## 目录约定
+## 目录
 
-- `backend/src/main/java/.../controller`：只做鉴权与参数透传。
-- `backend/src/main/java/.../service`：官网通用业务；`service/mini`：小程序页面域聚合；`service/mini/VoltMiniSupport`：共享查询/视图工具。
-- `backend/src/main/resources/db`：幂等建表、种子数据、演示重置脚本。
-- `website/src/services/api`：按 catalog/bookings/community/member 拆分的 API 门面；组件不直接写 `fetch`。
-- `miniprogram/services/api.js`：页面唯一 API 门面；`miniprogram/utils/view.js`：共享展示映射。
-- `docs/shared-backend-api-final.md` 是当前唯一权威契约；旧版文档和设计稿已删除。
+| 目录 | 内容 |
+| --- | --- |
+| [`website/`](website/) | Vue 3 官网：首页、门店、课程、预约/购卡、会员登录、店员开卡 |
+| [`miniprogram/`](miniprogram/) | 微信小程序：首页、课表、进场、记录、会员卡、社区、邀请、绑定手机号 |
+| [`backend/`](backend/) | Spring Boot 后端：目录、预约、库存、会员、卡单、核销、档案 |
+| [`docs/`](docs/) | 接口契约、服务职责、官网/小程序接入说明 |
+| [`tools/`](tools/) | 接口契约自检脚本 |
 
-## 已知边界
+更细的接口字段、数据库和联调说明：
 
-- 在线支付、退款未接入；官网购卡是“登记单”，到店付款后由店员在 `/staff` 确认开卡，不假装已经在线收款。
-- `VOLT_DEMO_PAY=true` 时小程序提供「演示支付并开卡」，仅本地演示使用，不是微信支付。
-- 会员账号免费，次卡是付费权益：官网 OTP 登录/小程序微信登录只创建账号，开卡确认后才写入次数。
-- 短信通道未接入，本地通过 `VOLT_EXPOSE_OTP=true` 显示 `devCode`；生产应接真实短信。小程序首次微信登录后必须用 OTP 绑定手机号。
+- [接口索引](docs/api-index.md)
+- [后端最终契约](docs/shared-backend-api-final.md)
+- [官网接入](docs/web-integration.md)
+- [小程序接入](docs/wx-integration.md)
+
+## Demo 边界
+
+- 在线支付、退款未接入；官网购卡是登记单，到店付款后由店员确认开卡。
+- `VOLT_DEMO_PAY=true` 时小程序提供「演示支付并开卡」，只改业务状态，不调用微信支付。
+- 短信通道未接入，本地通过 `VOLT_EXPOSE_OTP=true` 显示 devCode；生产需接真实短信或微信手机号授权。
 - 微信登录未配置 AppSecret 时使用演示会员映射，不能用于生产。
-- 官网没有完整会员中心（历史档案、消息、资料编辑在小程序端）。
-- 小程序只连真实后端，不再提供离线 Mock 数据。
+- 店员开卡页使用单一 `VOLT_STAFF_KEY`，生产建议替换为店员账号、角色与操作审计。
+- 社区排行榜/故事是演示内容，不代表真实运营数据。
+
+---
+
+**VOLT / PLUG IN. SWEAT. REPEAT.**
