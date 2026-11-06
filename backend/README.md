@@ -47,7 +47,7 @@ VOLT_DEMO_PAY=true               # 小程序演示支付并开卡；只改业务
 | `mapper/` + `resources/mapper/*.xml` | MyBatis 接口与 SQL |
 | `pojo/` | 领域模型 |
 | `seed/VoltDataSeeder` | 建表、灌静态目录、生成场次与演示数据 |
-| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql` |
+| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql`、`demo-unbind-phone.sql` |
 | `common/` | 契约常量、统一错误体、异常处理 |
 
 ## 主要接口
@@ -93,6 +93,14 @@ Base URL `/api/v1`：
 ```bash
 mysql -u root -p gym_management_system < src/main/resources/db/demo-reset.sql
 # 然后重启后端，VoltDataSeeder 会重新生成场次
+```
+
+重复演示微信绑定手机号：
+
+```bash
+# 先在小程序退出登录；若刚跑过 demo-reset.sql，需等后端重启并重建 MBR-DEMO 后再执行
+mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone.sql
+# 再点微信一键登录 → 进入绑定页；绑定 13800006688 可恢复演示次卡与档案
 ```
 
 ## 自检

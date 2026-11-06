@@ -88,6 +88,7 @@ module.exports = {
 
 - 真实模式 `GET /member/account` 返回 `isDemo: false`，「我的 → 重置演示数据」入口自动隐藏。
 - 本地要恢复演示基线：执行 `backend/src/main/resources/db/demo-reset.sql`，重启后端让 `VoltDataSeeder` 重建会员、记录、消息、身体数据和下一次预约。
+- 要重复演示微信绑定手机号：先在小程序退出登录，再执行 `backend/src/main/resources/db/demo-unbind-phone.sql` 清空 `MBR-DEMO` 的手机号，重新微信登录即进入绑定页；绑定 `13800006688` 可恢复演示档案。
 
 ### 2.5 开发工具与真机
 

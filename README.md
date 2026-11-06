@@ -126,7 +126,15 @@ npm run dev
 
 微信开发者工具导入 [`miniprogram/`](miniprogram/) 目录（不是仓库根目录），关闭「校验合法域名」后编译。真机联调把 [`miniprogram/config/index.js`](miniprogram/config/index.js) 的 `API_BASE` 改成电脑局域网 IP。
 
-未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。本地 `WX_DEMO_FALLBACK=true` 时演示会员已绑定手机号，不会触发绑定页；要验收新用户绑定，请用真实新微信账号，或临时清空演示会员的手机号。
+未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。`MBR-DEMO` 默认带演示次卡和档案，因此微信一键登录会直接进入会员中心，不会触发绑定页。
+
+要重复演示「微信登录 → 绑定手机号」：
+
+1. 在小程序「我的」退出登录；
+2. 执行 `mysql -u <user> -p <db> < backend/src/main/resources/db/demo-unbind-phone.sql` 清空演示会员手机号；
+3. 重新点微信一键登录，即可进入绑定手机号页；绑定 `13800006688` 可恢复 `MBR-DEMO` 的次卡与档案。
+
+该脚本只改本地演示会员，不影响其他账号；生产环境没有手机号解绑接口。
 
 ## 验证
 

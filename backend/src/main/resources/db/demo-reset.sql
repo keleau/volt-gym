@@ -1,6 +1,7 @@
 -- 把演示数据恢复到种子基线（活动报名、挑战、预约、训练档案、场次占位）。
 -- 用法：mysql ... < demo-reset.sql，然后重启后端让 VoltDataSeeder 重新生成场次与演示会员。
 -- 注意：会清空所有预约、报名、档案与演示会员会话，只用于本地演示。
+-- 如需演示「微信登录 → 绑定手机号」，请在后端重启并重建 MBR-DEMO 后再执行 demo-unbind-phone.sql。
 
 DELETE FROM volt_event_signup;
 DELETE FROM volt_challenge_join;
