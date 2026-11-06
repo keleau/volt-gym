@@ -394,7 +394,7 @@
 | GET | `/member/messages` | 是 | 小程序 | 消息 |
 | POST | `/member/messages/:id/read` | 是 | 小程序 | 已读（`:id=all`） |
 | PATCH | `/member/subscriptions` | 是 | 小程序 | 提醒偏好 |
-| POST | `/bookings` | 是（体验课） | Web | 官网体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，`autoConfirm` 可传 |
+| POST | `/bookings` | 是（体验课） | Web / 小程序 | 体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，`autoConfirm` 可传 |
 | POST | `/sessions/:id/bookings` | 是 | 小程序 | 锁位 |
 | POST | `/bookings/:id/confirm` | 是 | 双端 | 确认锁位 |
 | POST | `/bookings/:id/cancel` | 是 | 双端 | 取消 |
@@ -517,10 +517,12 @@
 ### 6.6 手机号合并与购卡开卡
 
 - `POST /auth/link-phone` 必须携带 `{phone, code}`；`code` 来自 `/auth/phone/send` 的 `bind` 验证码，验证通过后才允许绑定/合并。
-- 微信新会员默认 `phoneBound=false`；小程序启动登录后进入手机号验证页，未绑定前限制约课、购卡与进场。
+- 微信新会员默认 `phoneBound=false`；小程序启动登录后在首页弹出手机号验证弹窗，未绑定前限制约课、购卡与进场。
 - 绑定后，官网同一手机号登录返回同一 Member。
 - 手机号已属于另一个会员时自动合并：微信会员有次卡时保留微信会员，并把手机号会员的次数累加过去；微信会员没有次卡时以手机号会员为主账号。
-- 合并后可能换发新 token，响应为 `{member, merged, token?, members, activeMemberId}`；小程序需要把新 token 和会员档案列表写回本地会话。
+- 合并后可能换发新 token，响应为 `{member, merged, token?, members, activeMemberId, audience}`；小程序需要把新 token 和会员档案列表写回本地会话。
+- `audience` 用于绑定后的第二个引导弹窗：`type` 为 `card / trial / visitor`，并带 `hasCard`、`hasTrial`、`hasPendingCard`、`credits`、`creditsTotal`、`planName`、`expiresAt`；有体验课时带 `trial {date,startTime,programName,venueName,status,entryCode}`；有待开卡登记时带 `pendingOrderNo/pendingPlanName/pendingCredits`。已开卡优先归为 `card`，其次 `trial`，都没有为 `visitor`。
+- 小程序「路人」引导里的体验课预约走 `POST /bookings`，携带 `{planCode:"PLAN-01", sessionId, autoConfirm:true}`；该手机号已有有效体验课时返回 `TRIAL_ALREADY_BOOKED`。
 - 一个微信 openid 可以通过 `volt_wechat_member` 关联多个手机号会员档案；`GET /auth/members` 返回 `{members, activeMemberId}`。
 - 切换档案调用 `POST /auth/switch-member {memberId}`，返回新 token 和更新后的列表；添加档案调用 `POST /auth/members/add {phone, code}`，验证码使用 `login` 用途。
 - 手机号仍是会员唯一标识：同一手机号永远对应同一条 `volt_member`；不同手机号是不同档案，次数、预约和流水互相隔离。同一手机号的多张卡订单继续汇总到该会员余额。

@@ -1,0 +1,101 @@
+<volt-sheet
+  visible="{{visible}}"
+  eyebrow="{{sheetEyebrow}}"
+  title="{{sheetTitle}}"
+  subtitle="{{sheetSubtitle}}"
+  closable="{{stage === 'result'}}"
+  closeOnMask="{{stage === 'result'}}"
+  maxHeight="88vh"
+  zIndex="{{520}}"
+  bind:close="onClose"
+>
+  <view class="vb">
+    <block wx:if="{{stage === 'form'}}">
+      <view class="vb-form">
+        <view class="vb-field">
+          <text class="vb-label">手机号</text>
+          <view class="vb-phone-row">
+            <input
+              class="vb-input"
+              type="number"
+              maxlength="11"
+              value="{{phone}}"
+              placeholder="输入开卡 / 购卡手机号"
+              placeholder-class="vb-placeholder"
+              bindinput="onPhoneInput"
+            />
+            <button
+              class="vb-code-btn"
+              bindtap="sendCode"
+              disabled="{{sending || cooldown > 0}}"
+            >
+              <text wx:if="{{cooldown > 0}}">{{cooldown}}s</text>
+              <text wx:elif="{{sending}}">发送中…</text>
+              <text wx:else>发送验证码</text>
+            </button>
+          </view>
+        </view>
+
+        <view wx:if="{{codeSent}}" class="vb-field">
+          <text class="vb-label">验证码</text>
+          <input
+            class="vb-input"
+            type="number"
+            maxlength="6"
+            value="{{code}}"
+            placeholder="6 位验证码"
+            placeholder-class="vb-placeholder"
+            bindinput="onCodeInput"
+          />
+        </view>
+
+        <text wx:if="{{devCode}}" class="vb-dev mono">本地联调验证码：{{devCode}}</text>
+        <text wx:if="{{error}}" class="vb-error">{{error}}</text>
+
+        <button class="vb-btn vb-btn--primary vb-submit" bindtap="verify" disabled="{{verifying}}">
+          {{verifying ? '正在识别…' : '验证并识别身份'}}
+        </button>
+        <text class="vb-note">验证码只用于确认手机号；未绑定前无法约课、购卡或进场。</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="vb-result vb-result--{{result.type}}">
+        <view class="vb-stamp mono">{{result.stamp}}</view>
+        <text class="vb-lead">{{result.lead}}</text>
+
+        <view class="vb-rows">
+          <view wx:for="{{result.rows}}" wx:key="label" class="vb-row">
+            <text class="vb-row__label mono">{{item.label}}</text>
+            <text class="vb-row__value">{{item.value}}</text>
+          </view>
+        </view>
+
+        <button
+          class="vb-btn vb-btn--primary"
+          data-action="{{result.primary.action}}"
+          bindtap="onAction"
+        >
+          {{result.primary.label}}
+        </button>
+        <button
+          wx:if="{{result.secondary}}"
+          class="vb-btn vb-btn--ghost"
+          data-action="{{result.secondary.action}}"
+          bindtap="onAction"
+        >
+          {{result.secondary.label}}
+        </button>
+        <button
+          wx:if="{{result.tertiary}}"
+          class="vb-text-btn"
+          data-action="{{result.tertiary.action}}"
+          bindtap="onAction"
+        >
+          {{result.tertiary.label}}
+        </button>
+      </view>
+    </block>
+    <view class="vb-safe"></view>
+  </view>
+</volt-sheet>

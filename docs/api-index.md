@@ -39,7 +39,7 @@
 | POST | `/auth/phone/send` | 是 | 微信换绑/首次绑定手机号专用验证码，`purpose=bind`；已绑定账号返回 `PHONE_ALREADY_BOUND` |
 | POST | `/auth/otp/verify` | 否 | body `{phone, code}`；返回 `{token, member}`，登录后认领同手机号的游客预约/报名/挑战 |
 | POST | `/auth/wx/login` | 否 | body `{code, nickname?}`；小程序 wx.login 换会员 |
-| POST | `/auth/link-phone` | 是 | body `{phone, code}`；先校验 `bind` 验证码，再绑定/合并手机号记录；返回 `{member, merged, token?, members, activeMemberId}` |
+| POST | `/auth/link-phone` | 是 | body `{phone, code}`；先校验 `bind` 验证码，再绑定/合并手机号记录；返回 `{member, merged, token?, members, activeMemberId, audience}`，`audience.type=card/trial/visitor` |
 | GET | `/auth/members` | 是 | 当前微信名下会员档案列表 `{members, activeMemberId}` |
 | POST | `/auth/members/add` | 是 | body `{phone, code}`；用 `login` 验证码添加另一手机号会员并切换 |
 | POST | `/auth/switch-member` | 是 | body `{memberId}`；切换当前档案并换发 token |

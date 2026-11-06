@@ -217,12 +217,12 @@ class ApiError extends Error {
 
 ### 4.3 手机号绑定
 
-微信登录后，未绑定手机号的会员会进入 `pages/bind-phone/index`，完成“手机号 + 短信验证码”绑定：
+微信登录后，未绑定手机号的会员会在首页弹出 `components/volt-bind` 手机号验证弹窗（`app.js` `reLaunch` 到 `pages/index/index?bind=1`）；`pages/bind-phone/index` 继续保留给「添加会员卡 / 手机号登录其他账号」。完成“手机号 + 短信验证码”绑定：
 
 1. `wx.login` → 后端按 openid 找到/创建会员，`phoneBound=false`；
-2. 绑定页输入手机号，调用 `POST /auth/phone/send`（需 token）；
+2. 弹窗输入手机号，调用 `POST /auth/phone/send`（需 token）；
 3. 输入验证码，调用 `POST /auth/link-phone`，body 为 `{ phone, code }`；
-4. 后端校验 `purpose=bind` 的 OTP，再绑定/合并会员，返回 `{ member, merged, token? }`。
+4. 后端校验 `purpose=bind` 的 OTP，再绑定/合并会员，返回 `{ member, merged, token?, members, activeMemberId, audience }`。
 
 ```js
 api.auth.sendBindCode(phone)
@@ -234,10 +234,13 @@ api.auth.linkPhone({ phone, code })
 绑定后：
 
 - 返回 `{ member, merged, token? }`：`merged=true` 表示该手机号已有官网会员，后端已把微信会员合并过去；如果换了主账号，会额外返回新 `token`，小程序要写回 `volt.session`。
+- `audience.type` 用于第二个引导弹窗：`card` 显示会员卡与剩余次数；`trial` 显示体验课时间、课程、门店；`visitor` 引导预约 49 元体验课或购买会员卡；有 `hasPendingCard` 时提示待前台开卡。
 - 返回最新 Member，页面刷新 `phoneBound`、`phone`；
 - 同一手机号的官网游客预约必须能认领；
 - 认领幂等，不重复创建预约、不重复占库存；
 - 手机号唯一；如果手机号已绑定其他微信，返回 409 `PHONE_TAKEN`，提示联系前台处理。两边都有次卡时会合并次数，不会丢卡。
+
+`visitor` 点击「预约体验课」会切到 `pages/schedule/index` 的 `trialMode`：课表顶部显示「首次体验 ¥49 · 不扣次卡」，预约时调用 `api.bookings.createTrial` → `POST /bookings {planCode:"PLAN-01", sessionId, autoConfirm:true}`。该手机号已有有效体验课时返回 409 `TRIAL_ALREADY_BOOKED`，页面引导查看会员卡。
 
 ### 4.3.1 同一个微信多张会员卡
 

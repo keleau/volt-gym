@@ -34,13 +34,15 @@ Page({
     isLocked: false,
     nextIsToday: false,
     loginVisible: false,
+    bindVisible: false,
     navSolid: false,
     refreshing: false,
     scrollTop: 0,
   },
 
-  onLoad() {
+  onLoad(options) {
     this._alive = true
+    this.pendingBind = Boolean(options && options.bind === '1')
     this.setData({ nav: navUtil.getNavMetrics(), greeting: dateUtil.greeting() })
     this.load()
   },
@@ -49,6 +51,13 @@ Page({
     tab.select(this, 0)
     tab.setHidden(this, false)
     this.setData({ greeting: dateUtil.greeting() })
+    if (this.pendingBind) {
+      this.pendingBind = false
+      this.openBind()
+    } else {
+      const member = auth.getUser()
+      if (member && member.phoneBound === false) this.openBind()
+    }
     if (this.loadedOnce) this.load(false)
   },
 
@@ -137,6 +146,7 @@ Page({
         this.startLockTicker()
         this.maybePromptPurchase(data)
         if (auth.isLoggedIn() && data.member) auth.refreshUser(data.member)
+        if (data.member && data.member.phoneBound === false) this.openBind()
       })
       .catch((error) => {
         if (!this._alive) return
@@ -147,6 +157,7 @@ Page({
   maybePromptPurchase(data) {
     const member = data.member || {}
     const hasPending = (data.cardOrders || []).some((order) => order.status === 'pending')
+    if (this.data.bindVisible || member.phoneBound === false) return
     if (Number(member.credits) > 0 || hasPending || this.purchasePromptShown) return
     let shown = false
     try {
@@ -178,10 +189,48 @@ Page({
     this.markPurchasePromptSeen()
     this.setData({ purchasePromptVisible: false })
     if (this.data.member && this.data.member.phoneBound === false) {
-      wx.navigateTo({ url: '/pages/bind-phone/index' })
+      this.openBind()
       return
     }
     wx.navigateTo({ url: '/pages/pass/index?buy=1' })
+  },
+
+  openBind() {
+    if (this.data.bindVisible) return
+    this.markPurchasePromptSeen()
+    this.setData({ bindVisible: true })
+    tab.setHidden(this, true)
+  },
+
+  closeBind() {
+    this.setData({ bindVisible: false })
+    tab.setHidden(this, false)
+  },
+
+  onBindBound(event) {
+    const member = event && event.detail ? event.detail.member : null
+    if (member) this.setData({ member })
+    this.load(false)
+  },
+
+  onBindAction(event) {
+    const action = event && event.detail ? event.detail.action : 'close'
+    this.closeBind()
+    if (action === 'bookings') {
+      wx.navigateTo({ url: '/pages/bookings/index' })
+      return
+    }
+    if (action === 'pass') {
+      wx.navigateTo({ url: '/pages/pass/index' })
+      return
+    }
+    if (action === 'buy') {
+      wx.navigateTo({ url: '/pages/pass/index?buy=1' })
+      return
+    }
+    if (action === 'trial') {
+      tab.switchTab('/pages/schedule/index', { schedulePreset: { trialMode: true } })
+    }
   },
 
   startLockTicker() {
@@ -361,11 +410,8 @@ Page({
     tab.setHidden(this, false)
     this.setData({ loginVisible: false })
     const user = event && event.detail ? event.detail.user : null
-    this.load(false).then(() => {
-      if (user && user.phoneBound === false) {
-        wx.navigateTo({ url: '/pages/bind-phone/index' })
-      }
-    })
+    this.load(false)
+    if (user && user.phoneBound === false) this.openBind()
   },
 
   onLoginCancel() {

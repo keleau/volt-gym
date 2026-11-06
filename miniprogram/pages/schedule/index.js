@@ -28,6 +28,7 @@ Page({
     dayViews: [],
     programs: [],
     member: { credits: 0 },
+    trialMode: false,
     selectedVenueCode: '',
     selectedVenue: null,
     mode: 'coach',
@@ -121,9 +122,14 @@ Page({
           coachId: this.data.selectedCoachId,
           date: this.data.selectedDate,
           programNo: this.data.programNo,
+          trialMode: this.data.trialMode,
         }
         const selection = hasPreset ? this.pendingPreset : current
         this.pendingPreset = null
+        const trialMode = selection.trialMode !== undefined
+          ? Boolean(selection.trialMode)
+          : false
+        if (trialMode !== this.data.trialMode) this.setData({ trialMode })
         const lastVenue = wx.getStorageSync(volt.lastVenueKey)
         let venueCode = selection.venueCode || (this.venueListMode ? '' : lastVenue) || ''
         if (!this.data.venues.some((venue) => venue.code === venueCode)) venueCode = ''
@@ -602,7 +608,8 @@ Page({
       this.goBindPhone()
       return
     }
-    if (this.data.member.credits <= 0) {
+    const trialBooking = this.data.trialMode && Number(this.data.member.credits) <= 0
+    if (!trialBooking && this.data.member.credits <= 0) {
       wx.showModal({
         title: '充电次数不足',
         content: '当前次卡余额为 0，请先查看次卡或联系门店。',
@@ -613,6 +620,16 @@ Page({
       return
     }
     if (session.left <= 0) {
+      if (trialBooking) {
+        wx.showModal({
+          title: '体验课已满',
+          content: '这一场没有余位了，换一天或换一家门店试试。',
+          showCancel: false,
+          confirmText: '知道了',
+          confirmColor: '#A33B2B',
+        })
+        return
+      }
       this.setData({ sheetState: 'waitlist', sheetTitle: '加入候补' })
       return
     }
@@ -620,10 +637,13 @@ Page({
     const keys = this.data.reminder ? ['classReminder', 'classChange'] : ['classChange']
     subscribe
       .requestSubscribe(keys)
-      .then(() => api.bookings.create(session.id, { reminderOptIn: this.data.reminder }))
+      .then(() => (trialBooking
+        ? api.bookings.createTrial(session.id, { reminderOptIn: this.data.reminder })
+        : api.bookings.create(session.id, { reminderOptIn: this.data.reminder })))
       .then((result) => {
         const booking = result.booking || result
         const status = booking.status
+        const isTrial = Boolean(booking.isTrial) || trialBooking
         const left = result.session && typeof result.session.left === 'number'
           ? result.session.left
           : Math.max(0, session.left - (result.duplicate ? 0 : 1))
@@ -638,19 +658,38 @@ Page({
           submitting: false,
           bookingResult: booking,
           sheetState: status === 'confirmed' ? 'confirmed' : 'locked',
-          sheetTitle: status === 'confirmed' ? '已预约' : '确认预约',
+          sheetTitle: isTrial ? '体验课已预约' : status === 'confirmed' ? '已预约' : '确认预约',
         })
         if (status === 'locked' && booking.lockExpiresAt) {
           this.startLockTicker(booking.lockExpiresAt)
         }
         wx.showToast({
-          title: result.duplicate ? '已预约过这一场' : '名额已锁定',
+          title: isTrial ? '体验课已预约' : result.duplicate ? '已预约过这一场' : '名额已锁定',
           icon: 'none',
         })
       })
       .catch((error) => {
         this.setData({ submitting: false })
+        if (error && error.code === 'TRIAL_ALREADY_BOOKED') {
+          this.setData({ sheetVisible: false })
+          tab.setHidden(this, false)
+          wx.showModal({
+            title: '体验课已预约过',
+            content: '同一个手机号只能预约一次首次体验课，可以看看会员卡。',
+            confirmText: '看看会员卡',
+            cancelText: '知道了',
+            confirmColor: '#A33B2B',
+            success: (res) => {
+              if (res.confirm) wx.navigateTo({ url: '/pages/pass/index?buy=1' })
+            },
+          })
+          return
+        }
         if (error && (error.code === 'SLOT_FULL' || error.code === 'SESSION_FULL')) {
+          if (trialBooking) {
+            wx.showToast({ title: '这一场已满，换一场试试', icon: 'none' })
+            return
+          }
           this.setData({ sheetState: 'waitlist', sheetTitle: '加入候补' })
         } else if (error && error.code === 'DUPLICATE_BOOKING') {
           wx.showToast({ title: '这一场已经约过', icon: 'none' })
@@ -833,6 +872,12 @@ Page({
     this.setData({ sheetVisible: false })
     tab.setHidden(this, false)
     tab.switchTab('/pages/checkin/index')
+  },
+
+  goPass() {
+    this.setData({ sheetVisible: false })
+    tab.setHidden(this, false)
+    wx.navigateTo({ url: '/pages/pass/index?buy=1' })
   },
 
   onShareAppMessage() {

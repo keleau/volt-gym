@@ -2,7 +2,9 @@ package com.gym.gymmanagementsystem.service.impl;
 
 import com.gym.gymmanagementsystem.common.ApiException;
 import com.gym.gymmanagementsystem.common.VoltContract;
+import com.gym.gymmanagementsystem.mapper.VoltBookingMapper;
 import com.gym.gymmanagementsystem.mapper.VoltMemberMapper;
+import com.gym.gymmanagementsystem.pojo.Booking;
 import com.gym.gymmanagementsystem.pojo.VoltMember;
 import com.gym.gymmanagementsystem.pojo.VoltOtp;
 import com.gym.gymmanagementsystem.pojo.VoltToken;
@@ -43,6 +45,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final VoltMemberMapper memberMapper;
+    private final VoltBookingMapper bookingMapper;
     private final VoltViewService viewService;
     private final VoltCardOrderService cardOrderService;
     private final JdbcTemplate jdbcTemplate;
@@ -60,9 +63,11 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     @Value("${volt.wx.demo-fallback:true}")
     private boolean wxDemoFallback;
 
-    public VoltAuthServiceImpl(VoltMemberMapper memberMapper, VoltViewService viewService,
-                               VoltCardOrderService cardOrderService, JdbcTemplate jdbcTemplate) {
+    public VoltAuthServiceImpl(VoltMemberMapper memberMapper, VoltBookingMapper bookingMapper,
+                               VoltViewService viewService, VoltCardOrderService cardOrderService,
+                               JdbcTemplate jdbcTemplate) {
         this.memberMapper = memberMapper;
+        this.bookingMapper = bookingMapper;
         this.viewService = viewService;
         this.cardOrderService = cardOrderService;
         this.jdbcTemplate = jdbcTemplate;
@@ -275,8 +280,10 @@ public class VoltAuthServiceImpl implements VoltAuthService {
             ensureLinked(openid, member.getMemberId());
             activate(openid, member.getMemberId());
         }
-        Map<String, Object> resp = sessionResponse(fresh == null ? member : fresh, openid);
+        VoltMember finalMember = fresh == null ? member : fresh;
+        Map<String, Object> resp = sessionResponse(finalMember, openid);
         resp.put("merged", false);
+        resp.put("audience", audienceView(finalMember));
         return resp;
     }
 
@@ -420,6 +427,77 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     }
 
     /**
+     * 绑定后给小程序一个明确身份：已开卡、只约过体验课，或两者都没有。
+     * 体验课同时按会员和历史手机号查，避免合并后 member_phone 还没迁移时漏掉。
+     */
+    private Map<String, Object> audienceView(VoltMember member) {
+        Map<String, Booking> candidates = new LinkedHashMap<>();
+        for (Booking booking : bookingMapper.findByMember(member.getMemberId())) {
+            candidates.put(booking.getBookingId(), booking);
+        }
+        String phone = member.getPhone();
+        if (phone != null && !phone.isBlank()) {
+            for (Booking booking : bookingMapper.findByPhone(phone)) {
+                candidates.put(booking.getBookingId(), booking);
+            }
+        }
+
+        boolean hasTrial = false;
+        Map<String, Object> trial = null;
+        for (Booking booking : candidates.values()) {
+            if (!"PLAN-01".equals(booking.getPlanCode())) {
+                continue;
+            }
+            if (!"locked".equals(booking.getStatus()) && !"confirmed".equals(booking.getStatus())
+                    && !"checked-in".equals(booking.getStatus())) {
+                continue;
+            }
+            hasTrial = true;
+            if (trial == null) {
+                Map<String, Object> view = viewService.bookingView(booking);
+                trial = new LinkedHashMap<>();
+                trial.put("date", view.get("date"));
+                trial.put("startTime", view.get("startTime"));
+                trial.put("programName", view.get("programName"));
+                trial.put("venueName", view.get("venueName"));
+                trial.put("status", view.get("status"));
+                trial.put("entryCode", view.get("entryCode"));
+            }
+        }
+
+        Map<String, Object> pending = null;
+        for (Map<String, Object> order : cardOrderService.memberOrders(member)) {
+            if ("pending".equals(order.get("status"))) {
+                pending = order;
+                break;
+            }
+        }
+
+        int credits = member.getCredits() == null ? 0 : member.getCredits();
+        int creditsTotal = member.getCreditsTotal() == null ? 0 : member.getCreditsTotal();
+        boolean hasCard = creditsTotal > 0
+                || (member.getPlanCode() != null && !member.getPlanCode().isBlank());
+
+        Map<String, Object> audience = new LinkedHashMap<>();
+        audience.put("type", hasCard ? "card" : hasTrial ? "trial" : "visitor");
+        audience.put("phone", VoltContract.maskPhone(phone));
+        audience.put("hasTrial", hasTrial);
+        audience.put("hasCard", hasCard);
+        audience.put("hasPendingCard", pending != null);
+        audience.put("credits", credits);
+        audience.put("creditsTotal", creditsTotal);
+        audience.put("planName", member.getPlanName());
+        audience.put("expiresAt", member.getExpiresAt() == null ? null : member.getExpiresAt().toString());
+        audience.put("trial", trial);
+        if (pending != null) {
+            audience.put("pendingOrderNo", pending.get("orderNo"));
+            audience.put("pendingPlanName", pending.get("planName"));
+            audience.put("pendingCredits", pending.get("credits"));
+        }
+        return audience;
+    }
+
+    /**
      * 小程序微信会员绑定了一个已有手机号的会员（例如官网先购卡/登录过）：
      * 谁有次卡谁做主账号，迁移另一边数据；小程序拿到主账号的 token 或继续用原 token。
      */
@@ -452,8 +530,10 @@ public class VoltAuthServiceImpl implements VoltAuthService {
                 activate(openid, wechat.getMemberId());
                 memberMapper.deleteWechatMember(openid, source);
             }
-            Map<String, Object> resp = sessionResponse(fresh == null ? wechat : fresh, openid);
+            VoltMember finalMember = fresh == null ? wechat : fresh;
+            Map<String, Object> resp = sessionResponse(finalMember, openid);
             resp.put("merged", true);
+            resp.put("audience", audienceView(finalMember));
             return resp;
         }
 
@@ -486,8 +566,10 @@ public class VoltAuthServiceImpl implements VoltAuthService {
             activate(openid, target);
             memberMapper.deleteWechatMember(openid, source);
         }
-        Map<String, Object> resp = sessionResponse(fresh == null ? phoneMember : fresh, openid);
+        VoltMember finalMember = fresh == null ? phoneMember : fresh;
+        Map<String, Object> resp = sessionResponse(finalMember, openid);
         resp.put("merged", true);
+        resp.put("audience", audienceView(finalMember));
         return resp;
     }
 

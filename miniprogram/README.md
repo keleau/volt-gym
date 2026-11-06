@@ -72,5 +72,6 @@ node scripts/sync-catalog.mjs
 - 订阅消息模板 ID 为占位值；`config.USE_REAL_SUBSCRIBE` 默认关闭，避免演示时弹授权失败。
 - 手机号绑定/登录使用短信 OTP：本地 `VOLT_EXPOSE_OTP=true` 显示 `devCode`，生产需接真实短信通道或微信手机号快速验证。
 - 官网 49 元体验课可以在小程序核销：体验课不扣次卡，同一手机号只能预约一次首次体验。
+- 首页对未绑定手机号的会员弹出验证弹窗，验证后按 `audience` 识别已开卡 / 体验课 / 路人；路人可从引导弹窗进入课表体验模式预约 ¥49 体验课，或登记购卡。
 - 退出登录清除本地会话并阻止下次启动自动微信登录；后端 token 未做主动吊销，正式上线应补 `POST /auth/logout`。
 - 小程序主包约 1.5MB，已移除 ECharts/ec-canvas，改用原生 Canvas 2D。

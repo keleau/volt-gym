@@ -12,7 +12,12 @@ Page({
     this._alive = true
     this.setData({ nav: navUtil.getNavMetrics() })
     if (auth.isLoggedIn()) {
-      wx.reLaunch({ url: '/pages/mine/index' })
+      const member = auth.getUser()
+      wx.reLaunch({
+        url: member && member.phoneBound === false
+          ? '/pages/index/index?bind=1'
+          : '/pages/mine/index',
+      })
     }
   },
 
@@ -29,7 +34,7 @@ Page({
         if (!this._alive) return
         const member = session && session.user
         if (member && member.phoneBound === false) {
-          wx.reLaunch({ url: '/pages/bind-phone/index?from=login' })
+          wx.reLaunch({ url: '/pages/index/index?bind=1' })
           return
         }
         wx.reLaunch({ url: '/pages/mine/index' })

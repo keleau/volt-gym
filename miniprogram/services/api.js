@@ -240,6 +240,15 @@ module.exports = {
         data: options,
       })
     },
+    createTrial(sessionId, options) {
+      return callIdempotent('trial', sessionId, '/bookings', {
+        method: 'POST',
+        data: Object.assign(
+          { planCode: 'PLAN-01', sessionId, autoConfirm: true },
+          options,
+        ),
+      })
+    },
     confirm(bookingId) {
       return callIdempotent('confirm', bookingId, `/bookings/${bookingId}/confirm`, {
         method: 'POST',

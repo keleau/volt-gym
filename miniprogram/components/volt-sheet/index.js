@@ -7,6 +7,7 @@ Component({
     closable: { type: Boolean, value: true },
     closeOnMask: { type: Boolean, value: true },
     maxHeight: { type: String, value: '76vh' },
+    zIndex: { type: Number, value: 300 },
   },
 
   data: {

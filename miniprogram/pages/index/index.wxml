@@ -251,4 +251,11 @@
     bind:success="onLoginSuccess"
     bind:cancel="onLoginCancel"
   ></volt-login>
+
+  <volt-bind
+    id="voltBind"
+    visible="{{bindVisible}}"
+    bind:bound="onBindBound"
+    bind:action="onBindAction"
+  ></volt-bind>
 </view>

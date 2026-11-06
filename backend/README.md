@@ -47,7 +47,7 @@ VOLT_DEMO_PAY=true               # 小程序演示支付并开卡；只改业务
 | `mapper/` + `resources/mapper/*.xml` | MyBatis 接口与 SQL |
 | `pojo/` | 领域模型 |
 | `seed/VoltDataSeeder` | 建表、灌静态目录、生成场次与演示数据 |
-| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql`、`demo-unbind-phone.sql` |
+| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql`、`demo-unbind-phone.sql`、`demo-visitor.sql`、`demo-restore-card.sql` |
 | `common/` | 契约常量、统一错误体、异常处理 |
 
 ## 主要接口
@@ -100,8 +100,23 @@ mysql -u root -p gym_management_system < src/main/resources/db/demo-reset.sql
 ```bash
 # 先在小程序退出登录；若刚跑过 demo-reset.sql，需等后端重启并重建 MBR-DEMO 后再执行
 mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone.sql
-# 再点微信一键登录 → 进入绑定页；绑定 13800006688 可恢复演示次卡与档案
+# 再点微信一键登录 → 进入绑定弹窗；绑定 13800006688 可恢复演示次卡与档案
 ```
+
+本地演示绑定后的三种身份：
+
+```bash
+# 已开卡：保留或恢复 8 次卡，绑定手机号
+mysql -u root -p gym_management_system < src/main/resources/db/demo-restore-card.sql
+
+# 路人：清空次卡、体验课和待开卡登记，再绑定一个新手机号
+mysql -u root -p gym_management_system < src/main/resources/db/demo-visitor.sql
+
+# 体验课：先按路人流程预约体验课，再解绑/重新绑定该手机号
+mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone.sql
+```
+
+`demo-visitor.sql` 会删除 MBR-DEMO 的体验课预约并回退场次占位；只用于本地演示，不要在生产库执行。
 
 ## 自检
 

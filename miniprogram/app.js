@@ -12,7 +12,7 @@ App({
       const member = session.user
       if (member && !member.phoneBound) {
         setTimeout(() => {
-          wx.reLaunch({ url: '/pages/bind-phone/index' })
+          wx.reLaunch({ url: '/pages/index/index?bind=1' })
         }, 50)
       }
     }).catch(() => {})

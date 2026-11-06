@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "volt-sheet": "../volt-sheet/index"
+  }
+}

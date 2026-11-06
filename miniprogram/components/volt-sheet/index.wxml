@@ -1,4 +1,4 @@
-<view wx:if="{{rendered}}" class="vsheet {{active ? 'is-active' : ''}}" catchtouchmove="noop">
+<view wx:if="{{rendered}}" class="vsheet {{active ? 'is-active' : ''}}" style="z-index:{{zIndex}}" catchtouchmove="noop">
   <view class="vsheet__mask" bindtap="onMask"></view>
   <view class="vsheet__panel" style="max-height:{{maxHeight}}">
     <view class="vsheet__rule"></view>

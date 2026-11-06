@@ -1600,3 +1600,31 @@
   height: 12rpx;
   background: #a33b2b;
 }
+
+.trial-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin: 18rpx 32rpx 0;
+  padding: 18rpx 22rpx;
+  border: 1rpx solid #dfc3b9;
+  border-left: 5rpx solid #a33b2b;
+  background: #fdf1ea;
+}
+
+.trial-banner__tag {
+  font-size: 19rpx;
+  letter-spacing: 0.08em;
+  color: #873023;
+}
+
+.trial-banner__title {
+  font-size: 30rpx;
+  line-height: 1.35;
+}
+
+.trial-banner__desc {
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: #635846;
+}
