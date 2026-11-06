@@ -127,6 +127,8 @@ npm run dev
 
 微信开发者工具导入 [`miniprogram/`](miniprogram/) 目录（不是仓库根目录），关闭「校验合法域名」后编译。真机联调把 [`miniprogram/config/index.js`](miniprogram/config/index.js) 的 `API_BASE` 改成电脑局域网 IP。
 
+演示录制时 `FORCE_LOGIN: true` 会让每次冷启动清掉旧会话、先走独立登录页，确保能看到微信授权；录完改回 `false`，否则每次重新打开小程序都要重新登录。`AUTO_LOGIN` 只在 `FORCE_LOGIN` 关闭且没有本地 session 时生效。
+
 未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。`MBR-DEMO` 默认带演示次卡和档案，因此微信一键登录会直接进入会员中心，不会触发绑定页。
 
 ### 4. 真机演示与扫码核销

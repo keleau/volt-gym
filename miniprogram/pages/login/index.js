@@ -15,7 +15,7 @@ Page({
       const member = auth.getUser()
       wx.reLaunch({
         url: member && member.phoneBound === false
-          ? '/pages/index/index?bind=1'
+          ? '/pages/index/index'
           : '/pages/mine/index',
       })
     }
@@ -34,7 +34,7 @@ Page({
         if (!this._alive) return
         const member = session && session.user
         if (member && member.phoneBound === false) {
-          wx.reLaunch({ url: '/pages/index/index?bind=1' })
+          wx.reLaunch({ url: '/pages/index/index' })
           return
         }
         wx.reLaunch({ url: '/pages/mine/index' })

@@ -256,6 +256,7 @@
     id="voltBind"
     visible="{{bindVisible}}"
     bind:bound="onBindBound"
+    bind:skipped="onBindSkipped"
     bind:action="onBindAction"
   ></volt-bind>
 </view>

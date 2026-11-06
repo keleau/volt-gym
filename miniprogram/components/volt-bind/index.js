@@ -132,6 +132,41 @@ Component({
       }
     },
 
+    skip() {
+      this.showVisitorGuide()
+    },
+
+    showVisitorGuide() {
+      const result = this.buildVisitorResult()
+      this.setData({
+        stage: 'result',
+        sheetEyebrow: result.eyebrow,
+        sheetTitle: result.title,
+        sheetSubtitle: result.subtitle,
+        result,
+      })
+      this.triggerEvent('skipped', { audience: { type: 'visitor' } })
+    },
+
+    buildVisitorResult() {
+      return {
+        type: 'visitor',
+        stamp: 'NEW',
+        eyebrow: 'NEW CONNECTION / 新朋友',
+        title: '先练一次，再说。',
+        subtitle: '未验证手机号 · 先按路人浏览',
+        lead: '你还没有验证手机号，可以先看看体验课或会员卡；预约、购卡和进场前需要完成验证。',
+        rows: [
+          { label: '手机号', value: '未验证' },
+          { label: '体验课', value: '未找到记录' },
+          { label: '会员卡', value: '未找到记录' },
+        ],
+        primary: { action: 'trial', label: '预约 49 元体验课' },
+        secondary: { action: 'buy', label: '购买会员卡' },
+        tertiary: { action: 'close', label: '先逛逛' },
+      }
+    },
+
     verify() {
       if (this.data.verifying) return
       const phone = String(this.data.phone || '').trim()
@@ -308,7 +343,10 @@ Component({
     },
 
     onClose() {
-      if (this.data.stage !== 'result') return
+      if (this.data.stage !== 'result') {
+        this.showVisitorGuide()
+        return
+      }
       this.triggerEvent('action', { action: 'close' })
     },
   },

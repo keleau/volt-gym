@@ -16,7 +16,10 @@ const view = ref(readHash())
 
 function readHash() {
   const h = typeof window === 'undefined' ? '' : window.location.hash
-  if (h === '#qr' || h === '#qr/' || h === '#demo-qr' || h === '#demo-qr/') return 'qr'
+  const path = typeof window === 'undefined' ? '' : window.location.pathname
+  if (path === '/qr' || path === '/qr/' || path === '/qr.html') return 'qr'
+  if (h === '#qr' || h === '#qr/' || h === '#/qr' || h === '#/qr/'
+    || h === '#demo-qr' || h === '#demo-qr/') return 'qr'
   if (h === '#staff' || h === '#staff/' || h.startsWith('#staff/')) return 'staff'
   return h === '#community' || h === '#community/' ? 'community' : 'home'
 }

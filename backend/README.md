@@ -109,14 +109,17 @@ mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone
 # 已开卡：保留或恢复 8 次卡，绑定手机号
 mysql -u root -p gym_management_system < src/main/resources/db/demo-restore-card.sql
 
-# 路人：清空次卡、体验课和待开卡登记，再绑定一个新手机号
+# 路人：清空次卡、预约、训练记录和待开卡登记，再绑定一个新手机号
 mysql -u root -p gym_management_system < src/main/resources/db/demo-visitor.sql
 
-# 体验课：先按路人流程预约体验课，再解绑/重新绑定该手机号
-mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone.sql
+# 体验课（干净、无次卡）：先执行 demo-visitor.sql，再用新手机号在官网预约今天的体验课，
+# 最后在小程序微信登录并绑定该手机号；MBR-DEMO 的旧卡和旧预约已被清空，所以只显示体验课。
+mysql -u root -p gym_management_system < src/main/resources/db/demo-visitor.sql
 ```
 
-`demo-visitor.sql` 会删除 MBR-DEMO 的体验课预约并回退场次占位；只用于本地演示，不要在生产库执行。
+`demo-visitor.sql` 之后不要再执行 `demo-unbind-phone.sql` 清数据；前者已经解绑并清空 MBR-DEMO 的演示数据。只想保留次卡演示时用 `demo-restore-card.sql`。
+
+`demo-visitor.sql` 会清空 MBR-DEMO 的预约、训练记录、消息和次卡权益，并回退场次占位；只用于本地演示，不要在生产库执行。完整恢复演示数据请用 `demo-reset.sql` 并重启后端。
 
 ## 自检
 

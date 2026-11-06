@@ -40,9 +40,8 @@ Page({
     scrollTop: 0,
   },
 
-  onLoad(options) {
+  onLoad() {
     this._alive = true
-    this.pendingBind = Boolean(options && options.bind === '1')
     this.setData({ nav: navUtil.getNavMetrics(), greeting: dateUtil.greeting() })
     this.load()
   },
@@ -51,13 +50,6 @@ Page({
     tab.select(this, 0)
     tab.setHidden(this, false)
     this.setData({ greeting: dateUtil.greeting() })
-    if (this.pendingBind) {
-      this.pendingBind = false
-      this.openBind()
-    } else {
-      const member = auth.getUser()
-      if (member && member.phoneBound === false) this.openBind()
-    }
     if (this.loadedOnce) this.load(false)
   },
 
@@ -146,7 +138,8 @@ Page({
         this.startLockTicker()
         this.maybePromptPurchase(data)
         if (auth.isLoggedIn() && data.member) auth.refreshUser(data.member)
-        if (data.member && data.member.phoneBound === false) this.openBind()
+        // 只有后端确认手机号未绑定后才弹绑定窗；网络失败时只显示错误页。
+        if (data.member && data.member.phoneBound === false && !this.bindSkipped) this.openBind()
       })
       .catch((error) => {
         if (!this._alive) return
@@ -209,8 +202,14 @@ Page({
 
   onBindBound(event) {
     const member = event && event.detail ? event.detail.member : null
+    this.bindSkipped = false
     if (member) this.setData({ member })
     this.load(false)
+  },
+
+  onBindSkipped() {
+    this.bindSkipped = true
+    this.markPurchasePromptSeen()
   },
 
   onBindAction(event) {
@@ -410,6 +409,7 @@ Page({
     tab.setHidden(this, false)
     this.setData({ loginVisible: false })
     const user = event && event.detail ? event.detail.user : null
+    this.bindSkipped = false
     this.load(false)
     if (user && user.phoneBound === false) this.openBind()
   },

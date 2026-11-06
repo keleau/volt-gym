@@ -3,8 +3,8 @@
   eyebrow="{{sheetEyebrow}}"
   title="{{sheetTitle}}"
   subtitle="{{sheetSubtitle}}"
-  closable="{{stage === 'result'}}"
-  closeOnMask="{{stage === 'result'}}"
+  closable="{{true}}"
+  closeOnMask="{{true}}"
   maxHeight="88vh"
   zIndex="{{520}}"
   bind:close="onClose"
@@ -55,6 +55,7 @@
         <button class="vb-btn vb-btn--primary vb-submit" bindtap="verify" disabled="{{verifying}}">
           {{verifying ? '正在识别…' : '验证并识别身份'}}
         </button>
+        <button class="vb-text-btn" bindtap="skip">先不验证，随便看看</button>
         <text class="vb-note">验证码只用于确认手机号；未绑定前无法约课、购卡或进场。</text>
       </view>
     </block>

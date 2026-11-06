@@ -4,6 +4,14 @@ App({
   onLaunch() {
     auth.bootstrap().then((session) => {
       if (!session) {
+        let launchPath = ''
+        try {
+          launchPath = wx.getLaunchOptionsSync().path || ''
+        } catch (error) {
+          launchPath = ''
+        }
+        // 邀请分享是公开落地页，先展示内容；用户点领取时再单独弹登录。
+        if (launchPath === 'pages/invite/index') return
         setTimeout(() => {
           wx.reLaunch({ url: '/pages/login/index' })
         }, 50)
@@ -12,7 +20,7 @@ App({
       const member = session.user
       if (member && !member.phoneBound) {
         setTimeout(() => {
-          wx.reLaunch({ url: '/pages/index/index?bind=1' })
+          wx.reLaunch({ url: '/pages/index/index' })
         }, 50)
       }
     }).catch(() => {})

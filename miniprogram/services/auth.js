@@ -1,10 +1,12 @@
 const api = require('./api')
+const config = require('../config/index')
 
 const SESSION_KEY = 'volt.session'
 const LOGOUT_KEY = 'volt.loggedOut'
 const TOKEN_MAX_AGE = 29 * 24 * 60 * 60 * 1000
 let autoLogin = null
 let autoLoginDisabled = false
+let coldBootPending = true
 
 function saveSession(session) {
   wx.setStorageSync(SESSION_KEY, session)
@@ -56,6 +58,16 @@ function clearSession() {
 }
 
 function bootstrap() {
+  if (coldBootPending) {
+    coldBootPending = false
+    if (config.FORCE_LOGIN === true) {
+      clearSession()
+      autoLogin = null
+      autoLoginDisabled = true
+      api.setAuthGate(Promise.resolve(null))
+      return Promise.resolve(null)
+    }
+  }
   if (isLoggedOut()) {
     clearSession()
     autoLoginDisabled = true
@@ -70,6 +82,11 @@ function bootstrap() {
     return Promise.resolve(session)
   }
   if (session) clearSession()
+  if (config.AUTO_LOGIN === false) {
+    autoLoginDisabled = true
+    api.setAuthGate(Promise.resolve(null))
+    return Promise.resolve(null)
+  }
   const login = startAutoLogin()
   api.setAuthGate(login)
   return login.catch(() => null)
