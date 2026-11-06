@@ -430,8 +430,10 @@ Page({
           (!this.data.programNo || session.programNo === this.data.programNo) &&
           (mode !== 'coach' || !coachId || session.coachId === coachId),
       )
+      const availableCount = daySessions.filter((session) => session.left > 0).length
       return Object.assign({}, day, {
-        availableCount: daySessions.filter((session) => session.left > 0).length,
+        availableCount,
+        countLabel: availableCount ? `${availableCount} 可约` : '无课',
         hasSessions: daySessions.length > 0,
         isActive: day.iso === selectedDate,
       })

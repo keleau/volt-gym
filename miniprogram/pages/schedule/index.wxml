@@ -108,29 +108,26 @@
               <image class="coach-chip__avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
               <view class="coach-chip__main">
                 <text class="coach-chip__name">{{item.name}}</text>
-                <text class="coach-chip__meta mono">{{item.slotsLeft}} 节可约</text>
+                <text class="coach-chip__meta mono">7 天 {{item.slotsLeft}} 节</text>
               </view>
             </view>
           </scroll-view>
         </view>
 
         <view class="date-section wrap">
-          <scroll-view scroll-x class="date-scroll" enhanced show-scrollbar="{{false}}">
-            <view class="date-row">
-              <view
-                wx:for="{{dayViews}}"
-                wx:key="iso"
-                class="date {{item.isActive ? 'is-active' : ''}} {{item.isToday ? 'is-today' : ''}}"
-                data-date="{{item.iso}}"
-                bindtap="selectDate"
-              >
-                <text class="date__cn">{{item.cn}}</text>
-                <text class="date__num">{{item.short}}</text>
-                <text class="date__tag">{{item.isToday ? '今天' : item.tag}}</text>
-                <text class="date__count">{{item.availableCount}} 可约</text>
-              </view>
+          <view class="date-strip">
+            <view
+              wx:for="{{dayViews}}"
+              wx:key="iso"
+              class="date {{item.isActive ? 'is-active' : ''}} {{item.isToday ? 'is-today' : ''}} {{item.availableCount ? '' : 'is-empty'}}"
+              data-date="{{item.iso}}"
+              bindtap="selectDate"
+            >
+              <text class="date__tag">{{item.isToday ? '今天' : item.tag}}</text>
+              <text class="date__num">{{item.short}}</text>
+              <text class="date__count">{{item.countLabel}}</text>
             </view>
-          </scroll-view>
+          </view>
         </view>
 
         <view class="list-head wrap">

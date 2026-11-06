@@ -100,7 +100,7 @@ public class VoltScheduleService {
             day.put("short", date.format(VoltMiniSupport.MM_DD));
             day.put("isToday", i == 0);
             day.put("relative", support.relativeDay(date));
-            day.put("tag", i == 0 ? "TODAY" : i == 1 ? "明天" : i == 2 ? "后天"
+            day.put("tag", i == 0 ? "今天" : i == 1 ? "明天" : i == 2 ? "后天"
                     : VoltMiniSupport.WEEK_CN[date.getDayOfWeek().getValue() % 7]);
             days.add(day);
         }
