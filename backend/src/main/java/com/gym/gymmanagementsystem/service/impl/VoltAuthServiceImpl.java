@@ -11,6 +11,7 @@ import com.gym.gymmanagementsystem.pojo.VoltToken;
 import com.gym.gymmanagementsystem.service.VoltAuthService;
 import com.gym.gymmanagementsystem.service.VoltCardOrderService;
 import com.gym.gymmanagementsystem.service.VoltViewService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     private final VoltCardOrderService cardOrderService;
     private final JdbcTemplate jdbcTemplate;
     private final RestClient restClient = RestClient.create();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${volt.auth.expose-otp:false}")
     private boolean exposeOtp;
@@ -684,7 +686,8 @@ public class VoltAuthServiceImpl implements VoltAuthService {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> fetchWxSession(String code) {
-        Map<String, Object> body = restClient.get()
+        // 微信该接口返回 text/plain，但 body 是 JSON；不能直接按 Map 反序列化。
+        String body = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .host("api.weixin.qq.com")
@@ -695,8 +698,15 @@ public class VoltAuthServiceImpl implements VoltAuthService {
                         .queryParam("grant_type", "authorization_code")
                         .build())
                 .retrieve()
-                .body(Map.class);
-        return body == null ? Map.of() : body;
+                .body(String.class);
+        if (body == null || body.isBlank()) {
+            return Map.of();
+        }
+        try {
+            return objectMapper.readValue(body, Map.class);
+        } catch (Exception ex) {
+            throw new IllegalStateException("微信登录响应解析失败", ex);
+        }
     }
 
     private Map<String, Object> map(Object value) {
