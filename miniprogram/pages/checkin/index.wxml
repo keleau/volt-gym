@@ -25,7 +25,7 @@
         </view>
         <text class="scan-card__title serif">到店盖章</text>
         <text class="scan-card__desc">扫描前台场馆码，核销课时并记录训练</text>
-        <button class="btn btn--primary btn--block scan-card__btn" bindtap="onScan">开始扫码</button>
+        <button class="btn btn--primary btn--block scan-card__btn" bindtap="triggerScan">开始扫码</button>
         <text class="scan-card__alt" bindtap="onSimulate">手动选择场馆</text>
       </view>
 

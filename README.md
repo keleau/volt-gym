@@ -121,12 +121,20 @@ npm run dev
 
 - 官网：`http://localhost:5173/`
 - 店员开卡：`http://localhost:5173/#staff`，密钥使用 `VOLT_STAFF_KEY`
+- 门店核销码：`http://localhost:5173/#qr`，会员手机扫码核销；开发者工具里扫码按钮会自动转为手动选场馆
 
 ### 3. 微信小程序
 
 微信开发者工具导入 [`miniprogram/`](miniprogram/) 目录（不是仓库根目录），关闭「校验合法域名」后编译。真机联调把 [`miniprogram/config/index.js`](miniprogram/config/index.js) 的 `API_BASE` 改成电脑局域网 IP。
 
 未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。`MBR-DEMO` 默认带演示次卡和档案，因此微信一键登录会直接进入会员中心，不会触发绑定页。
+
+### 4. 真机演示与扫码核销
+
+- 手机和电脑连同一个 Wi-Fi；把 `miniprogram/config/index.js` 的 `API_BASE` 改成 `http://<电脑局域网IP>:8080/api/v1`，并确保防火墙放行 8080。
+- 电脑打开 `http://localhost:5173/#qr`，手机进入小程序「进场 → 开始扫码」，扫描对应门店二维码；体验课和普通课走同一套核销。
+- 真机预览如果拦截本地 HTTP，改用开发者工具的「真机调试」，或给后端加 HTTPS/域名白名单。
+- 开发者工具里点「开始扫码」会自动打开「手动选择场馆」，不依赖相机；适合稳定录屏。
 
 要重复演示「微信登录 → 绑定手机号」：
 

@@ -3,7 +3,10 @@
     <header class="staff-head">
       <a class="staff-brand" href="#top">VOLT<span>//</span></a>
       <span class="mono">STAFF / 店员开卡</span>
-      <a class="staff-back mono" href="#top">返回官网 →</a>
+      <nav class="staff-links">
+        <a class="staff-back mono" href="#qr">门店核销码 →</a>
+        <a class="staff-back mono" href="#top">返回官网 →</a>
+      </nav>
     </header>
 
     <main class="staff-shell">
@@ -210,6 +213,12 @@ function formatDate(value) {
   background: var(--acid);
   color: var(--ink);
 }
+.staff-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .staff-back:hover { color: var(--acid); }
 
 .staff-shell {
