@@ -357,10 +357,15 @@ Page({
     this.setData({ loginVisible: true })
   },
 
-  onLoginSuccess() {
+  onLoginSuccess(event) {
     tab.setHidden(this, false)
     this.setData({ loginVisible: false })
-    this.load(false)
+    const user = event && event.detail ? event.detail.user : null
+    this.load(false).then(() => {
+      if (user && user.phoneBound === false) {
+        wx.navigateTo({ url: '/pages/bind-phone/index' })
+      }
+    })
   },
 
   onLoginCancel() {

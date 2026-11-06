@@ -1,4 +1,5 @@
 const api = require('../../services/api')
+const auth = require('../../services/auth')
 const dateUtil = require('../../utils/date')
 const navUtil = require('../../utils/nav')
 const tab = require('../../utils/tab')
@@ -40,13 +41,25 @@ Page({
 
   onLoad() {
     this.setData({ nav: navUtil.getNavMetrics() })
-    this.load()
+    if (auth.isLoggedIn()) this.load()
+    else this.setData({ loading: false })
   },
 
   onShow() {
+    if (!auth.isLoggedIn()) {
+      this.redirectToLogin()
+      return
+    }
     tab.select(this, 3)
     tab.setHidden(this, false)
-    if (this.loadedOnce) this.load(false)
+    if (!this.data.loading) this.load(!this.loadedOnce)
+  },
+
+  redirectToLogin() {
+    if (this._redirectingLogin) return
+    this._redirectingLogin = true
+    wx.switchTab({ url: '/pages/mine/index' })
+    wx.showToast({ title: '登录后查看', icon: 'none' })
   },
 
   load(withLoading) {

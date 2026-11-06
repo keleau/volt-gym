@@ -169,6 +169,20 @@ module.exports = {
         data: { phone },
       })
     },
+    sendLoginCode(phone) {
+      return call('/auth/otp/send', {
+        method: 'POST',
+        data: { phone },
+        skipAuthGate: true,
+      })
+    },
+    verifyLogin(payload) {
+      return call('/auth/otp/verify', {
+        method: 'POST',
+        data: payload,
+        skipAuthGate: true,
+      })
+    },
   },
 
   catalog: {

@@ -6,6 +6,7 @@ const format = require('../../utils/format')
 Page({
   data: {
     nav: {},
+    loginMode: false,
     phone: '',
     code: '',
     codeSent: false,
@@ -16,9 +17,14 @@ Page({
     error: '',
   },
 
-  onLoad() {
+  onLoad(options) {
     this._alive = true
-    this.setData({ nav: navUtil.getNavMetrics() })
+    const loginMode = Boolean(options && options.mode === 'login')
+    this.setData({ nav: navUtil.getNavMetrics(), loginMode })
+    if (loginMode) {
+      if (auth.isLoggedIn()) this.leave()
+      return
+    }
     auth.bootstrap()
       .then((session) => {
         if (!this._alive) return
@@ -74,8 +80,10 @@ Page({
       return
     }
     this.setData({ sending: true, error: '' })
-    api.auth
-      .sendBindCode(phone)
+    const request = this.data.loginMode
+      ? api.auth.sendLoginCode(phone)
+      : api.auth.sendBindCode(phone)
+    request
       .then((res) => {
         if (!this._alive) return
         const devCode = res && res.devCode ? res.devCode : ''
@@ -89,7 +97,7 @@ Page({
       })
       .catch((error) => {
         if (!this._alive) return
-        if (error && error.code === 'PHONE_ALREADY_BOUND') {
+        if (!this.data.loginMode && error && error.code === 'PHONE_ALREADY_BOUND') {
           wx.showToast({ title: '该微信已绑定手机号', icon: 'none' })
           this.leave()
           return
@@ -134,17 +142,24 @@ Page({
       return
     }
     this.setData({ verifying: true, error: '' })
-    api.auth
-      .linkPhone({ phone, code })
+    const request = this.data.loginMode
+      ? api.auth.verifyLogin({ phone, code })
+      : api.auth.linkPhone({ phone, code })
+    request
       .then((result) => {
         if (!this._alive) return
-        auth.applyMember(result.member, result.token)
-        wx.showToast({ title: '手机号已绑定', icon: 'success' })
+        if (this.data.loginMode) {
+          auth.applyLoginSession(result)
+          wx.showToast({ title: '已切换账号', icon: 'success' })
+        } else {
+          auth.applyMember(result.member, result.token)
+          wx.showToast({ title: '手机号已绑定', icon: 'success' })
+        }
         setTimeout(() => this.leave(), 450)
       })
       .catch((error) => {
         if (!this._alive) return
-        if (error && error.code === 'PHONE_ALREADY_BOUND') {
+        if (!this.data.loginMode && error && error.code === 'PHONE_ALREADY_BOUND') {
           wx.showToast({ title: '该微信已绑定手机号', icon: 'none' })
           this.leave()
           return
@@ -157,6 +172,10 @@ Page({
   },
 
   leave() {
+    if (this.data.loginMode) {
+      wx.switchTab({ url: '/pages/mine/index' })
+      return
+    }
     const pages = getCurrentPages()
     if (pages.length > 1) {
       wx.navigateBack()

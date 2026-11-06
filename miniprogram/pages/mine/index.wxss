@@ -972,3 +972,63 @@
 .phone-bind__safe {
   height: calc(18rpx + env(safe-area-inset-bottom));
 }
+
+.mine-guest {
+  padding-top: 0;
+}
+
+.guest-card {
+  padding: 30rpx 26rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.guest-card__eyebrow {
+  font-size: 20rpx;
+  letter-spacing: .12em;
+  color: #8b7e68;
+}
+
+.guest-card__title {
+  margin-top: 10rpx;
+  font-size: 44rpx;
+  line-height: 1.25;
+  color: #1b1712;
+}
+
+.guest-card__desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.65;
+  color: #635846;
+}
+
+.guest-card__btn {
+  margin-top: 26rpx;
+}
+
+.guest-card__alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx dashed #d9cbb6;
+  font-size: 23rpx;
+  color: #873023;
+}
+
+.guest-card__alt-arrow {
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+.menu-row--danger .menu-row__label {
+  color: #a33b2b;
+}
+
+.menu-row--danger .menu-row__desc,
+.menu-row--danger .menu-row__arrow {
+  color: #a33b2b;
+  opacity: .72;
+}

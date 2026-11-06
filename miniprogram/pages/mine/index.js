@@ -16,7 +16,7 @@ Page({
     member: {},
     memberInitial: '电',
     stats: {},
-    brand: {},
+    brand: { phone: '400-900-6688' },
     plans: [],
     venues: [],
     subscriptions: {},
@@ -30,6 +30,8 @@ Page({
     planVisible: false,
     reminderVisible: false,
     loginVisible: false,
+    guest: false,
+    sessionMode: 'wechat',
   },
 
   onLoad() {
@@ -40,6 +42,10 @@ Page({
   onShow() {
     tab.select(this, 4)
     tab.setHidden(this, false)
+    if (this.data.guest) {
+      if (auth.isLoggedIn()) this.load(false)
+      return
+    }
     if (this.loadedOnce) this.load(false)
   },
 
@@ -51,15 +57,39 @@ Page({
   },
 
   load(withLoading) {
+    if (!auth.isLoggedIn()) {
+      this.loadedOnce = true
+      this.setData({
+        loading: false,
+        guest: true,
+        member: {},
+        memberInitial: '电',
+        stats: {},
+        plans: [],
+        venues: [],
+        subscriptions: {},
+        messagesUnread: 0,
+        invites: { records: [] },
+        counts: {},
+        nextBooking: null,
+        pendingCard: null,
+        nextDayText: '',
+        expiryDays: 0,
+      })
+      return Promise.resolve()
+    }
     const showLoading = withLoading !== false
     if (showLoading) this.setData({ loading: true })
     return api.mine
       .get()
       .then((data) => {
         const next = data.nextBooking
+        const session = auth.getSession() || {}
         this.loadedOnce = true
         this.setData({
           loading: false,
+          guest: false,
+          sessionMode: session.mode || 'wechat',
           member: data.member,
           memberInitial: data.member.avatarText || format.initials(data.member.nickname),
           stats: data.stats,
@@ -194,15 +224,38 @@ Page({
     this.setData({ loginVisible: true })
   },
 
-  onLoginSuccess() {
+  onLoginSuccess(event) {
     tab.setHidden(this, false)
     this.setData({ loginVisible: false })
-    this.load(false)
+    const user = event && event.detail ? event.detail.user : null
+    this.load(true).then(() => {
+      if (user && user.phoneBound === false) {
+        wx.navigateTo({ url: '/pages/bind-phone/index' })
+      }
+    })
   },
 
   onLoginCancel() {
     tab.setHidden(this, false)
     this.setData({ loginVisible: false })
+  },
+
+  onOpenPhoneLogin() {
+    wx.navigateTo({ url: '/pages/bind-phone/index?mode=login' })
+  },
+
+  onLogout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '退出后可以重新用微信登录，或用手机号登录其他账号。',
+      confirmText: '退出',
+      confirmColor: '#A33B2B',
+      success: (res) => {
+        if (!res.confirm) return
+        auth.logout()
+        wx.reLaunch({ url: '/pages/mine/index' })
+      },
+    })
   },
 
   onShareAppMessage() {

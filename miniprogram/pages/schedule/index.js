@@ -1,4 +1,5 @@
 const api = require('../../services/api')
+const auth = require('../../services/auth')
 const dateUtil = require('../../utils/date')
 const navUtil = require('../../utils/nav')
 const tab = require('../../utils/tab')
@@ -585,6 +586,18 @@ Page({
   onBook() {
     const session = this.data.selected
     if (!session || this.data.submitting) return
+    if (!auth.isLoggedIn()) {
+      wx.showModal({
+        title: '请先登录',
+        content: '登录后才能预约课程。',
+        confirmText: '去登录',
+        confirmColor: '#A33B2B',
+        success: (res) => {
+          if (res.confirm) wx.switchTab({ url: '/pages/mine/index' })
+        },
+      })
+      return
+    }
     if (!this.data.member.phoneBound) {
       this.goBindPhone()
       return

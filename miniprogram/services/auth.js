@@ -1,6 +1,7 @@
 const api = require('./api')
 
 const SESSION_KEY = 'volt.session'
+const LOGOUT_KEY = 'volt.loggedOut'
 const TOKEN_MAX_AGE = 29 * 24 * 60 * 60 * 1000
 let autoLogin = null
 let autoLoginDisabled = false
@@ -10,17 +11,34 @@ function saveSession(session) {
   return session
 }
 
+function isLoggedOut() {
+  try {
+    return Boolean(wx.getStorageSync(LOGOUT_KEY))
+  } catch (error) {
+    return false
+  }
+}
+
+function clearLogoutMark() {
+  try {
+    wx.removeStorageSync(LOGOUT_KEY)
+  } catch (error) {
+    // ignore storage failures
+  }
+}
+
 function getSession() {
   return wx.getStorageSync(SESSION_KEY) || null
 }
 
 function getUser() {
+  if (isLoggedOut()) return null
   const session = getSession()
   return session && session.user ? session.user : null
 }
 
 function isLoggedIn() {
-  return !!getSession()
+  return !isLoggedOut() && !!getSession()
 }
 
 function isSessionFresh(session) {
@@ -38,6 +56,12 @@ function clearSession() {
 }
 
 function bootstrap() {
+  if (isLoggedOut()) {
+    clearSession()
+    autoLoginDisabled = true
+    api.setAuthGate(Promise.resolve(null))
+    return Promise.resolve(null)
+  }
   const existing = getSession()
   if (existing && existing.mode === 'demo') clearSession()
   const session = getSession()
@@ -84,6 +108,7 @@ function loginWithWechat(profile) {
         api.auth
           .login({ code: res.code, profile: safeProfile })
           .then((result) => {
+            clearLogoutMark()
             const session = saveSession({
               token: result.token,
               mode: 'wechat',
@@ -114,6 +139,7 @@ function loginWithWechat(profile) {
 }
 
 function refreshUser(member) {
+  if (isLoggedOut()) return null
   const session = getSession()
   if (!session) return null
   session.user = member
@@ -121,6 +147,7 @@ function refreshUser(member) {
 }
 
 function applyMember(member, token) {
+  if (isLoggedOut()) return null
   const session = getSession()
   if (!session) return null
   if (token) session.token = token
@@ -128,15 +155,39 @@ function applyMember(member, token) {
   return saveSession(session)
 }
 
+function applyLoginSession(result) {
+  clearLogoutMark()
+  const session = saveSession({
+    token: result.token,
+    mode: 'phone',
+    createdAt: Date.now(),
+    user: result.member,
+  })
+  autoLogin = null
+  autoLoginDisabled = false
+  api.setAuthGate(Promise.resolve(session))
+  return session
+}
+
 function logout() {
   clearSession()
+  try {
+    wx.setStorageSync(LOGOUT_KEY, true)
+    const info = wx.getStorageInfoSync()
+    ;(info.keys || []).forEach((key) => {
+      if (key.indexOf('volt.idem.') === 0) wx.removeStorageSync(key)
+    })
+    wx.removeStorageSync('volt.purchasePromptShown')
+  } catch (error) {
+    // storage may be unavailable; the in-memory gate still closes
+  }
   autoLogin = null
   autoLoginDisabled = true
   api.setAuthGate(Promise.resolve(null))
 }
 
 api.setUnauthorizedHandler(() => {
-  if (autoLoginDisabled) {
+  if (autoLoginDisabled || isLoggedOut()) {
     return Promise.reject(new api.ApiError('LOGIN_REQUIRED', '请先微信登录'))
   }
   return startAutoLogin()
@@ -151,5 +202,6 @@ module.exports = {
   loginWithWechat,
   refreshUser,
   applyMember,
+  applyLoginSession,
   logout,
 }

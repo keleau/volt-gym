@@ -1,4 +1,5 @@
 const api = require('../../services/api')
+const auth = require('../../services/auth')
 const dateUtil = require('../../utils/date')
 const navUtil = require('../../utils/nav')
 const tab = require('../../utils/tab')
@@ -45,10 +46,15 @@ Page({
       platform = ''
     }
     this.setData({ nav, platform })
-    this.load()
+    if (auth.isLoggedIn()) this.load()
+    else this.setData({ loading: false })
   },
 
   onShow() {
+    if (!auth.isLoggedIn()) {
+      this.redirectToLogin()
+      return
+    }
     tab.select(this, 2)
     tab.setHidden(this, this.data.phase !== 'idle')
     const app = getApp()
@@ -56,7 +62,16 @@ Page({
       app.globalData.autoScan = false
       this.pendingAutoScan = true
     }
-    if (this.loadedOnce && this.data.phase === 'idle') this.load(false)
+    if (this.data.phase === 'idle' && !this.data.loading) {
+      this.load(!this.loadedOnce)
+    }
+  },
+
+  redirectToLogin() {
+    if (this._redirectingLogin) return
+    this._redirectingLogin = true
+    wx.switchTab({ url: '/pages/mine/index' })
+    wx.showToast({ title: '登录后查看', icon: 'none' })
   },
 
   onHide() {

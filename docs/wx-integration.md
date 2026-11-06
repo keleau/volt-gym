@@ -238,6 +238,12 @@ api.auth.linkPhone({ phone, code })
 - 认领幂等，不重复创建预约、不重复占库存；
 - 手机号唯一；如果手机号已绑定其他微信，返回 409 `PHONE_TAKEN`，提示联系前台处理。两边都有次卡时会合并次数，不会丢卡。
 
+**退出登录 / 手机号登录其他账号：**
+
+- 「我的 → 退出登录」清除 `volt.session`，写入 `volt.loggedOut`，阻止下次启动自动 `wx.login`；重新登录成功后清除该标记。
+- 退出后进入访客态；可以用 `pages/bind-phone/index?mode=login` 走 `POST /auth/otp/send` → `POST /auth/otp/verify`，用另一个手机号登录已有会员。验证码用途为 `login`，与绑定用的 `bind` 隔离。
+- 微信小程序不能直接切换底层微信号；换微信号需要在微信内切换账号后重新进入。当前退出只清本地 token，后端 token 未主动吊销，正式上线应补 `POST /auth/logout`。
+
 ### 4.4 官网购卡单
 
 官网 `/card-orders` 生成的登记单会随 `/member/home`、`/member/account` 的 `cardOrders[]` 返回：
@@ -299,6 +305,7 @@ api.auth.linkPhone({ phone, code })
 | 记录身体数据 | `miniprogram/pages/archive/index.js:261` | `api.archive.addBodyLog({ heightCm, weightKg })` | `POST /member/body-logs` |
 | 我的加载 | `miniprogram/pages/mine/index.js:59` | `api.mine.get()` | `GET /member/account` |
 | 手机号绑定 | `pages/bind-phone/index.js` | `api.auth.sendBindCode` → `api.auth.linkPhone({phone, code})` | `POST /auth/phone/send` → `POST /auth/link-phone` |
+| 手机号登录其他账号 | `pages/bind-phone/index.js?mode=login` | `api.auth.sendLoginCode` → `api.auth.verifyLogin({phone, code})` | `POST /auth/otp/send` → `POST /auth/otp/verify` |
 | 提醒偏好 | `miniprogram/pages/mine/index.js:197` | `api.messages.setSubscription(key, value)` | `PATCH /member/subscriptions` |
 | 重置演示数据 | `miniprogram/pages/mine/index.js:243` | `api.demo.reset()` | 真实模式禁用 |
 | 消息列表 | `miniprogram/pages/messages/index.js:47` | `api.messages.list()` | `GET /member/messages` |
