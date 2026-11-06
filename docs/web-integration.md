@@ -20,7 +20,7 @@
 | 后端实现 | `backend/`（同仓库），Base URL `http://localhost:8080/api/v1` |
 | Mock 存储 | `localStorage`：`volt.bookings.v1`、`volt.event-signups.v1`、`volt.challenge.v1` |
 | 选择态 | `src/services/selection.js`，`localStorage` 键 `volt.selection.v1` |
-| 登录 | 预约面板已接手机号 OTP 登录，token + member 摘要存 `volt.web.session.v1`；游客仍可匿名预约 |
+| 登录 | 体验课预约必须先做手机号 OTP 验证，token + member 摘要存 `volt.web.session.v1`；后端仍兼容旧游客预约，但官网表单不再匿名提交 |
 | 后端地址 | `VITE_API_BASE`（留空用同源 `/api/v1`） |
 
 真实模式与 Mock 模式的差异只有三处：
@@ -102,8 +102,9 @@ node tools/api-check.mjs
 | GET | `/api/v1/catalog/programs` | - | 课程（含 `meta`） |
 | GET | `/api/v1/catalog/plans` | - | 次卡方案（含 `points`） |
 | GET | `/api/v1/catalog/coaches` | - | 教练（小程序预约页在用） |
-| GET | `/api/v1/availability` | - | 日期汇总余位 + `sessions[]` |
-| POST | `/api/v1/bookings` | 可选 | 官网直约，`autoConfirm` 由适配层固定为 `true` |
+| GET | `/api/v1/availability` | - | 指定课程的日期汇总余位 + `sessions[]` |
+| GET | `/api/v1/availability/trial` | - | 体验课按门店 + 日期返回跨课程可约时段 |
+| POST | `/api/v1/bookings` | 是（体验课） | 官网体验课预约；会员 token + `PLAN-01`，允许 0 次卡 |
 | GET | `/api/v1/community` | 可选 | 社区聚合 + `membership` |
 | POST | `/api/v1/events/{id}/signups` | 可选 | 活动报名 |
 | POST | `/api/v1/challenges/current/join` | 可选 | 加入本周挑战 |
@@ -120,7 +121,7 @@ node tools/api-check.mjs
 
 04 屏不再把“买卡”做成一次预约：
 
-- `PLAN-01` 首次体验课：走 `POST /bookings`，生成普通预约，金额仅展示，到店付款。
+- `PLAN-01` 首次体验课：先做手机号 OTP，再由会员 token 提交 `POST /bookings`；不选课程，按门店 + 日期展示 `/availability/trial` 返回的全部可约时段；体验课只允许一次，金额 ¥49 到店支付。
 - `PLAN-03` 10 次充电卡：走 `POST /card-orders`，生成购卡登记单，**不生成预约、不占座**。
 - 到店付款后，店员在官网 `/staff` 页面确认开卡；会员下次登录官网或刷新会员面板时，权益按手机号领取。
 - 本地演示可设 `VOLT_DEMO_PAY=true`，小程序会员卡页会出现「演示支付并开卡」；它只改业务状态，不调用微信支付。
@@ -200,7 +201,7 @@ function authHeaders() {
 }
 ```
 
-- 官网体验课预约固定按游客提交（`createBooking` 传 `auth:false`），即使已登录也不带 token；登录只用于查看会员卡/购卡登记，次卡约课在小程序；
+- 官网体验课预约必须带 OTP 会员 token（`createBooking` 传 `auth:true`）；后端允许 0 次卡会员预约 `PLAN-01`，不扣次、不检查卡余额；
 - 社区报名等需要会员归属的写请求仍按登录态带 token；
 - token 过期返回 401 `UNAUTHORIZED`：清除本地会话，提示重新登录；不要静默降级为游客再提交一次，避免生成重复预约。
 
@@ -342,6 +343,16 @@ GET /api/v1/availability?venue=V-01&program=P02&date=2026-11-05
 - 门店或课程不存在返回 404 `NOT_FOUND`；
 - `sessions[]` 已接入官网 04 屏：前端自动选中第一个可约场次，用户可切换，提交时带 `sessionId`；为空或后端兼容旧表单时仍可只传日期，由后端选当日最早可约场次。
 
+#### GET /availability/trial
+
+体验课不要求先选课程，按门店 + 日期跨课程返回时段：
+
+```http
+GET /api/v1/availability/trial?venue=V-01&date=2026-11-06
+```
+
+响应字段与 `/availability` 类似，但没有单一 `programNo/programName`，`sessions[]` 每项自带课程、教练、余位；`trial=true`。官网 04 屏用这个接口显示所有可约时段，提交时只需 `sessionId + PLAN-01`，后端从场次反推课程。
+
 ### 5.2 POST /bookings
 
 #### 请求 A：兼容请求（无具体场次）
@@ -394,7 +405,7 @@ Idempotency-Key: 8f4c2b1e-...
 - 日期超出窗口：400 `DATE_OUT_OF_RANGE`；
 - 当天场次全部已开课：409 `PAST_SESSION`（不是 `SLOT_FULL`，避免误导成“约满”）；
 - 写入必须幂等，重复提交不得生成第二张预约；
-- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 99 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。官网本期只把 `PLAN-01` 作为体验课预约；`PLAN-03` 走 `/card-orders` 登记，不占用场次。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次。
+- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 99 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。官网本期只把 `PLAN-01` 作为体验课预约；`PLAN-03` 走 `/card-orders` 登记，不占用场次。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次；`PLAN-01` 体验课核销不扣次，且同一手机号限一次。
 
 后端实现补充：
 
@@ -438,11 +449,11 @@ Idempotency-Key: 8f4c2b1e-...
 
 适配层解包后把 `booking` 交给 `useBooking`，成功弹窗读取 `date / time / orderNo` 等字段；`session` 摘要保留在 booking 上。
 
-匿名游客示例中 `memberId` 为 `null`；若后端选择先生成游客 Member，也可以返回游客的 Member id，但同一手机号后续必须能认领到同一张订单。
+官网现流程会先 OTP 验证手机号，`memberId` 为当前手机号会员；旧游客调用仍可传 `memberId=null`，但同一手机号后续必须能认领到同一张订单。体验课预约响应额外带 `isTrial: true`，核销响应带 `trial: true`。
 
-#### 游客预约与后续认领
+#### 游客预约与后续认领（兼容旧调用）
 
-- 游客预约的 `memberId` 可以为 `null`，但 `orderNo` 必须持久化；
+- 旧游客预约的 `memberId` 可以为 `null`，但 `orderNo` 必须持久化；
 - 小程序绑定同一手机号后，`GET /member/bookings` 必须能返回这张官网订单；
 - 官网 OTP 登录后也应看到同一 `orderNo`；
 - 认领按手机号幂等，不得复制预约、不得重复占用库存。
@@ -581,7 +592,7 @@ token 有效期、验证码冷却/错误次数、`fields` 键名需后端确认�
 
 | 页面/动作 | 代码位置 | 适配函数 | 接口 |
 | --- | --- | --- | --- |
-| 04 屏余位查询 | `src/composables/useBooking.js` | `getAvailability` | `GET /availability` |
+| 04 屏余位查询 | `src/composables/useBooking.js` | `getTrialAvailability` | `GET /availability/trial` |
 | 04 屏提交预约 | `src/composables/useBooking.js` | `createBooking` | `POST /bookings` |
 | 社区列表 | `src/components/community/CommunityPage.vue` | `listCommunity` | `GET /community` |
 | 活动报名 | `src/components/community/dialogs/CommunitySignupDialog.vue` | `joinEvent` | `POST /events/:id/signups` |

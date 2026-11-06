@@ -30,8 +30,12 @@ Page({
     planVisible: false,
     reminderVisible: false,
     loginVisible: false,
-    guest: false,
     sessionMode: 'wechat',
+    avatarPreview: '',
+    avatarUploading: false,
+    members: [],
+    switcherVisible: false,
+    switchingId: '',
   },
 
   onLoad() {
@@ -40,12 +44,12 @@ Page({
   },
 
   onShow() {
-    tab.select(this, 4)
-    tab.setHidden(this, false)
-    if (this.data.guest) {
-      if (auth.isLoggedIn()) this.load(false)
+    if (!auth.isLoggedIn()) {
+      this.redirectToLogin()
       return
     }
+    tab.select(this, 4)
+    tab.setHidden(this, false)
     if (this.loadedOnce) this.load(false)
   },
 
@@ -58,24 +62,7 @@ Page({
 
   load(withLoading) {
     if (!auth.isLoggedIn()) {
-      this.loadedOnce = true
-      this.setData({
-        loading: false,
-        guest: true,
-        member: {},
-        memberInitial: '电',
-        stats: {},
-        plans: [],
-        venues: [],
-        subscriptions: {},
-        messagesUnread: 0,
-        invites: { records: [] },
-        counts: {},
-        nextBooking: null,
-        pendingCard: null,
-        nextDayText: '',
-        expiryDays: 0,
-      })
+      this.redirectToLogin()
       return Promise.resolve()
     }
     const showLoading = withLoading !== false
@@ -88,8 +75,8 @@ Page({
         this.loadedOnce = true
         this.setData({
           loading: false,
-          guest: false,
           sessionMode: session.mode || 'wechat',
+          members: Array.isArray(session.members) && session.members.length ? session.members : [data.member],
           member: data.member,
           memberInitial: data.member.avatarText || format.initials(data.member.nickname),
           stats: data.stats,
@@ -148,6 +135,10 @@ Page({
     })
   },
 
+  onGoProfile() {
+    wx.navigateTo({ url: '/pages/profile/index' })
+  },
+
   onGoBookings(event) {
     const tabName = event.currentTarget.dataset.tab || 'upcoming'
     wx.navigateTo({ url: `/pages/bookings/index?tab=${tabName}` })
@@ -167,10 +158,6 @@ Page({
 
   goPass() {
     wx.navigateTo({ url: '/pages/pass/index' })
-  },
-
-  onGoArchive() {
-    tab.switchTab('/pages/archive/index')
   },
 
   onGoSchedule() {
@@ -240,8 +227,106 @@ Page({
     this.setData({ loginVisible: false })
   },
 
-  onOpenPhoneLogin() {
-    wx.navigateTo({ url: '/pages/bind-phone/index?mode=login' })
+  onChangeAvatar() {
+    if (this.data.avatarUploading) return
+    const pick = wx.chooseMedia
+      ? new Promise((resolve, reject) => {
+          wx.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sourceType: ['album', 'camera'],
+            sizeType: ['compressed'],
+            success: (res) => resolve(res.tempFiles && res.tempFiles[0]),
+            fail: reject,
+          })
+        })
+      : new Promise((resolve, reject) => {
+          wx.chooseImage({
+            count: 1,
+            sizeType: ['compressed'],
+            sourceType: ['album', 'camera'],
+            success: (res) => resolve({
+              tempFilePath: res.tempFilePaths && res.tempFilePaths[0],
+              size: res.tempFiles && res.tempFiles[0] && res.tempFiles[0].size,
+            }),
+            fail: reject,
+          })
+        })
+    pick
+      .then((file) => {
+        if (!file || !file.tempFilePath) return
+        if (file.size && file.size > 5 * 1024 * 1024) {
+          wx.showToast({ title: '头像不能超过 5MB', icon: 'none' })
+          return
+        }
+        this.setData({
+          avatarUploading: true,
+          avatarPreview: file.tempFilePath,
+        })
+        return api.mine.uploadAvatar(file.tempFilePath).then((member) => {
+          if (!this._alive) return
+          auth.refreshUser(member)
+          const members = (this.data.members || []).map((item) =>
+            item.id === member.id ? member : item,
+          )
+          this.setData({
+            avatarUploading: false,
+            avatarPreview: '',
+            member,
+            memberInitial: member.avatarText || format.initials(member.nickname),
+            members,
+          })
+          wx.showToast({ title: '头像已更新', icon: 'success' })
+        })
+      })
+      .catch((error) => {
+        if (!this._alive) return
+        this.setData({ avatarUploading: false, avatarPreview: '' })
+        const message = String((error && error.errMsg) || '')
+        if (message.indexOf('cancel') >= 0) return
+        wx.showToast({ title: format.errorText(error), icon: 'none' })
+      })
+  },
+
+  openSwitcher() {
+    tab.setHidden(this, true)
+    this.setData({ switcherVisible: true })
+  },
+
+  closeSwitcher() {
+    tab.setHidden(this, false)
+    this.setData({ switcherVisible: false, switchingId: '' })
+  },
+
+  onSwitchMember(event) {
+    const memberId = event.currentTarget.dataset.id
+    if (!memberId || this.data.switchingId) return
+    if (memberId === this.data.member.id) {
+      this.closeSwitcher()
+      return
+    }
+    this.setData({ switchingId: memberId })
+    auth
+      .switchMember(memberId)
+      .then(() => {
+        this.closeSwitcher()
+        return this.load(true)
+      })
+      .catch((error) => {
+        this.setData({ switchingId: '' })
+        wx.showToast({ title: format.errorText(error), icon: 'none' })
+      })
+  },
+
+  onAddMember() {
+    this.closeSwitcher()
+    wx.navigateTo({ url: '/pages/bind-phone/index?mode=add' })
+  },
+
+  redirectToLogin() {
+    if (this._redirectingLogin) return
+    this._redirectingLogin = true
+    wx.reLaunch({ url: '/pages/login/index' })
   },
 
   onLogout() {
@@ -253,7 +338,7 @@ Page({
       success: (res) => {
         if (!res.confirm) return
         auth.logout()
-        wx.reLaunch({ url: '/pages/mine/index' })
+        wx.reLaunch({ url: '/pages/login/index' })
       },
     })
   },

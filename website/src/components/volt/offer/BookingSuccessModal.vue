@@ -8,7 +8,7 @@
         <div><dt>预约编号</dt><dd>{{ booking.orderNo }}</dd></div>
         <div><dt>姓名</dt><dd>{{ booking.name }}</dd></div>
         <div><dt>充电站</dt><dd>{{ booking.venueName }}</dd></div>
-        <div><dt>课程</dt><dd>{{ booking.programName }}</dd></div>
+        <div><dt>课程</dt><dd>{{ booking.isTrial ? '首次体验课 · 场馆安排' : booking.programName }}</dd></div>
         <div><dt>日期</dt><dd>{{ booking.date }}</dd></div>
         <div v-if="booking.time">
           <dt>时间</dt>
@@ -16,7 +16,7 @@
         </div>
         <div><dt>金额</dt><dd>¥{{ booking.amount }} · 到店支付</dd></div>
       </dl>
-      <p class="modal-note">预约信息已记录，凭手机号到店核销。想长期练，可在小程序或前台开 10 次卡。</p>
+      <p class="modal-note">预约信息已记录。到店后用同一手机号登录小程序，扫码核销体验课（不扣次卡）。想长期练，可在小程序或前台开 10 次卡。</p>
       <button type="button" class="modal-btn" @click="$emit('close')">完成</button>
     </div>
   </BaseModal>

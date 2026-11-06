@@ -9,6 +9,8 @@
     "pages/mine/index",
     "pages/pass/index",
     "pages/bind-phone/index",
+    "pages/login/index",
+    "pages/profile/index",
     "pages/bookings/index",
     "pages/messages/index",
     "pages/invite/index",

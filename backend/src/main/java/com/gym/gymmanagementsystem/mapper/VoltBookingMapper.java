@@ -17,6 +17,8 @@ public interface VoltBookingMapper {
 
     Booking findActiveByMemberAndSession(@Param("memberId") String memberId, @Param("sessionId") String sessionId);
 
+    int countTrialsByPhone(@Param("phone") String phone);
+
     List<Booking> findByMember(@Param("memberId") String memberId);
 
     List<Booking> findByPhone(@Param("phone") String phone);

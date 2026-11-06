@@ -70,7 +70,7 @@ Page({
   redirectToLogin() {
     if (this._redirectingLogin) return
     this._redirectingLogin = true
-    wx.switchTab({ url: '/pages/mine/index' })
+    wx.reLaunch({ url: '/pages/login/index' })
     wx.showToast({ title: '登录后查看', icon: 'none' })
   },
 
@@ -238,6 +238,17 @@ Page({
 
   handleCheckinResult(result, code) {
     const self = this
+    if (result.mode === 'trial') {
+      this.showSuccess({
+        mode: 'trial',
+        member: result.member,
+        stats: result.stats,
+        record: result.record,
+        venue: result.venue,
+        locationLabel: result.locationLabel,
+      })
+      return
+    }
     if (result.mode === 'class') {
       this.showSuccess({
         mode: 'class',
@@ -373,6 +384,12 @@ Page({
     tab.setHidden(this, false)
     this.setData({ phase: 'idle', success: null })
     tab.switchTab('/pages/archive/index')
+  },
+
+  onGoPass() {
+    tab.setHidden(this, false)
+    this.setData({ phase: 'idle', success: null })
+    wx.navigateTo({ url: '/pages/pass/index?buy=1' })
   },
 
   onGoBook() {

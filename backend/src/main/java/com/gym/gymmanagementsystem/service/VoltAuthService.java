@@ -22,6 +22,15 @@ public interface VoltAuthService {
     /** 校验绑定验证码后，把手机号绑定/合并到当前微信会员。 */
     Map<String, Object> linkPhone(VoltMember member, String phone, String code);
 
+    /** 当前微信名下可切换的会员档案（同一手机号始终是同一个会员）。 */
+    Map<String, Object> members(VoltMember member);
+
+    /** 通过手机号 OTP 给当前微信添加一个会员档案，并切换过去。 */
+    Map<String, Object> addMember(VoltMember member, String phone, String code);
+
+    /** 在当前微信名下的会员档案之间切换，返回新 token。 */
+    Map<String, Object> switchMember(VoltMember member, String memberId);
+
     /**
      * 解析 Bearer token：
      * 没有带 token 时返回 null（按游客处理）；

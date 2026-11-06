@@ -58,7 +58,7 @@ Page({
   redirectToLogin() {
     if (this._redirectingLogin) return
     this._redirectingLogin = true
-    wx.switchTab({ url: '/pages/mine/index' })
+    wx.reLaunch({ url: '/pages/login/index' })
     wx.showToast({ title: '登录后查看', icon: 'none' })
   },
 

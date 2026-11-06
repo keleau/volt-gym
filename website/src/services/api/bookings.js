@@ -8,8 +8,8 @@ export const createBooking = (input) => {
     method: 'POST',
     body: payload,
     idempotencyKey: pending.key,
-    // 官网只卖体验课，按游客单处理；会员次卡约课在小程序。
-    auth: false,
+    // 体验课手机号已通过 OTP 验证，带上会员 token；后端允许 0 次卡会员预约 PLAN-01。
+    auth: true,
   }).then((res) => {
     clearPendingKey('booking')
     const booking = res?.booking || res

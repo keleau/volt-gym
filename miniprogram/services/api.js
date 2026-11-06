@@ -183,6 +183,21 @@ module.exports = {
         skipAuthGate: true,
       })
     },
+    members() {
+      return call('/auth/members')
+    },
+    addMember(payload) {
+      return call('/auth/members/add', {
+        method: 'POST',
+        data: payload,
+      })
+    },
+    switchMember(memberId) {
+      return call('/auth/switch-member', {
+        method: 'POST',
+        data: { memberId },
+      })
+    },
   },
 
   catalog: {
@@ -297,6 +312,39 @@ module.exports = {
       return call('/member/me', {
         method: 'PATCH',
         data: payload,
+      })
+    },
+    uploadAvatar(filePath) {
+      return new Promise((resolve, reject) => {
+        const token = readToken()
+        wx.uploadFile({
+          url: `${config.API_BASE}/member/avatar`,
+          filePath,
+          name: 'file',
+          header: token ? { Authorization: `Bearer ${token}` } : {},
+          success(res) {
+            let data = {}
+            try {
+              data = JSON.parse(res.data || '{}')
+            } catch (error) {
+              data = {}
+            }
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(data)
+              return
+            }
+            if (res.statusCode === 401) clearSession()
+            reject(
+              new ApiError(
+                data.code || defaultCode(res.statusCode),
+                data.message || '头像上传失败，请稍后再试',
+              ),
+            )
+          },
+          fail() {
+            reject(new ApiError('NETWORK_ERROR', '头像上传失败，请检查网络'))
+          },
+        })
       })
     },
   },

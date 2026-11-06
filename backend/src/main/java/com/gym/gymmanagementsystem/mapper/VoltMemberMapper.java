@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface VoltMemberMapper {
@@ -16,6 +17,23 @@ public interface VoltMemberMapper {
     VoltMember findByPhone(@Param("phone") String phone);
 
     VoltMember findByOpenid(@Param("openid") String openid);
+
+    List<VoltMember> findMembersByOpenid(@Param("openid") String openid);
+
+    String findActiveMemberId(@Param("openid") String openid);
+
+    String findOpenidByMember(@Param("memberId") String memberId);
+
+    int countWechatMember(@Param("openid") String openid, @Param("memberId") String memberId);
+
+    int insertWechatMember(@Param("openid") String openid, @Param("memberId") String memberId,
+                           @Param("active") boolean active, @Param("createdAt") LocalDateTime createdAt);
+
+    int clearWechatActive(@Param("openid") String openid);
+
+    int setWechatActive(@Param("openid") String openid, @Param("memberId") String memberId);
+
+    int deleteWechatMember(@Param("openid") String openid, @Param("memberId") String memberId);
 
     int insert(VoltMember member);
 

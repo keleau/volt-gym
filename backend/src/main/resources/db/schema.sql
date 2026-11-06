@@ -126,6 +126,17 @@ CREATE TABLE IF NOT EXISTS volt_token (
     created_at DATETIME    NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
+-- 一个微信 openid 可以关联多个手机号会员档案；active=1 是当前会员卡。
+-- 手机号仍是会员唯一标识：同一手机号始终落在同一条 volt_member。
+CREATE TABLE IF NOT EXISTS volt_wechat_member (
+    openid     VARCHAR(64) NOT NULL,
+    member_id  VARCHAR(32) NOT NULL,
+    active     TINYINT     NOT NULL DEFAULT 0,
+    created_at DATETIME    NOT NULL,
+    PRIMARY KEY (openid, member_id),
+    KEY idx_wx_member_active (openid, active)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS volt_otp (
     id         BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
     phone      VARCHAR(20) NOT NULL,

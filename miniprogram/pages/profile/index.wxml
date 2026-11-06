@@ -1,0 +1,106 @@
+<view class="page profile-page">
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="个人资料"></volt-nav>
+
+  <scroll-view class="profile-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{nav.totalHeight}}px"></view>
+
+    <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载资料</text></view>
+
+    <block wx:else>
+      <view class="profile-hero wrap">
+        <view class="profile-hero__card card">
+          <view class="profile-hero__avatar" bindtap="chooseAvatar">
+            <image wx:if="{{avatarPreview || member.avatarUrl}}" class="profile-hero__img" src="{{avatarPreview || member.avatarUrl}}" mode="aspectFill"></image>
+            <text wx:else>{{memberInitial}}</text>
+          </view>
+          <button class="profile-avatar-btn" bindtap="chooseAvatar" disabled="{{uploadingAvatar}}">
+            {{uploadingAvatar ? '上传中…' : '更换头像'}}
+          </button>
+          <text class="profile-hero__avatar-hint">支持本地 JPG / PNG / WebP，最大 5MB</text>
+          <text class="profile-hero__name serif">{{member.nickname}}</text>
+          <text class="profile-hero__meta">{{member.phone || '未绑定手机号'}} · 会员 {{member.joinedAt || '--'}}</text>
+          <view class="profile-stats">
+            <view class="profile-stat">
+              <text class="profile-stat__value">{{member.credits || 0}}</text>
+              <text class="profile-stat__label">剩余次数</text>
+            </view>
+            <view class="profile-stat">
+              <text class="profile-stat__value">{{stats.totalSessions || 0}}</text>
+              <text class="profile-stat__label">累计训练</text>
+            </view>
+            <view class="profile-stat">
+              <text class="profile-stat__value">{{stats.streakWeeks || 0}}</text>
+              <text class="profile-stat__label">连续周</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="profile-form-wrap wrap">
+        <view class="profile-form card">
+          <view class="profile-field">
+            <text class="profile-field__label">昵称</text>
+            <input
+              class="profile-field__input"
+              type="nickname"
+              maxlength="16"
+              value="{{form.nickname}}"
+              placeholder="怎么称呼你"
+              data-key="nickname"
+              bindinput="onInput"
+            />
+          </view>
+          <view class="profile-field">
+            <text class="profile-field__label">训练目标</text>
+            <input
+              class="profile-field__input"
+              maxlength="64"
+              value="{{form.goal}}"
+              placeholder="例如：减脂 / 增肌 / 保持体能"
+              data-key="goal"
+              bindinput="onInput"
+            />
+          </view>
+          <view class="profile-field-row">
+            <view class="profile-field">
+              <text class="profile-field__label">身高 cm</text>
+              <input
+                class="profile-field__input"
+                type="number"
+                maxlength="3"
+                value="{{form.heightCm}}"
+                placeholder="170"
+                data-key="heightCm"
+                bindinput="onInput"
+              />
+            </view>
+            <view class="profile-field">
+              <text class="profile-field__label">体重 kg</text>
+              <input
+                class="profile-field__input"
+                type="digit"
+                maxlength="5"
+                value="{{form.weightKg}}"
+                placeholder="65"
+                data-key="weightKg"
+                bindinput="onInput"
+              />
+            </view>
+          </view>
+          <text wx:if="{{error}}" class="profile-error">{{error}}</text>
+          <button class="btn btn--primary btn--block profile-save" bindtap="save" disabled="{{saving}}">
+            {{saving ? '保存中…' : '保存资料'}}
+          </button>
+          <text class="profile-note">头像由微信授权同步；手机号是会员唯一标识，如需更换请联系前台。</text>
+        </view>
+      </view>
+
+      <view class="profile-link wrap" bindtap="onGoArchive">
+        <text>查看训练记录</text>
+        <text class="profile-link__arrow">›</text>
+      </view>
+
+      <view class="profile-bottom"></view>
+    </block>
+  </scroll-view>
+</view>

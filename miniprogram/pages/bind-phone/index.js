@@ -7,6 +7,8 @@ Page({
   data: {
     nav: {},
     loginMode: false,
+    addMode: false,
+    fromLogin: false,
     phone: '',
     code: '',
     codeSent: false,
@@ -20,9 +22,15 @@ Page({
   onLoad(options) {
     this._alive = true
     const loginMode = Boolean(options && options.mode === 'login')
-    this.setData({ nav: navUtil.getNavMetrics(), loginMode })
+    const addMode = Boolean(options && options.mode === 'add')
+    const fromLogin = Boolean(options && options.from === 'login')
+    this.setData({ nav: navUtil.getNavMetrics(), loginMode, addMode, fromLogin })
     if (loginMode) {
       if (auth.isLoggedIn()) this.leave()
+      return
+    }
+    if (addMode) {
+      if (!auth.isLoggedIn()) this.setData({ error: '请先登录后再添加会员卡。' })
       return
     }
     auth.bootstrap()
@@ -80,7 +88,7 @@ Page({
       return
     }
     this.setData({ sending: true, error: '' })
-    const request = this.data.loginMode
+    const request = this.data.loginMode || this.data.addMode
       ? api.auth.sendLoginCode(phone)
       : api.auth.sendBindCode(phone)
     request
@@ -97,7 +105,7 @@ Page({
       })
       .catch((error) => {
         if (!this._alive) return
-        if (!this.data.loginMode && error && error.code === 'PHONE_ALREADY_BOUND') {
+        if (!this.data.loginMode && !this.data.addMode && error && error.code === 'PHONE_ALREADY_BOUND') {
           wx.showToast({ title: '该微信已绑定手机号', icon: 'none' })
           this.leave()
           return
@@ -144,22 +152,27 @@ Page({
     this.setData({ verifying: true, error: '' })
     const request = this.data.loginMode
       ? api.auth.verifyLogin({ phone, code })
-      : api.auth.linkPhone({ phone, code })
+      : this.data.addMode
+        ? api.auth.addMember({ phone, code })
+        : api.auth.linkPhone({ phone, code })
     request
       .then((result) => {
         if (!this._alive) return
         if (this.data.loginMode) {
           auth.applyLoginSession(result)
           wx.showToast({ title: '已切换账号', icon: 'success' })
+        } else if (this.data.addMode) {
+          auth.applyAuthResult(result)
+          wx.showToast({ title: '已添加会员卡', icon: 'success' })
         } else {
-          auth.applyMember(result.member, result.token)
+          auth.applyMember(result.member, result.token, result.members, result.activeMemberId)
           wx.showToast({ title: '手机号已绑定', icon: 'success' })
         }
         setTimeout(() => this.leave(), 450)
       })
       .catch((error) => {
         if (!this._alive) return
-        if (!this.data.loginMode && error && error.code === 'PHONE_ALREADY_BOUND') {
+        if (!this.data.loginMode && !this.data.addMode && error && error.code === 'PHONE_ALREADY_BOUND') {
           wx.showToast({ title: '该微信已绑定手机号', icon: 'none' })
           this.leave()
           return
@@ -172,7 +185,7 @@ Page({
   },
 
   leave() {
-    if (this.data.loginMode) {
+    if (this.data.loginMode || this.data.addMode || this.data.fromLogin) {
       wx.switchTab({ url: '/pages/mine/index' })
       return
     }

@@ -115,6 +115,8 @@ function loginWithWechat(profile) {
               code: res.code,
               createdAt: Date.now(),
               user: result.member,
+              members: Array.isArray(result.members) ? result.members : [result.member],
+              activeMemberId: result.activeMemberId || result.member.id,
             })
             autoLogin = null
             api.setAuthGate(Promise.resolve(session))
@@ -138,21 +140,42 @@ function loginWithWechat(profile) {
   })
 }
 
+function updateMemberList(session, member) {
+  const members = Array.isArray(session.members) ? session.members.slice() : []
+  const index = members.findIndex((item) => item.id === member.id)
+  if (index >= 0) members[index] = member
+  else members.push(member)
+  session.members = members
+  session.activeMemberId = member.id
+}
+
 function refreshUser(member) {
   if (isLoggedOut()) return null
   const session = getSession()
   if (!session) return null
   session.user = member
+  updateMemberList(session, member)
   return saveSession(session)
 }
 
-function applyMember(member, token) {
+function applyMember(member, token, members, activeMemberId) {
   if (isLoggedOut()) return null
   const session = getSession()
   if (!session) return null
   if (token) session.token = token
   session.user = member
+  if (Array.isArray(members) && members.length) {
+    session.members = members
+    session.activeMemberId = activeMemberId || member.id
+  } else {
+    updateMemberList(session, member)
+  }
   return saveSession(session)
+}
+
+function applyAuthResult(result) {
+  if (!result || !result.member) return null
+  return applyMember(result.member, result.token, result.members, result.activeMemberId)
 }
 
 function applyLoginSession(result) {
@@ -162,11 +185,46 @@ function applyLoginSession(result) {
     mode: 'phone',
     createdAt: Date.now(),
     user: result.member,
+    members: [result.member],
+    activeMemberId: result.member.id,
   })
   autoLogin = null
   autoLoginDisabled = false
   api.setAuthGate(Promise.resolve(session))
   return session
+}
+
+function getMembers() {
+  const session = getSession()
+  if (!session) return []
+  if (Array.isArray(session.members) && session.members.length) return session.members
+  return session.user ? [session.user] : []
+}
+
+function refreshMembers() {
+  return api.auth.members().then((result) => {
+    const session = getSession()
+    if (!session) return null
+    session.members = Array.isArray(result.members) ? result.members : []
+    session.activeMemberId = result.activeMemberId || session.activeMemberId
+    return saveSession(session)
+  })
+}
+
+function switchMember(memberId) {
+  return api.auth.switchMember(memberId).then((result) => {
+    const session = applyAuthResult(result)
+    if (!session) throw new api.ApiError('LOGIN_REQUIRED', '请先登录')
+    return session
+  })
+}
+
+function addMember(phone, code) {
+  return api.auth.addMember({ phone, code }).then((result) => {
+    const session = applyAuthResult(result)
+    if (!session) throw new api.ApiError('LOGIN_REQUIRED', '请先登录')
+    return session
+  })
 }
 
 function logout() {
@@ -202,6 +260,11 @@ module.exports = {
   loginWithWechat,
   refreshUser,
   applyMember,
+  applyAuthResult,
   applyLoginSession,
+  getMembers,
+  refreshMembers,
+  switchMember,
+  addMember,
   logout,
 }

@@ -225,6 +225,7 @@ public class VoltViewServiceImpl implements VoltViewService {
         view.put("source", booking.getSource());
         view.put("planCode", booking.getPlanCode());
         view.put("planName", booking.getPlanName());
+        view.put("isTrial", "PLAN-01".equals(booking.getPlanCode()));
         view.put("amount", booking.getAmount());
         view.put("name", booking.getMemberName());
         view.put("phone", VoltContract.maskPhone(booking.getMemberPhone()));

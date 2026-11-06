@@ -6,10 +6,17 @@ import com.gym.gymmanagementsystem.mapper.VoltMemberMapper;
 import com.gym.gymmanagementsystem.pojo.VoltMember;
 import com.gym.gymmanagementsystem.service.VoltMemberService;
 import com.gym.gymmanagementsystem.service.VoltViewService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class VoltMemberServiceImpl implements VoltMemberService {
@@ -17,9 +24,42 @@ public class VoltMemberServiceImpl implements VoltMemberService {
     private final VoltMemberMapper memberMapper;
     private final VoltViewService viewService;
 
+    @Value("${volt.upload.avatar-dir:uploads/avatars}")
+    private String avatarDir;
+
     public VoltMemberServiceImpl(VoltMemberMapper memberMapper, VoltViewService viewService) {
         this.memberMapper = memberMapper;
         this.viewService = viewService;
+    }
+
+    @Override
+    public String storeAvatar(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw ApiException.validation("请选择头像图片。", Map.of("file", "请选择头像图片"));
+        }
+        if (file.getSize() > 5 * 1024 * 1024L) {
+            throw ApiException.validation("头像不能超过 5MB。", Map.of("file", "头像不能超过 5MB"));
+        }
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
+        String extension;
+        if ("image/jpeg".equals(contentType) || "image/jpg".equals(contentType)) {
+            extension = ".jpg";
+        } else if ("image/png".equals(contentType)) {
+            extension = ".png";
+        } else if ("image/webp".equals(contentType)) {
+            extension = ".webp";
+        } else {
+            throw ApiException.validation("只支持 JPG / PNG / WebP 图片。", Map.of("file", "图片格式不支持"));
+        }
+        try {
+            Path dir = Paths.get(avatarDir).toAbsolutePath().normalize();
+            Files.createDirectories(dir);
+            String filename = UUID.randomUUID().toString().replace("-", "") + extension;
+            file.transferTo(dir.resolve(filename));
+            return "/uploads/avatars/" + filename;
+        } catch (IOException | IllegalStateException ex) {
+            throw new ApiException(500, "UPLOAD_FAILED", "头像保存失败，请稍后再试。");
+        }
     }
 
     @Override

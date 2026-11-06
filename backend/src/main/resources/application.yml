@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   # 本地私有配置（GYM_DB_PASSWORD 等）放在同目录 .env，不进版本库
   config:
     import: "optional:file:.env[.properties]"

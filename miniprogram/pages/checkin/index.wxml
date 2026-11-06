@@ -110,10 +110,10 @@
             <text class="success__stamp-bottom mono">{{success.record.time}} / {{success.record.venueName}}</text>
           </view>
         </view>
-        <view class="success__kicker mono">CIRCUIT CLOSED / 电流已接通</view>
-        <text class="success__title serif">电流已接通</text>
+        <view class="success__kicker mono">{{success.mode === 'trial' ? 'TRIAL CLOSED / 体验课已核销' : 'CIRCUIT CLOSED / 电流已接通'}}</view>
+        <text class="success__title serif">{{success.mode === 'trial' ? '体验课已接通' : '电流已接通'}}</text>
         <text class="success__sub">
-          {{success.mode === 'already' ? '今天已经完成签到' : success.mode === 'free' ? '自由训练已记录，未消耗次卡' : '课时已核销，训练档案已更新'}}
+          {{success.mode === 'already' ? '今天已经完成签到' : success.mode === 'free' ? '自由训练已记录，未消耗次卡' : success.mode === 'trial' ? '体验课已核销，本次不消耗次卡' : '课时已核销，训练档案已更新'}}
         </text>
 
         <view class="success__card card">
@@ -146,8 +146,10 @@
         </view>
 
         <view class="success__actions">
-          <button class="btn btn--primary btn--block" bindtap="onGoArchive">查看训练档案</button>
+          <button wx:if="{{success.mode === 'trial'}}" class="btn btn--primary btn--block" bindtap="onGoPass">看看会员卡</button>
+          <button wx:else class="btn btn--primary btn--block" bindtap="onGoArchive">查看训练档案</button>
           <button class="btn btn--ghost btn--block" open-type="share">分享给好友</button>
+          <button wx:if="{{success.mode === 'trial'}}" class="btn btn--ghost btn--block" bindtap="onGoArchive">查看训练档案</button>
         </view>
         <text class="success__note">VOLT 电压健身 · 广州三店</text>
       </view>

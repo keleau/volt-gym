@@ -39,18 +39,22 @@
 | POST | `/auth/phone/send` | 是 | 微信换绑/首次绑定手机号专用验证码，`purpose=bind`；已绑定账号返回 `PHONE_ALREADY_BOUND` |
 | POST | `/auth/otp/verify` | 否 | body `{phone, code}`；返回 `{token, member}`，登录后认领同手机号的游客预约/报名/挑战 |
 | POST | `/auth/wx/login` | 否 | body `{code, nickname?}`；小程序 wx.login 换会员 |
-| POST | `/auth/link-phone` | 是 | body `{phone, code}`；先校验 `bind` 验证码，再绑定/合并手机号记录；返回 `{member, merged, token?}` |
+| POST | `/auth/link-phone` | 是 | body `{phone, code}`；先校验 `bind` 验证码，再绑定/合并手机号记录；返回 `{member, merged, token?, members, activeMemberId}` |
+| GET | `/auth/members` | 是 | 当前微信名下会员档案列表 `{members, activeMemberId}` |
+| POST | `/auth/members/add` | 是 | body `{phone, code}`；用 `login` 验证码添加另一手机号会员并切换 |
+| POST | `/auth/switch-member` | 是 | body `{memberId}`；切换当前档案并换发 token |
 | GET | `/catalog/venues` | 否 | 门店 |
 | GET | `/catalog/programs` | 否 | 课程 |
 | GET | `/catalog/plans` | 否 | 次卡价格 |
 | GET | `/catalog/coaches` | 否 | 教练 |
-| GET | `/availability?venue=&program=&date=` | 否 | 官网三步预约的余位查询 |
+| GET | `/availability?venue=&program=&date=` | 否 | 指定课程的余位查询 |
+| GET | `/availability/trial?venue=&date=` | 否 | 体验课跨课程时段，不要求先选课程 |
 
 ## 4. 官网预约与社区
 
 | 方法 | 路径 | 登录 | 幂等 | 说明 |
 | --- | --- | --- | --- | --- |
-| POST | `/bookings` | 否/可选 | 是 | 官网创建预约；带会员 token 时使用会员次卡、`amount=0` |
+| POST | `/bookings` | 是（体验课） | 是 | 官网体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，金额 ¥49；不可重复体验 |
 | GET | `/community` | 否/可选 | — | 社区聚合 |
 | POST | `/events/{eventId}/signups` | 否/可选 | 是 | 活动报名 |
 | POST | `/challenges/current/join` | 否/可选 | 是 | 加入本周挑战 |
@@ -79,6 +83,7 @@
 | PATCH | `/member/subscriptions` | 是 | — | body `{key, value}`；key 为 `classReminder` / `classChange` / `waitlist` |
 | GET | `/member/credits/ledger` | 是 | — | **次卡流水**，见 §7 |
 | PATCH | `/member/me` | 是 | — | 修改昵称/目标/身高/体重 |
+| POST | `/member/avatar` | 是 | — | 上传本地头像，返回最新 Member；文件存 `uploads/avatars` |
 | GET | `/invites/{ref}?program=` | 可选 | — | 邀请页 |
 | GET | `/invites/me` | 是 | — | 我的邀请码与邀请记录 |
 | POST | `/invites/{ref}/accept` | 是 | 天然幂等 | 绑定邀请人；不能绑自己；重复领取返回 `already:true` |
@@ -94,7 +99,7 @@
 | POST | `/bookings/{bookingId}/cancel` | 是 | 是 | 条件更新后释放座位并递补；开课前 2 小时内禁止取消；重复取消返回已取消状态 |
 | POST | `/sessions/{sessionId}/waitlist` | 是 | 是 | 满员时加入候补；有座位会提示直接预约；行锁保证顺位 |
 | DELETE | `/waitlist/{waitlistId}` | 是 | — | 取消候补 |
-| POST | `/checkins/scan` | 是 | **是** | 场馆码核销；按 `booking_id` 判重，成功扣 1 次并写流水 |
+| POST | `/checkins/scan` | 是 | **是** | 场馆码核销；按 `booking_id` 判重；普通课时扣 1 次并写流水，`PLAN-01` 体验课不扣次 |
 | POST | `/checkins/free` | 是 | 是 | 自由训练记录，不扣次 |
 
 ### 小程序幂等键
@@ -120,15 +125,16 @@
 | --- | --- | --- |
 | 锁位（`locked`） | 否 | 锁位只占座 10 分钟，超时自动释放；提前扣次会让用户白掉次数 |
 | 确认（`confirmed`） | 否 | 确认只是把锁位转正；用户仍可在开课前 2 小时外取消 |
-| 扫码核销（`checked-in`） | **是，扣 1 次** | 人真的到店上课，才产生一次消费 |
+| 扫码核销（`checked-in`） | **普通课时扣 1 次；`PLAN-01` 体验课不扣** | 体验课是单独付费的单次权益；普通课时到店才消耗次卡 |
 | 自由训练 | 否 | 自由训练不占用课程席位，也不消耗次卡 |
 | 候补递补 | 否 | 递补只生成新的 10 分钟锁位，用户仍需确认和到场核销 |
 
 ### 只扣一次的实现
 
 1. `VoltBookingMapper.markCheckedInIfConfirmed` 用条件更新 `WHERE status='confirmed'` 把预约改成 `checked-in`；并发扫码只有一条能成功。
-2. `UPDATE volt_member SET credits = credits - 1 WHERE member_id=? AND credits > 0` 条件扣次；余额不足时抛 `NO_CREDITS`，整个事务回滚，核销状态也撤销。
-3. 写 `volt_credit_ledger`：`change_amount = -1`、`reason = 'CHECKIN'`、`balance_after` 为扣后余额。唯一键 `(booking_id, reason)` 再兜底一次，同一预约不可能出现两条扣次流水。
+2. 普通课时执行 `UPDATE volt_member SET credits = credits - 1 WHERE member_id=? AND credits > 0` 条件扣次；余额不足时抛 `NO_CREDITS`，整个事务回滚，核销状态也撤销。`PLAN-01` 体验课跳过扣次。
+3. 普通课时写 `volt_credit_ledger`：`change_amount = -1`、`reason = 'CHECKIN'`、`balance_after` 为扣后余额；体验课不写扣次流水。唯一键 `(booking_id, reason)` 再兜底一次，同一预约不可能出现两条扣次流水。
+4. `PLAN-01` 首次体验课按手机号限一次：创建预约时已有非取消的体验课单则返回 409 `TRIAL_ALREADY_BOOKED`。
 
 ### 什么时候恢复
 

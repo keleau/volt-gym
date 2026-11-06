@@ -45,7 +45,7 @@ function isOpen(session) {
 
 const hint = computed(() => {
   if (props.loading) return '正在查场次…'
-  if (!props.loaded) return '选好日期后显示场次'
+  if (!props.loaded) return '选好门店和日期后显示时段'
   if (!props.sessions.length) return '当天暂无可约场次'
   return '选一个时间'
 })

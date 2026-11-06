@@ -10,3 +10,8 @@ export const getAvailability = ({ venueCode, programNo, date }) => {
   const query = new URLSearchParams({ venue: venueCode, program: programNo, date })
   return request(`/availability?${query.toString()}`)
 }
+
+export const getTrialAvailability = ({ venueCode, date }) => {
+  const query = new URLSearchParams({ venue: venueCode, date })
+  return request(`/availability/trial?${query.toString()}`)
+}

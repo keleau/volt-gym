@@ -1,13 +1,13 @@
 <view class="page bind-page">
-  <volt-nav placeholder="{{false}}" title="{{loginMode ? '登录其他账号' : '绑定手机号'}}"></volt-nav>
+  <volt-nav placeholder="{{false}}" back="{{true}}" title="{{loginMode ? '登录其他账号' : addMode ? '添加会员卡' : '绑定手机号'}}"></volt-nav>
 
   <scroll-view class="bind-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view style="height:{{nav.totalHeight}}px"></view>
 
     <view class="bind-head wrap">
-      <view class="bind-kicker mono"><view class="bind-kicker__node"></view>{{loginMode ? 'VOLT / LOGIN · 手机号登录' : 'VOLT / VERIFY · 微信已登录'}}</view>
-      <text class="bind-title serif">{{loginMode ? '登录其他账号' : '验证手机号'}}</text>
-      <text class="bind-sub">{{loginMode ? '用开卡或购卡手机号登录，查看另一份会员档案。' : '绑定后同步官网购卡、预约和次卡流水；开过卡的手机号会自动合并。'}}</text>
+      <view class="bind-kicker mono"><view class="bind-kicker__node"></view>{{loginMode ? 'VOLT / LOGIN · 手机号登录' : addMode ? 'VOLT / ADD · 添加会员卡' : 'VOLT / VERIFY · 微信已登录'}}</view>
+      <text class="bind-title serif">{{loginMode ? '登录其他账号' : addMode ? '添加会员卡' : '验证手机号'}}</text>
+      <text class="bind-sub">{{loginMode ? '用开卡或购卡手机号登录，查看另一份会员档案。' : addMode ? '用另一个手机号验证并添加到当前微信；同一手机号始终是同一张会员卡。' : '绑定后同步官网购卡、预约和次卡流水；开过卡的手机号会自动合并。'}}</text>
       <view class="bind-current"><view class="current-line"></view></view>
     </view>
 
@@ -20,7 +20,7 @@
             type="number"
             maxlength="11"
             value="{{phone}}"
-            placeholder="{{loginMode ? '输入手机号登录' : '开卡 / 购卡手机号'}}"
+            placeholder="{{loginMode ? '输入手机号登录' : addMode ? '新会员卡手机号' : '开卡 / 购卡手机号'}}"
             bindinput="onPhoneInput"
           />
           <button
@@ -51,9 +51,9 @@
       <text wx:if="{{error}}" class="bind-error">{{error}}</text>
 
       <button class="btn btn--primary btn--block bind-submit" bindtap="verify" disabled="{{verifying}}">
-        {{verifying ? '处理中…' : loginMode ? '手机号登录' : '绑定手机号'}}
+        {{verifying ? '处理中…' : loginMode ? '手机号登录' : addMode ? '添加会员卡' : '绑定手机号'}}
       </button>
-      <text class="bind-note">{{loginMode ? '验证码仅用于本次登录；登录后可在「我的」退出。' : '手机号只用于会员身份与购卡归属；未绑定前无法约课、购卡或进场。'}}</text>
+      <text class="bind-note">{{loginMode ? '验证码仅用于本次登录；登录后可在「我的」退出。' : addMode ? '添加成功后自动切换到新会员卡；每张卡余额独立。' : '手机号只用于会员身份与购卡归属；未绑定前无法约课、购卡或进场。'}}</text>
     </view>
 
     <view class="bind-bottom"></view>

@@ -2,6 +2,7 @@ package com.gym.gymmanagementsystem.controller;
 
 import com.gym.gymmanagementsystem.pojo.VoltMember;
 import com.gym.gymmanagementsystem.service.VoltAuthService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,6 +54,28 @@ public class VoltAuthController {
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         VoltMember member = authService.requireMember(authorization);
         return authService.linkPhone(member, text(body.get("phone")), text(body.get("code")));
+    }
+
+    @GetMapping("/members")
+    public Map<String, Object> members(
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        return authService.members(authService.requireMember(authorization));
+    }
+
+    @PostMapping("/members/add")
+    public Map<String, Object> addMember(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        VoltMember member = authService.requireMember(authorization);
+        return authService.addMember(member, text(body.get("phone")), text(body.get("code")));
+    }
+
+    @PostMapping("/switch-member")
+    public Map<String, Object> switchMember(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        VoltMember member = authService.requireMember(authorization);
+        return authService.switchMember(member, text(body.get("memberId")));
     }
 
     private String text(Object value) {

@@ -41,6 +41,13 @@
         FOR UPDATE
     </select>
 
+    <select id="countTrialsByPhone" resultType="int">
+        SELECT COUNT(*) FROM volt_booking
+        WHERE member_phone = #{phone}
+          AND plan_code = 'PLAN-01'
+          AND status IN ('locked', 'confirmed', 'checked-in')
+    </select>
+
     <select id="findByMember" resultType="booking">
         SELECT <include refid="columns"/>
         FROM volt_booking

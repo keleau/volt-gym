@@ -10,7 +10,7 @@ export const pricingPlans = [
     unit: '单次',
     featured: true,
     points: [
-      '团课 1 节，任选课程',
+      '团课 1 节，可约时段',
       'InBody 体测 1 次',
       '教练 1 对 1 训练建议',
       '三店通用，到店付款',

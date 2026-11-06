@@ -29,6 +29,54 @@
         WHERE openid = #{openid}
     </select>
 
+    <select id="findMembersByOpenid" resultType="voltMember">
+        SELECT m.*
+        FROM volt_wechat_member w
+        INNER JOIN volt_member m ON m.member_id = w.member_id
+        WHERE w.openid = #{openid}
+        ORDER BY w.active DESC, w.created_at, m.member_id
+    </select>
+
+    <select id="findActiveMemberId" resultType="string">
+        SELECT member_id
+        FROM volt_wechat_member
+        WHERE openid = #{openid} AND active = 1
+        ORDER BY created_at
+        LIMIT 1
+    </select>
+
+    <select id="findOpenidByMember" resultType="string">
+        SELECT openid
+        FROM volt_wechat_member
+        WHERE member_id = #{memberId}
+        ORDER BY active DESC, created_at
+        LIMIT 1
+    </select>
+
+    <select id="countWechatMember" resultType="int">
+        SELECT COUNT(*) FROM volt_wechat_member
+        WHERE openid = #{openid} AND member_id = #{memberId}
+    </select>
+
+    <insert id="insertWechatMember">
+        INSERT IGNORE INTO volt_wechat_member (openid, member_id, active, created_at)
+        VALUES (#{openid}, #{memberId}, #{active}, #{createdAt})
+    </insert>
+
+    <update id="clearWechatActive">
+        UPDATE volt_wechat_member SET active = 0 WHERE openid = #{openid}
+    </update>
+
+    <update id="setWechatActive">
+        UPDATE volt_wechat_member SET active = 1
+        WHERE openid = #{openid} AND member_id = #{memberId}
+    </update>
+
+    <delete id="deleteWechatMember">
+        DELETE FROM volt_wechat_member
+        WHERE openid = #{openid} AND member_id = #{memberId}
+    </delete>
+
     <insert id="insert" parameterType="voltMember">
         INSERT INTO volt_member
         (member_id, member_no, nickname, phone, phone_bound, avatar_url, openid, unionid, goal, height_cm, weight_kg,

@@ -1,0 +1,26 @@
+<view class="page login-page">
+  <volt-nav logo="{{true}}" placeholder="{{false}}"></volt-nav>
+  <view style="height:{{nav.totalHeight}}px"></view>
+
+  <view class="login-page__body wrap">
+    <view class="login-kicker mono"><view class="login-kicker__node"></view>VOLT / MEMBER LOG</view>
+    <text class="login-title serif">登录后，<text class="login-title__hl">继续通电</text>。</text>
+    <text class="login-desc">微信登录可查看预约、次卡和训练记录；退出后也可以用手机号登录其他账号。</text>
+
+    <button class="btn btn--primary btn--block login-btn" bindtap="onWechatLogin" disabled="{{loading}}">
+      {{loading ? '正在接入…' : '微信一键登录'}}
+    </button>
+
+    <view class="login-alt" bindtap="onPhoneLogin">
+      <text>用手机号登录其他账号</text>
+      <text class="login-alt__arrow">›</text>
+    </view>
+
+    <text class="login-note">登录即创建免费会员账号；到店开卡后才写入次数。</text>
+  </view>
+
+  <view class="login-page__foot wrap">
+    <text class="mono">VOLT 电压健身 · 广州三店</text>
+    <text class="login-page__phone" bindtap="onContact">400-900-6688</text>
+  </view>
+</view>

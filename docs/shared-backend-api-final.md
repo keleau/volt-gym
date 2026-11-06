@@ -58,6 +58,7 @@
 | `UNAUTHORIZED` | 401 | token 缺失或过期 |
 | `NOT_FOUND` | 404 | 门店/课程/场次/活动不存在 |
 | `DUPLICATE_BOOKING` | 409 | 同一会员/手机号同一场已有有效预约 |
+| `TRIAL_ALREADY_BOOKED` | 409 | 该手机号已预约过首次体验课 |
 | `SLOT_FULL` | 409 | 场次满员 |
 | `LOCK_EXPIRED` | 409 | 锁位过期 |
 | `PAST_SESSION` | 409 | 场次已开始 |
@@ -229,6 +230,7 @@
   "source": "wx",
   "planCode": "PLAN-03",
   "planName": "10 次充电卡",
+  "isTrial": false,
   "amount": 0,
   "name": "阿电",
   "phone": "139****9000",
@@ -303,7 +305,7 @@
 }
 ```
 
-`mode=free` 时 `sessionId=null`、`programNo=FREE`、不扣次；class 核销必须扣 1 次并写 `credit_ledger`。
+`mode=free` 时 `sessionId=null`、`programNo=FREE`、不扣次；普通课时核销必须扣 1 次并写 `credit_ledger`；`PLAN-01` 首次体验课核销不扣次、不写扣次流水。
 
 ### 3.9 Community
 
@@ -371,11 +373,15 @@
 | GET | `/catalog/schedule` | - | 小程序 | 7 天聚合；小程序当前预约页使用 |
 | GET | `/sessions/:id` | - | 双端 | 场次详情（分享预设） |
 | GET | `/availability?venue&program&date` | - | Web | 日期汇总余位 |
+| GET | `/availability/trial?venue&date` | - | Web | 体验课跨课程时段（不要求先选课程） |
 | POST | `/auth/wx/login` | - | 小程序 | `wx.login` code 换 token |
 | POST | `/auth/otp/send` | - | Web | 验证码发送 |
 | POST | `/auth/phone/send` | 是 | 小程序 | 绑定手机号验证码（`purpose=bind`） |
 | POST | `/auth/otp/verify` | - | Web | 验证码登录 |
 | POST | `/auth/link-phone` | 是 | 小程序 | 校验绑定验证码并绑定手机号 |
+| GET | `/auth/members` | 是 | 小程序 | 当前微信名下的会员档案列表 |
+| POST | `/auth/members/add` | 是 | 小程序 | 手机号 OTP 添加会员档案并切换 |
+| POST | `/auth/switch-member` | 是 | 小程序 | 切换当前会员档案并换发 token |
 | GET | `/member/home` | 是 | 小程序 | 首页 |
 | GET | `/member/account` | 是 | 小程序 | 我的 |
 | GET | `/member/bookings` | 是 | 双端 | 预约台账 |
@@ -383,11 +389,12 @@
 | GET | `/member/archive?month` | 是 | 小程序 | 记录页 |
 | GET | `/member/checkin` | 是 | 小程序 | 进场页 |
 | PATCH | `/member/me` | 是 | 双端 | 资料 |
+| POST | `/member/avatar` | 是 | 小程序 | 本地头像上传（multipart `file`，≤5MB，JPG/PNG/WebP），返回最新 Member |
 | POST | `/member/body-logs` | 是 | 小程序 | 身体数据 |
 | GET | `/member/messages` | 是 | 小程序 | 消息 |
 | POST | `/member/messages/:id/read` | 是 | 小程序 | 已读（`:id=all`） |
 | PATCH | `/member/subscriptions` | 是 | 小程序 | 提醒偏好 |
-| POST | `/bookings` | 可选 | Web | 官网直约（可 autoConfirm） |
+| POST | `/bookings` | 是（体验课） | Web | 官网体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，`autoConfirm` 可传 |
 | POST | `/sessions/:id/bookings` | 是 | 小程序 | 锁位 |
 | POST | `/bookings/:id/confirm` | 是 | 双端 | 确认锁位 |
 | POST | `/bookings/:id/cancel` | 是 | 双端 | 取消 |
@@ -489,12 +496,15 @@
 
 | mode | 含义 |
 | --- | --- |
-| `class` | 核销今日该馆 confirmed 课次，扣 1 次 |
+| `class` | 核销今日该馆 confirmed 普通课时，扣 1 次 |
+| `trial` | 核销今日该馆 confirmed `PLAN-01` 体验课，不扣次 |
 | `free-ready` | 今日无课，可自由训练 |
 | `already` | 同一预约今天已核销，或该馆今天已有同预约的课次记录，幂等 |
 | `wrong-venue` | 预约在另一家店 |
 
-响应需同时返回 `member`、`record`、`booking`（若有）、`stats`（本周统计）、`locationLabel`。事务顺序：校验场馆/预约 → `markCheckedInIfConfirmed` 条件改为 `checked-in` → `credits > 0` 条件扣 1 次 → 写训练记录 → 写 `volt_credit_ledger`（`CHECKIN`，-1）。唯一键 `(booking_id, reason)` 保证同一预约最多扣一次；余额不足抛 `NO_CREDITS` 并回滚核销。
+响应需同时返回 `mode`、`trial`（布尔，体验课为 true）、`member`、`record`、`booking`（若有）、`stats`（本周统计）、`locationLabel`。事务顺序：校验场馆/预约 → `markCheckedInIfConfirmed` 条件改为 `checked-in` → 普通课时按 `credits > 0` 条件扣 1 次（体验课跳过）→ 写训练记录 → 普通课时写 `volt_credit_ledger`（`CHECKIN`，-1）。唯一键 `(booking_id, reason)` 保证同一预约最多扣一次；普通课时余额不足抛 `NO_CREDITS` 并回滚核销。
+
+`PLAN-01` 首次体验课按手机号限一次：创建预约时已有非取消/非过期的体验课单，返回 409 `TRIAL_ALREADY_BOOKED`。
 
 预约锁位和确认都不扣次，取消/锁位超时也不返还；只有门店撤销核销时才追加 `REVOKE`（+1）流水，当前无自助撤销入口。
 
@@ -510,12 +520,15 @@
 - 微信新会员默认 `phoneBound=false`；小程序启动登录后进入手机号验证页，未绑定前限制约课、购卡与进场。
 - 绑定后，官网同一手机号登录返回同一 Member。
 - 手机号已属于另一个会员时自动合并：微信会员有次卡时保留微信会员，并把手机号会员的次数累加过去；微信会员没有次卡时以手机号会员为主账号。
-- 合并后可能换发新 token，响应为 `{member, merged, token?}`；小程序需要把新 token 写回本地会话。
+- 合并后可能换发新 token，响应为 `{member, merged, token?, members, activeMemberId}`；小程序需要把新 token 和会员档案列表写回本地会话。
+- 一个微信 openid 可以通过 `volt_wechat_member` 关联多个手机号会员档案；`GET /auth/members` 返回 `{members, activeMemberId}`。
+- 切换档案调用 `POST /auth/switch-member {memberId}`，返回新 token 和更新后的列表；添加档案调用 `POST /auth/members/add {phone, code}`，验证码使用 `login` 用途。
+- 手机号仍是会员唯一标识：同一手机号永远对应同一条 `volt_member`；不同手机号是不同档案，次数、预约和流水互相隔离。同一手机号的多张卡订单继续汇总到该会员余额。
 - 官网 `/card-orders` 只生成 `pending` 登记单，不生成预约、不占座、不收款。店员 `/staff/card-orders/:orderNo/activate` 确认后状态变 `activated`。
 - 本地演示可开 `VOLT_DEMO_PAY=true`，小程序调用 `/demo/card-orders/:orderNo/pay` 把待开卡单标记为已开卡；该接口只改业务状态，不调用微信支付，生产必须关闭。
 - 已开卡权益在会员登录、绑定手机号、刷新 `/member/home` 或 `/member/account` 时，按手机号领取并写入 `credits / planCode / expiresAt`，同时写一条 `CARD` 次卡流水。
 - 官网游客预约按手机号认领，认领幂等，不重复创建预约。
-- openid/unionid/手机号各自唯一；AppSecret、session_key 只存在服务端。
+- openid/unionid 不直接作为会员唯一键：`volt_member.openid` 保留主身份，关联表 `volt_wechat_member(openid, member_id, active)` 支持一个微信多档案；手机号唯一，AppSecret、session_key 只存在服务端。
 
 ### 6.7 邀请绑定
 

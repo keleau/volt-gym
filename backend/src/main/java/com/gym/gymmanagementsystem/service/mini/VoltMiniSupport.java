@@ -517,6 +517,7 @@ public class VoltMiniSupport {
                                                 Map<String, Object> record, VoltMember member, Integer distance) {
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("mode", mode);
+        resp.put("trial", "trial".equals(mode));
         resp.put("venue", viewService.venueView(venue, 0));
         if (booking != null) {
             resp.put("booking", booking);

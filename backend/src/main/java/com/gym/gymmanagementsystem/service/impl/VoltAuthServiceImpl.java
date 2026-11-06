@@ -25,7 +25,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,6 +39,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
     private static final String PURPOSE_BIND = "bind";
     private static final String DEMO_MEMBER_ID = "MBR-DEMO";
     private static final String DEMO_PHONE = "13800006688";
+    private static final String DEMO_OPENID = "demo-openid";
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final VoltMemberMapper memberMapper;
@@ -173,6 +176,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
         String nickname = text(profile.get("nickname"));
         String avatarUrl = text(profile.get("avatarUrl"));
 
+        String openid = null;
         VoltMember member = null;
         if (hasWxConfig()) {
             Map<String, Object> session = null;
@@ -185,7 +189,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
                 }
             }
             if (session != null) {
-                String openid = text(session.get("openid"));
+                openid = text(session.get("openid"));
                 if (openid == null) {
                     String message = text(session.get("errmsg"));
                     throw new ApiException(401, "WX_LOGIN_FAILED",
@@ -203,6 +207,7 @@ public class VoltAuthServiceImpl implements VoltAuthService {
                 throw new ApiException(503, "WX_LOGIN_UNAVAILABLE", "微信登录未配置，请联系管理员。");
             }
             log.warn("未配置 volt.wx.app-id/app-secret，wx.login 落到演示会员 {}", DEMO_MEMBER_ID);
+            openid = DEMO_OPENID;
             member = memberMapper.findById(DEMO_MEMBER_ID);
             if (member == null) {
                 member = memberMapper.findByPhone(DEMO_PHONE);
@@ -211,13 +216,31 @@ public class VoltAuthServiceImpl implements VoltAuthService {
                 member = createMember(DEMO_PHONE, null, null, "阿电", "");
             }
         }
+
+        if (openid == null || openid.isBlank()) {
+            openid = resolveOpenid(member);
+        }
+        ensureLinked(openid, member.getMemberId());
+        String activeId = memberMapper.findActiveMemberId(openid);
+        List<VoltMember> linked = memberMapper.findMembersByOpenid(openid);
+        boolean activeLinked = false;
+        for (VoltMember item : linked) {
+            if (item.getMemberId().equals(activeId)) {
+                activeLinked = true;
+                break;
+            }
+        }
+        if (activeId == null || !activeLinked) {
+            activeId = linked.isEmpty() ? member.getMemberId() : linked.get(0).getMemberId();
+            activate(openid, activeId);
+        }
+        member = memberMapper.findById(activeId);
+        if (member == null) {
+            throw ApiException.unauthorized("会员档案不存在，请重新登录。");
+        }
         claimGuestRecords(member);
         member = cardOrderService.claimForMember(member);
-        String token = issueToken(member.getMemberId());
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("token", token);
-        resp.put("member", viewService.memberView(member));
-        return resp;
+        return sessionResponse(member, openid);
     }
 
     @Override
@@ -247,9 +270,152 @@ public class VoltAuthServiceImpl implements VoltAuthService {
         // 绑定后把同手机号的官网游客预约/报名认领到当前会员，认领幂等。
         claimGuestRecords(member);
         VoltMember fresh = cardOrderService.claimForMember(member);
-        Map<String, Object> resp = new LinkedHashMap<>();
+        String openid = resolveOpenid(member);
+        if (openid != null) {
+            ensureLinked(openid, member.getMemberId());
+            activate(openid, member.getMemberId());
+        }
+        Map<String, Object> resp = sessionResponse(fresh == null ? member : fresh, openid);
         resp.put("merged", false);
-        resp.put("member", viewService.memberView(fresh == null ? member : fresh));
+        return resp;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> members(VoltMember member) {
+        if (member == null) {
+            throw ApiException.unauthorized("登录状态已失效，请重新登录。");
+        }
+        String openid = resolveOpenid(member);
+        List<VoltMember> linked = openid == null ? List.of(member) : memberMapper.findMembersByOpenid(openid);
+        if (openid != null && linked.isEmpty()) {
+            ensureLinked(openid, member.getMemberId());
+            linked = memberMapper.findMembersByOpenid(openid);
+        }
+        if (linked.isEmpty()) {
+            linked = List.of(member);
+        }
+        String activeId = openid == null ? member.getMemberId() : memberMapper.findActiveMemberId(openid);
+        boolean activeLinked = false;
+        for (VoltMember item : linked) {
+            if (item.getMemberId().equals(activeId)) {
+                activeLinked = true;
+                break;
+            }
+        }
+        if (activeId == null || !activeLinked) {
+            activeId = member.getMemberId();
+        }
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("activeMemberId", activeId);
+        resp.put("members", memberViews(linked));
+        return resp;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> addMember(VoltMember member, String phone, String code) {
+        if (member == null) {
+            throw ApiException.unauthorized("登录状态已失效，请重新登录。");
+        }
+        String openid = resolveOpenid(member);
+        if (openid == null) {
+            throw ApiException.conflict("WECHAT_REQUIRED", "请先用微信登录后再添加会员卡。");
+        }
+        verifyOtpCode(phone, code, PURPOSE_LOGIN);
+        VoltMember target = memberMapper.findByPhone(phone);
+        if (target == null) {
+            target = createMember(phone, null, null, "", "");
+        } else if (target.getOpenid() != null && !target.getOpenid().isBlank()
+                && !target.getOpenid().equals(openid)) {
+            throw ApiException.conflict("PHONE_TAKEN", "该手机号已绑定其他微信，请联系前台处理。");
+        }
+        ensureLinked(openid, target.getMemberId());
+        activate(openid, target.getMemberId());
+        claimGuestRecords(target);
+        VoltMember fresh = cardOrderService.claimForMember(target);
+        return sessionResponse(fresh == null ? target : fresh, openid);
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> switchMember(VoltMember member, String memberId) {
+        if (member == null) {
+            throw ApiException.unauthorized("登录状态已失效，请重新登录。");
+        }
+        if (VoltContract.isBlank(memberId)) {
+            throw ApiException.validation("请选择要切换的会员卡。", Map.of("memberId", "请选择会员卡"));
+        }
+        String openid = resolveOpenid(member);
+        if (openid == null) {
+            throw ApiException.conflict("WECHAT_REQUIRED", "当前登录没有绑定微信，无法切换会员卡。");
+        }
+        VoltMember target = memberMapper.findById(memberId);
+        if (target == null) {
+            throw ApiException.notFound("会员卡不存在。");
+        }
+        if (memberMapper.countWechatMember(openid, memberId) == 0) {
+            if (openid.equals(target.getOpenid())) {
+                ensureLinked(openid, memberId);
+            } else {
+                throw new ApiException(403, "MEMBER_NOT_LINKED", "这张会员卡不在当前微信名下。");
+            }
+        }
+        activate(openid, memberId);
+        claimGuestRecords(target);
+        VoltMember fresh = cardOrderService.claimForMember(target);
+        return sessionResponse(fresh == null ? target : fresh, openid);
+    }
+
+    private String resolveOpenid(VoltMember member) {
+        if (member == null) {
+            return null;
+        }
+        String openid = memberMapper.findOpenidByMember(member.getMemberId());
+        if (openid == null || openid.isBlank()) {
+            openid = member.getOpenid();
+        }
+        return openid == null || openid.isBlank() ? null : openid;
+    }
+
+    private void ensureLinked(String openid, String memberId) {
+        if (openid == null || openid.isBlank() || memberId == null || memberId.isBlank()) {
+            return;
+        }
+        if (memberMapper.countWechatMember(openid, memberId) == 0) {
+            memberMapper.insertWechatMember(openid, memberId, false, LocalDateTime.now());
+        }
+    }
+
+    private void activate(String openid, String memberId) {
+        if (openid == null || openid.isBlank() || memberId == null || memberId.isBlank()) {
+            return;
+        }
+        memberMapper.clearWechatActive(openid);
+        ensureLinked(openid, memberId);
+        memberMapper.setWechatActive(openid, memberId);
+    }
+
+    private List<Map<String, Object>> memberViews(List<VoltMember> members) {
+        List<Map<String, Object>> views = new ArrayList<>();
+        for (VoltMember item : members) {
+            views.add(viewService.memberView(item));
+        }
+        return views;
+    }
+
+    private Map<String, Object> sessionResponse(VoltMember member, String openid) {
+        List<VoltMember> linked = openid == null
+                ? List.of(member)
+                : memberMapper.findMembersByOpenid(openid);
+        if (linked.isEmpty()) {
+            linked = List.of(member);
+        }
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("token", issueToken(member.getMemberId()));
+        resp.put("activeMemberId", member.getMemberId());
+        resp.put("member", viewService.memberView(member));
+        resp.put("members", memberViews(linked));
         return resp;
     }
 
@@ -258,30 +424,36 @@ public class VoltAuthServiceImpl implements VoltAuthService {
      * 谁有次卡谁做主账号，迁移另一边数据；小程序拿到主账号的 token 或继续用原 token。
      */
     private Map<String, Object> mergeIntoPhoneMember(VoltMember wechat, VoltMember phoneMember) {
+        String openid = resolveOpenid(wechat);
         if (phoneMember.getOpenid() != null && !phoneMember.getOpenid().isBlank()
-                && !phoneMember.getOpenid().equals(wechat.getOpenid())) {
+                && openid != null && !phoneMember.getOpenid().equals(openid)) {
             throw ApiException.conflict("PHONE_TAKEN", "该手机号已绑定其他微信，请联系前台处理。");
         }
         boolean wechatHasPass = wechat.getCredits() != null && wechat.getCredits() > 0;
         boolean phoneHasPass = phoneMember.getCredits() != null && phoneMember.getCredits() > 0;
 
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("merged", true);
         if (wechatHasPass) {
             // 微信账号已有次卡：保留微信会员（openid 身份可继续用于 wx.login），把手机号会员的权益和历史迁过来。
             String phone = phoneMember.getPhone();
+            String source = phoneMember.getMemberId();
             if (phoneHasPass) {
                 combineCredits(phoneMember, wechat);
             }
-            moveMemberData(phoneMember.getMemberId(), wechat.getMemberId());
-            detachMember(phoneMember.getMemberId());
+            moveMemberData(source, wechat.getMemberId());
+            detachMember(source);
             jdbcTemplate.update("UPDATE volt_member SET phone = ?, phone_bound = 1 WHERE member_id = ?",
                     phone, wechat.getMemberId());
             wechat.setPhone(phone);
             wechat.setPhoneBound(true);
             claimGuestRecords(wechat);
             VoltMember fresh = cardOrderService.claimForMember(wechat);
-            resp.put("member", viewService.memberView(fresh == null ? wechat : fresh));
+            if (openid != null) {
+                ensureLinked(openid, wechat.getMemberId());
+                activate(openid, wechat.getMemberId());
+                memberMapper.deleteWechatMember(openid, source);
+            }
+            Map<String, Object> resp = sessionResponse(fresh == null ? wechat : fresh, openid);
+            resp.put("merged", true);
             return resp;
         }
 
@@ -309,8 +481,13 @@ public class VoltAuthServiceImpl implements VoltAuthService {
 
         claimGuestRecords(phoneMember);
         VoltMember fresh = cardOrderService.claimForMember(phoneMember);
-        resp.put("token", issueToken(target));
-        resp.put("member", viewService.memberView(fresh == null ? phoneMember : fresh));
+        if (openid != null) {
+            ensureLinked(openid, target);
+            activate(openid, target);
+            memberMapper.deleteWechatMember(openid, source);
+        }
+        Map<String, Object> resp = sessionResponse(fresh == null ? phoneMember : fresh, openid);
+        resp.put("merged", true);
         return resp;
     }
 

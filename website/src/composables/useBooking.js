@@ -3,7 +3,7 @@ import {
   ApiError,
   BOOKING_WINDOW_DAYS,
   createBooking,
-  getAvailability,
+  getTrialAvailability,
 } from '../services/api/index.js'
 import { clearSelection } from '../services/selection.js'
 import { addDaysIso, isBeyondDays, isPastDate, todayIso } from '../utils/date.js'
@@ -18,8 +18,8 @@ export function useBooking({
 }) {
   const today = todayIso()
   const maxDate = addDaysIso(BOOKING_WINDOW_DAYS)
-  const form = reactive({ name: '', phone: '', venue: '', program: '', date: '', sessionId: '' })
-  const errors = reactive({ name: '', phone: '', plan: '', venue: '', program: '', date: '' })
+  const form = reactive({ name: '', phone: '', venue: '', date: '', sessionId: '' })
+  const errors = reactive({ name: '', phone: '', plan: '', venue: '', date: '', session: '' })
   const loading = ref(false)
   const confirmed = ref(false)
   const order = ref(null)
@@ -34,27 +34,23 @@ export function useBooking({
   const submitLabel = computed(() => {
     if (loading.value) return '正在接入…'
     if (cooldown.value > 0) return `请等待 ${cooldown.value} 秒`
-    if (availability.value?.soldOut) return '该场已满 · 换一天'
+    if (availability.value?.soldOut) return '当天已满 · 换一天'
     return '确认预约'
   })
 
   watch(
-    () => [preset().plan, preset().program, preset().venue],
-    ([plan, program, venue]) => {
-      if (program) {
-        form.program = program
-        errors.program = ''
-      }
+    () => [preset().plan, preset().venue],
+    ([plan, venue]) => {
       if (venue) {
         form.venue = venue
         errors.venue = ''
       }
-      if (plan || program || venue) formError.value = ''
+      if (plan || venue) formError.value = ''
     }
   )
 
   watch(
-    () => [form.venue, form.program, form.date],
+    () => [form.venue, form.date],
     () => {
       form.sessionId = ''
       loadAvailability()
@@ -62,7 +58,7 @@ export function useBooking({
   )
 
   watch(
-    () => [form.name, form.phone, form.venue, form.program, form.date, form.sessionId, selectedPlan().code],
+    () => [form.name, form.phone, form.venue, form.date, form.sessionId, selectedPlan().code],
     () => {
       formError.value = ''
     }
@@ -79,8 +75,8 @@ export function useBooking({
     const token = ++availabilityToken
     availability.value = null
     availabilityError.value = ''
-    const { venue, program, date } = form
-    if (!venue || !program || !date) {
+    const { venue, date } = form
+    if (!venue || !date) {
       availabilityLoading.value = false
       return
     }
@@ -90,7 +86,7 @@ export function useBooking({
     }
     availabilityLoading.value = true
     try {
-      const data = await getAvailability({ venueCode: venue, programNo: program, date })
+      const data = await getTrialAvailability({ venueCode: venue, date })
       if (token === availabilityToken) {
         availability.value = data
         const openSessions = (data.sessions || []).filter(
@@ -123,7 +119,6 @@ export function useBooking({
     errors.phone = isValidPhone(form.phone) ? '' : '请填写正确的 11 位手机号'
     errors.plan = selectedPlan().code ? '' : '请选择价格'
     errors.venue = form.venue ? '' : '请选择充电站'
-    errors.program = form.program ? '' : '请选择课程'
     errors.date = !form.date
       ? '请选择到场日期'
       : isPastDate(form.date)
@@ -131,7 +126,8 @@ export function useBooking({
         : isBeyondDays(form.date, BOOKING_WINDOW_DAYS)
           ? `只能预约 ${BOOKING_WINDOW_DAYS} 天内的场次`
           : ''
-    return !errors.name && !errors.phone && !errors.plan && !errors.venue && !errors.program && !errors.date
+    errors.session = form.sessionId ? '' : '请选择体验课时段'
+    return !errors.name && !errors.phone && !errors.plan && !errors.venue && !errors.date && !errors.session
   }
 
   async function submit() {
@@ -147,7 +143,6 @@ export function useBooking({
         name: form.name,
         phone: form.phone,
         venueCode: form.venue,
-        programNo: form.program,
         date: form.date,
         sessionId: form.sessionId || undefined,
       })
@@ -202,7 +197,6 @@ export function useBooking({
     form.name = ''
     form.phone = ''
     form.venue = ''
-    form.program = ''
     form.date = ''
     form.sessionId = ''
     Object.keys(errors).forEach((key) => {

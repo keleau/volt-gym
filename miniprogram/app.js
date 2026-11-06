@@ -3,7 +3,13 @@ const auth = require('./services/auth')
 App({
   onLaunch() {
     auth.bootstrap().then((session) => {
-      const member = session && session.user
+      if (!session) {
+        setTimeout(() => {
+          wx.reLaunch({ url: '/pages/login/index' })
+        }, 50)
+        return
+      }
+      const member = session.user
       if (member && !member.phoneBound) {
         setTimeout(() => {
           wx.reLaunch({ url: '/pages/bind-phone/index' })

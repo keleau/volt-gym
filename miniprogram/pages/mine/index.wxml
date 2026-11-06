@@ -18,53 +18,23 @@
 
     <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载</text></view>
 
-    <view wx:elif="{{guest}}" class="mine-guest">
-      <view class="mine-profile wrap">
-        <view class="mine-kicker mono"><view class="mine-kicker__node"></view>VOLT / MEMBER LOG · 访客</view>
-        <view class="guest-card card">
-          <text class="guest-card__eyebrow mono">FREE ACCOUNT</text>
-          <text class="guest-card__title serif">登录后，继续通电。</text>
-          <text class="guest-card__desc">微信登录可查看预约、次卡和训练记录；退出后也可以用手机号登录其他账号。</text>
-          <button class="btn btn--primary btn--block guest-card__btn" bindtap="onOpenLogin">微信一键登录</button>
-          <view class="guest-card__alt" bindtap="onOpenPhoneLogin">
-            <text>用手机号登录其他账号</text>
-            <text class="guest-card__alt-arrow">›</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="mine-group wrap">
-        <view class="menu card">
-          <view class="menu-row" bindtap="onContact" hover-class="menu-row--hover">
-            <text class="menu-row__label">联系客服</text>
-            <view class="menu-row__right">
-              <text class="menu-row__desc">{{brand.phone}}</text>
-              <text class="menu-row__arrow">›</text>
-            </view>
-          </view>
-          <view class="menu-row" bindtap="onAbout" hover-class="menu-row--hover">
-            <text class="menu-row__label">关于 VOLT</text>
-            <view class="menu-row__right">
-              <text class="menu-row__arrow">›</text>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="mine-bottom"></view>
-    </view>
-
     <block wx:else>
       <view class="mine-profile wrap">
         <view class="mine-kicker mono"><view class="mine-kicker__node"></view>VOLT / MEMBER LOG · 我的档案</view>
-        <view class="mine-profile__card card" bindtap="onGoArchive" hover-class="mine-profile__card--hover">
-          <view class="mine-profile__avatar">
-            <image wx:if="{{member.avatarUrl}}" class="mine-profile__img" src="{{member.avatarUrl}}" mode="aspectFill"></image>
-            <text wx:else>{{memberInitial}}</text>
+        <view class="mine-profile__card card" bindtap="onGoProfile" hover-class="mine-profile__card--hover">
+          <view class="mine-avatar" catchtap="onChangeAvatar">
+            <view class="mine-profile__avatar">
+              <image wx:if="{{avatarPreview || member.avatarUrl}}" class="mine-profile__img" src="{{avatarPreview || member.avatarUrl}}" mode="aspectFill"></image>
+              <text wx:else>{{memberInitial}}</text>
+            </view>
+            <view class="mine-avatar__edit">{{avatarUploading ? '…' : '换'}}</view>
           </view>
           <view class="mine-profile__main">
             <text class="mine-profile__name">{{member.nickname}}</text>
             <text class="mine-profile__meta">{{member.goal}} · 会员 {{member.joinedAt}}</text>
+          </view>
+          <view wx:if="{{sessionMode === 'wechat'}}" class="mine-profile__switch" catchtap="openSwitcher">
+            <text>{{members.length > 1 ? '切换卡' : '添加卡'}}</text>
           </view>
           <text class="mine-profile__arrow">›</text>
         </view>
@@ -205,6 +175,35 @@
       </view>
       <text class="push-note">课程变更属于重要通知，建议保持开启。</text>
       <view class="push-safe"></view>
+    </view>
+  </volt-sheet>
+
+  <volt-sheet
+    visible="{{switcherVisible}}"
+    title="会员卡"
+    subtitle="同一个微信下的会员档案"
+    maxHeight="72vh"
+    bind:close="closeSwitcher"
+  >
+    <view class="member-switch">
+      <view
+        wx:for="{{members}}"
+        wx:key="id"
+        class="member-switch__row {{item.id === member.id ? 'is-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchMember"
+      >
+        <view class="member-switch__avatar">{{item.avatarText || '电'}}</view>
+        <view class="member-switch__main">
+          <text class="member-switch__name">{{item.nickname || 'VOLT 会员'}}</text>
+          <text class="member-switch__meta">{{item.phone || '未绑定手机号'}} · {{item.credits}} 次</text>
+        </view>
+        <text class="member-switch__tag">{{item.id === member.id ? '当前' : (switchingId === item.id ? '切换中…' : '切换')}}</text>
+      </view>
+
+      <button class="btn btn--ghost btn--block member-switch__add" bindtap="onAddMember">添加会员卡</button>
+      <text class="member-switch__note">同一手机号始终是同一张会员卡；不同手机号是不同会员档案，次数与流水独立。</text>
+      <view class="member-switch__safe"></view>
     </view>
   </volt-sheet>
 

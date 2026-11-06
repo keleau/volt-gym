@@ -593,7 +593,7 @@ Page({
         confirmText: '去登录',
         confirmColor: '#A33B2B',
         success: (res) => {
-          if (res.confirm) wx.switchTab({ url: '/pages/mine/index' })
+          if (res.confirm) wx.reLaunch({ url: '/pages/login/index' })
         },
       })
       return

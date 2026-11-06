@@ -12,7 +12,7 @@
       </div>
     </header>
 
-    <form class="booking-form" novalidate @submit.prevent="submit">
+    <form class="booking-form" novalidate @submit.prevent="onSubmit">
       <div class="field-row">
         <div class="field">
           <label for="offer-name"><span class="mono">01</span>姓名</label>
@@ -50,9 +50,45 @@
         </div>
       </div>
 
+      <div class="field otp-field">
+        <label for="offer-code"><span class="mono">03</span>手机验证码</label>
+        <div class="otp-row">
+          <input
+            id="offer-code"
+            v-model="code"
+            class="field-input"
+            type="text"
+            inputmode="numeric"
+            maxlength="6"
+            placeholder="6 位验证码"
+            @input="onCodeInput"
+          />
+          <button
+            type="button"
+            class="otp-send"
+            :disabled="sending || otpCooldown > 0"
+            @click="sendCode"
+          >
+            {{ otpCooldown > 0 ? `${otpCooldown}s` : sending ? '发送中…' : '发送验证码' }}
+          </button>
+        </div>
+        <button
+          v-if="codeSent && !isVerified"
+          type="button"
+          class="otp-verify"
+          :disabled="verifying"
+          @click="verifyCode"
+        >
+          {{ verifying ? '验证中…' : '确认验证手机号' }}
+        </button>
+        <p v-if="devCode" class="otp-dev mono">本地联调验证码：{{ devCode }}</p>
+        <p v-if="otpError" class="err mono">{{ otpError }}</p>
+        <p v-else-if="isVerified" class="otp-ok mono">手机号已验证，可提交体验课预约</p>
+      </div>
+
       <div class="field-row">
         <div class="field">
-          <label for="offer-venue"><span class="mono">03</span>充电站</label>
+          <label for="offer-venue"><span class="mono">04</span>充电站</label>
           <select
             id="offer-venue"
             v-model="form.venue"
@@ -69,37 +105,20 @@
         </div>
 
         <div class="field">
-          <label for="offer-program"><span class="mono">04</span>课程</label>
-          <select
-            id="offer-program"
-            v-model="form.program"
+          <label for="offer-date"><span class="mono">05</span>到场日期</label>
+          <input
+            id="offer-date"
+            v-model="form.date"
             class="field-input"
-            :class="{ error: errors.program }"
-            @change="errors.program = ''"
-          >
-            <option value="" disabled>选择课程</option>
-            <option v-for="program in courses" :key="program.no" :value="program.no">
-              {{ program.name }}
-            </option>
-          </select>
-          <p v-if="errors.program" class="err mono">{{ errors.program }}</p>
+            :class="{ error: errors.date }"
+            type="date"
+            :min="today"
+            :max="maxDate"
+            :aria-invalid="Boolean(errors.date)"
+            @change="errors.date = ''"
+          />
+          <p v-if="errors.date" class="err mono">{{ errors.date }}</p>
         </div>
-      </div>
-
-      <div class="field">
-        <label for="offer-date"><span class="mono">05</span>到场日期</label>
-        <input
-          id="offer-date"
-          v-model="form.date"
-          class="field-input"
-          :class="{ error: errors.date }"
-          type="date"
-          :min="today"
-          :max="maxDate"
-          :aria-invalid="Boolean(errors.date)"
-          @change="errors.date = ''"
-        />
-        <p v-if="errors.date" class="err mono">{{ errors.date }}</p>
       </div>
 
       <SessionPicker
@@ -109,6 +128,7 @@
         :loaded="Boolean(availability)"
         @select="selectSession"
       />
+      <p v-if="errors.session" class="err mono">{{ errors.session }}</p>
 
       <div
         class="slot-line"
@@ -118,7 +138,7 @@
         <span class="slot-kicker mono">AVAILABILITY</span>
         <template v-if="availability">
           <span class="slot-copy">
-            {{ formatCnDate(availability.date) }} · {{ availability.venueName }} · {{ availability.programName }}
+            {{ formatCnDate(availability.date) }} · {{ availability.venueName }} · 首次体验课
           </span>
           <b class="slot-count mono">
             {{ availability.soldOut ? '已满' : `余 ${availability.remaining} 位` }}
@@ -126,7 +146,7 @@
         </template>
         <span v-else-if="availabilityLoading" class="slot-copy">正在查余位…</span>
         <span v-else-if="availabilityError" class="slot-copy">{{ availabilityError }}</span>
-        <span v-else class="slot-copy">选好门店、课程和日期，这里显示余位</span>
+        <span v-else class="slot-copy">选好门店和日期，这里显示体验课时段</span>
       </div>
 
       <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
@@ -153,20 +173,27 @@
     <BookingSuccessModal
       v-if="confirmed && order"
       :booking="order"
-      @close="reset"
+      @close="handleReset"
     />
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import BookingSuccessModal from './BookingSuccessModal.vue'
 import SessionPicker from './SessionPicker.vue'
 import { venues } from '../../../data/site.js'
-import { featuredPrograms } from '../../../data/programs.js'
 
 import { formatCnDate } from '../../../utils/date.js'
+import { isValidPhone } from '../../../utils/phone.js'
 import { useBooking } from '../../../composables/useBooking.js'
+import { useCooldown } from '../../../composables/useCooldown.js'
+import {
+  ApiError,
+  saveWebSession,
+  sendOtp,
+  verifyOtp,
+} from '../../../services/api/index.js'
 
 const props = defineProps({
   active: { type: Boolean, default: false },
@@ -175,7 +202,15 @@ const props = defineProps({
 })
 
 const submitBtn = ref(null)
-const courses = featuredPrograms
+const code = ref('')
+const codeSent = ref(false)
+const devCode = ref('')
+const otpError = ref('')
+const sending = ref(false)
+const verifying = ref(false)
+const verifiedPhone = ref('')
+const allowDevCode = import.meta.env.DEV
+const { remaining: otpCooldown, start: startOtpCooldown } = useCooldown()
 
 const {
   form,
@@ -201,8 +236,94 @@ const {
   submitButton: submitBtn,
 })
 
+const isVerified = computed(
+  () => Boolean(form.phone) && verifiedPhone.value === form.phone
+)
+
+watch(
+  () => form.phone,
+  () => {
+    verifiedPhone.value = ''
+    code.value = ''
+    codeSent.value = false
+    devCode.value = ''
+    otpError.value = ''
+  }
+)
+
+function onCodeInput(event) {
+  code.value = String(event.target.value || '').replace(/\D/g, '').slice(0, 6)
+  otpError.value = ''
+}
+
+function sendCode() {
+  if (sending.value || otpCooldown.value > 0) return
+  if (!isValidPhone(form.phone)) {
+    otpError.value = '请先填写正确的 11 位手机号。'
+    return
+  }
+  sending.value = true
+  otpError.value = ''
+  sendOtp(form.phone)
+    .then((res) => {
+      codeSent.value = true
+      devCode.value = allowDevCode ? res?.devCode || '' : ''
+      if (devCode.value) code.value = devCode.value
+      startOtpCooldown(res?.cooldown || 60)
+    })
+    .catch((error) => {
+      otpError.value =
+        error instanceof ApiError ? error.message : '验证码发送失败，请稍后重试。'
+    })
+    .finally(() => {
+      sending.value = false
+    })
+}
+
+function verifyCode() {
+  if (verifying.value) return
+  if (!/^\d{6}$/.test(String(code.value || '').trim())) {
+    otpError.value = '请输入 6 位验证码。'
+    return
+  }
+  verifying.value = true
+  otpError.value = ''
+  verifyOtp(form.phone, String(code.value).trim())
+    .then((res) => {
+      if (!res?.token || !res?.member) throw new Error('登录响应缺少会员信息')
+      saveWebSession({ token: res.token, member: res.member, phone: form.phone })
+      verifiedPhone.value = form.phone
+      codeSent.value = false
+    })
+    .catch((error) => {
+      otpError.value =
+        error instanceof ApiError ? error.message : '验证失败，请稍后重试。'
+    })
+    .finally(() => {
+      verifying.value = false
+    })
+}
+
+function onSubmit() {
+  if (!isVerified.value) {
+    otpError.value = '请先验证手机号，再提交体验课预约。'
+    return
+  }
+  submit()
+}
+
 function selectSession(session) {
   form.sessionId = session.id
+  errors.session = ''
+}
+
+function handleReset() {
+  reset()
+  code.value = ''
+  codeSent.value = false
+  devCode.value = ''
+  otpError.value = ''
+  verifiedPhone.value = ''
 }
 </script>
 
@@ -347,6 +468,63 @@ input[type='date'].field-input { color-scheme: light; }
   line-height: 1.4;
   letter-spacing: .02em;
   color: #8A3B00;
+}
+
+.otp-row {
+  display: flex;
+  gap: 8px;
+}
+
+.otp-row .field-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.otp-send {
+  flex: none;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #0D0B08;
+  border-radius: 0;
+  background: #0D0B08;
+  color: var(--paper);
+  font-family: var(--font-cn);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.otp-send:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.otp-verify {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 6px 10px;
+  border: 1px solid var(--acid);
+  border-radius: 0;
+  background: transparent;
+  color: #8A5200;
+  font-family: var(--font-cn);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.otp-dev {
+  margin: 0;
+  font-size: 9px;
+  letter-spacing: .02em;
+  color: #8A5200;
+}
+
+.otp-ok {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: .02em;
+  color: #2F6B3A;
 }
 
 .slot-line {

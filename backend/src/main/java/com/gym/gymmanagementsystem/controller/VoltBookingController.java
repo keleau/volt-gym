@@ -37,6 +37,12 @@ public class VoltBookingController {
         return bookingService.availability(venue, program, date);
     }
 
+    @GetMapping("/availability/trial")
+    public Map<String, Object> trialAvailability(@RequestParam("venue") String venue,
+                                                 @RequestParam("date") String date) {
+        return bookingService.trialAvailability(venue, date);
+    }
+
     @PostMapping("/bookings")
     public ResponseEntity<Map<String, Object>> createBooking(
             @RequestBody Map<String, Object> body,

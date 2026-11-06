@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class VoltBookingServiceImpl implements VoltBookingService {
 
     private static final String ENDPOINT = "POST /bookings";
+    private static final String TRIAL_PLAN_CODE = "PLAN-01";
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final VoltCatalogMapper catalogMapper;
@@ -99,6 +100,43 @@ public class VoltBookingServiceImpl implements VoltBookingService {
     }
 
     @Override
+    public Map<String, Object> trialAvailability(String venueCode, String dateText) {
+        Venue venue = venueCode == null ? null : catalogMapper.findVenue(venueCode);
+        if (venue == null) {
+            throw ApiException.notFound("门店不存在或已下线。");
+        }
+        LocalDate date = parseDate(dateText);
+        requireWithinWindow(date);
+        LocalDateTime now = LocalDateTime.now();
+        List<VoltSession> sessions = new ArrayList<>();
+        int capacity = 0;
+        int booked = 0;
+        for (VoltSession session : sessionMapper.findByDate(date)) {
+            if (!venueCode.equals(session.getVenueCode())) {
+                continue;
+            }
+            if (date.equals(now.toLocalDate()) && !session.getStartTime().isAfter(now.toLocalTime())) {
+                continue;
+            }
+            capacity += session.getCapacity() == null ? 0 : session.getCapacity();
+            booked += session.getBooked() == null ? 0 : session.getBooked();
+            sessions.add(session);
+        }
+        int remaining = Math.max(capacity - booked, 0);
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("venueCode", venue.getVenueCode());
+        resp.put("venueName", venue.getVenueName());
+        resp.put("date", date.toString());
+        resp.put("trial", true);
+        resp.put("capacity", capacity);
+        resp.put("booked", booked);
+        resp.put("remaining", remaining);
+        resp.put("soldOut", remaining <= 0);
+        resp.put("sessions", viewService.sessionViews(sessions));
+        return resp;
+    }
+
+    @Override
     @Transactional
     public StoredResponse createBooking(Map<String, Object> input, String idempotencyKey, VoltMember member) {
         String name = text(input.get("name"));
@@ -111,12 +149,18 @@ public class VoltBookingServiceImpl implements VoltBookingService {
         boolean autoConfirm = bool(input.get("autoConfirm"), true);
         boolean reminderOptIn = bool(input.get("reminderOptIn"), true);
 
+        boolean trialRequest = TRIAL_PLAN_CODE.equals(planCode);
+
         if (member != null) {
-            name = member.getNickname();
-            phone = member.getPhone();
-            if (member.getPlanCode() != null && !member.getPlanCode().isBlank()) {
-                planCode = member.getPlanCode();
+            if (!trialRequest) {
+                name = member.getNickname();
+                if (member.getPlanCode() != null && !member.getPlanCode().isBlank()) {
+                    planCode = member.getPlanCode();
+                }
+            } else if (name == null || name.isBlank()) {
+                name = member.getNickname();
             }
+            phone = member.getPhone();
             if (phone == null || phone.isBlank()) {
                 throw ApiException.validation("请先绑定手机号再预约。", java.util.Map.of("phone", "请先绑定手机号"));
             }
@@ -168,7 +212,10 @@ public class VoltBookingServiceImpl implements VoltBookingService {
         if (existing != null) {
             throw ApiException.conflict("DUPLICATE_BOOKING", "你已经预约过这一场了。");
         }
-        if (member != null) {
+        if ("PLAN-01".equals(plan.getPlanCode()) && bookingMapper.countTrialsByPhone(phone) > 0) {
+            throw ApiException.conflict("TRIAL_ALREADY_BOOKED", "该手机号已预约过首次体验课。");
+        }
+        if (member != null && !trialRequest) {
             if (member.getCredits() == null || member.getCredits() <= 0) {
                 throw ApiException.conflict("NO_CREDITS", "充电次数已用完，续卡后再预约。");
             }
@@ -203,7 +250,7 @@ public class VoltBookingServiceImpl implements VoltBookingService {
         booking.setSource("web");
         booking.setPlanCode(plan.getPlanCode());
         booking.setPlanName(plan.getPlanName());
-        booking.setAmount(member == null ? amountOf(plan) : 0);
+        booking.setAmount(member == null || trialRequest ? amountOf(plan) : 0);
         booking.setMemberName(name);
         booking.setMemberPhone(phone);
         booking.setCreatedAt(LocalDateTime.now());

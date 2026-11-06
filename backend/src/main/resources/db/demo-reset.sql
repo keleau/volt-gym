@@ -15,6 +15,7 @@ DELETE FROM volt_message;
 DELETE FROM volt_waitlist;
 DELETE FROM volt_subscription;
 DELETE FROM volt_token;
+DELETE FROM volt_wechat_member;
 DELETE FROM volt_otp;
 DELETE FROM volt_member WHERE member_id = 'MBR-DEMO';
 DELETE FROM volt_session;

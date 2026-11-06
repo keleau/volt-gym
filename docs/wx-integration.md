@@ -2,7 +2,7 @@
 
 > 2026-11 更新：小程序已移除 `mock-db.js` 和 `USE_MOCK`，只连接真实后端。本文中 Mock 相关段落仅作历史参考。
 >
-> 适用代码：`miniprogram/`（原生微信小程序，15 个页面，自定义 tabBar）。
+> 适用代码：`miniprogram/`（原生微信小程序，18 个页面，自定义 tabBar）。
 > 契约来源：[shared-backend-api-final.md](shared-backend-api-final.md)（v2-final）。本文只展开小程序侧的切换步骤、页面调用、聚合响应和状态机；领域模型、数据库与并发设计以最终契约为准。
 > 版本：2026-11-02（当前已接入本地 `backend`）。
 > 官网侧见 [web-integration.md](web-integration.md)。
@@ -238,10 +238,27 @@ api.auth.linkPhone({ phone, code })
 - 认领幂等，不重复创建预约、不重复占库存；
 - 手机号唯一；如果手机号已绑定其他微信，返回 409 `PHONE_TAKEN`，提示联系前台处理。两边都有次卡时会合并次数，不会丢卡。
 
+### 4.3.1 同一个微信多张会员卡
+
+`volt_wechat_member(openid, member_id, active)` 支持一个微信关联多个手机号会员档案：
+
+- 登录响应增加 `members[]` 和 `activeMemberId`，小程序把列表写入 `volt.session`；
+- 我的页头像旁「切换卡 / 添加卡」打开会员卡列表；
+- 添加会员卡：`pages/bind-phone/index?mode=add` → `POST /auth/otp/send`（`login` 用途）→ `POST /auth/members/add { phone, code }`；
+- 切换：`POST /auth/switch-member { memberId }`，后端换发新 token，小程序写回 session 并刷新当前页；
+- 手机号仍是会员唯一标识：同一手机号始终同一会员，多张卡订单汇总到该会员余额；不同手机号是不同档案，次数、预约和流水互相隔离；
+- 微信小程序不能切换底层微信号；一个微信下了多个档案时，在本小程序内切换即可。
+
+```js
+api.auth.members()
+api.auth.addMember({ phone, code })
+api.auth.switchMember(memberId)
+```
+
 **退出登录 / 手机号登录其他账号：**
 
 - 「我的 → 退出登录」清除 `volt.session`，写入 `volt.loggedOut`，阻止下次启动自动 `wx.login`；重新登录成功后清除该标记。
-- 退出后进入访客态；可以用 `pages/bind-phone/index?mode=login` 走 `POST /auth/otp/send` → `POST /auth/otp/verify`，用另一个手机号登录已有会员。验证码用途为 `login`，与绑定用的 `bind` 隔离。
+- 退出后 `reLaunch` 到独立登录页 `pages/login/index`（非 tab，无底部导航）；可以用 `pages/bind-phone/index?mode=login` 走 `POST /auth/otp/send` → `POST /auth/otp/verify`，用另一个手机号登录已有会员。验证码用途为 `login`，与绑定用的 `bind` 隔离。
 - 微信小程序不能直接切换底层微信号；换微信号需要在微信内切换账号后重新进入。当前退出只清本地 token，后端 token 未主动吊销，正式上线应补 `POST /auth/logout`。
 
 ### 4.4 官网购卡单
@@ -305,6 +322,9 @@ api.auth.linkPhone({ phone, code })
 | 记录身体数据 | `miniprogram/pages/archive/index.js:261` | `api.archive.addBodyLog({ heightCm, weightKg })` | `POST /member/body-logs` |
 | 我的加载 | `miniprogram/pages/mine/index.js:59` | `api.mine.get()` | `GET /member/account` |
 | 手机号绑定 | `pages/bind-phone/index.js` | `api.auth.sendBindCode` → `api.auth.linkPhone({phone, code})` | `POST /auth/phone/send` → `POST /auth/link-phone` |
+| 会员档案列表 | `miniprogram/pages/mine/index.js` | `api.auth.members()` | `GET /auth/members` |
+| 添加会员卡 | `pages/bind-phone/index.js?mode=add` | `api.auth.addMember({phone, code})` | `POST /auth/members/add` |
+| 切换会员卡 | `miniprogram/pages/mine/index.js` | `api.auth.switchMember(memberId)` | `POST /auth/switch-member` |
 | 手机号登录其他账号 | `pages/bind-phone/index.js?mode=login` | `api.auth.sendLoginCode` → `api.auth.verifyLogin({phone, code})` | `POST /auth/otp/send` → `POST /auth/otp/verify` |
 | 提醒偏好 | `miniprogram/pages/mine/index.js:197` | `api.messages.setSubscription(key, value)` | `PATCH /member/subscriptions` |
 | 重置演示数据 | `miniprogram/pages/mine/index.js:243` | `api.demo.reset()` | 真实模式禁用 |
@@ -603,7 +623,8 @@ Idempotency-Key: ...
 
 | mode | 含义 | 页面行为 |
 | --- | --- | --- |
-| `class` | 核销今日该馆 confirmed 课次，扣 1 次 | 成功页展示课次、热量、剩余次数 |
+| `class` | 核销今日该馆 confirmed 普通课时，扣 1 次 | 成功页展示课次、热量、剩余次数 |
+| `trial` | 核销今日该馆 confirmed `PLAN-01` 体验课，不扣次 | 成功页提示体验课已核销，并可去看会员卡 |
 | `free-ready` | 今日无课 | 弹窗询问是否记录自由训练 |
 | `already` | 同一预约今天已签到 | 幂等成功页，不重复扣次 |
 | `wrong-venue` | 今日预约在另一家店 | 提示并可选记录自由训练 |
@@ -613,12 +634,12 @@ Idempotency-Key: ...
 1. 校验场馆码、距离（定位失败不阻塞，按最终契约）；
 2. 找到今日该馆 `confirmed` 预约；
 3. 条件更新 `markCheckedInIfConfirmed`，按 `booking_id` 判重；
-4. 条件扣 1 次（`credits > 0`）；
+4. 普通课时条件扣 1 次（`credits > 0`）；`PLAN-01` 体验课跳过；
 5. 写训练记录；
-6. 写 `volt_credit_ledger`；
+6. 普通课时写 `volt_credit_ledger`；体验课不写扣次流水；
 7. 返回最新 booking、record、member。
 
-重复扫码必须返回 `already` 或同一记录，不能重复扣次。次数为 0 返回 409 `NO_CREDITS`；页面会提示转自由训练。
+重复扫码必须返回 `already` 或同一记录，不能重复扣次。普通课时次数为 0 返回 409 `NO_CREDITS`，页面提示转自由训练；体验课不受次数限制。
 
 #### 自由训练
 
@@ -884,6 +905,7 @@ waiting ──有空位──> converted（生成 locked 预约）
 | `UNAUTHORIZED` | 401 | 当前无专门处理 | 清会话、打开登录 |
 | `NOT_FOUND` | 404 | toast | 刷新对应列表 |
 | `DUPLICATE_BOOKING` | 409 | 预约页有旧分支 | 新契约锁位返回 200 + `duplicate: true`；保留分支兼容旧后端 |
+| `TRIAL_ALREADY_BOOKED` | 409 | 落通用 toast | 体验课每手机号限一次 |
 | `SLOT_FULL` | 409 | 自动切候补；`SESSION_FULL` 也识别 | 后端只返回 `SLOT_FULL` |
 | `LOCK_EXPIRED` | 409 | toast | 关闭弹层并刷新场次 |
 | `PAST_SESSION` | 409 | 落通用 toast | 刷新场次，隐藏预约按钮 |

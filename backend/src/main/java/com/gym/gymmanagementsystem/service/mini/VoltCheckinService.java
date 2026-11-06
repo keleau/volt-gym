@@ -26,13 +26,15 @@ import java.util.Map;
 
 /**
  * 进场信息、扫码核销与自由训练记录。
- * 预约锁位/确认不扣次；只有这里核销成功才扣 1 次，并写 credit_ledger 负数流水。
+ * 预约锁位/确认不扣次；普通课时核销扣 1 次并写 credit_ledger 负数流水，
+ * 首次体验课（PLAN-01）只核销到场，不消耗次卡。
  */
 @Service
 public class VoltCheckinService {
 
     private static final String SCAN_ENDPOINT = "POST /checkins/scan";
     private static final String FREE_ENDPOINT = "POST /checkins/free";
+    private static final String TRIAL_PLAN_CODE = "PLAN-01";
 
     private final VoltMiniSupport support;
     private final JdbcTemplate jdbcTemplate;
@@ -153,23 +155,34 @@ public class VoltCheckinService {
             idempotencyService.save(scope, idempotencyKey, SCAN_ENDPOINT, 200, resp);
             return resp;
         }
-        // 扣次用条件更新，余额不足时整个事务回滚，核销状态一并撤销。
-        int deducted = jdbcTemplate.update(
-                "UPDATE volt_member SET credits = credits - 1 WHERE member_id = ? AND credits > 0",
-                member.getMemberId());
-        if (deducted == 0) {
-            throw ApiException.conflict("NO_CREDITS", "充电次数不足，本次无法核销。");
+        // 体验课是单独支付的单次权益，核销到场但不扣次卡；普通课时继续扣 1 次。
+        boolean trial = TRIAL_PLAN_CODE.equals(booking.getPlanCode());
+        if (!trial) {
+            // 扣次用条件更新，余额不足时整个事务回滚，核销状态一并撤销。
+            int deducted = jdbcTemplate.update(
+                    "UPDATE volt_member SET credits = credits - 1 WHERE member_id = ? AND credits > 0",
+                    member.getMemberId());
+            if (deducted == 0) {
+                throw ApiException.conflict("NO_CREDITS", "充电次数不足，本次无法核销。");
+            }
         }
 
         VoltSession session = sessionMapper.findById(booking.getSessionId());
         Map<String, Object> record = support.createClassRecord(member, session, booking, venue);
         VoltMember fresh = memberMapper.findById(member.getMemberId());
-        insertLedger(fresh, booking.getBookingId(), String.valueOf(record.get("id")), -1, "CHECKIN",
-                "进场核销 · " + support.programName(session.getSessionId()));
-        support.pushMessage(member.getMemberId(), "checkin", "进场成功 · " + support.programName(session.getSessionId()),
-                "已核销 1 次充电，" + support.locationLabel(distanceMeters) + "。本次消耗 " + record.get("kcal") + " kcal。",
-                "/pages/archive/index");
-        Map<String, Object> resp = support.checkinResponse("class", venue,
+        if (!trial) {
+            insertLedger(fresh, booking.getBookingId(), String.valueOf(record.get("id")), -1, "CHECKIN",
+                    "进场核销 · " + support.programName(session.getSessionId()));
+            support.pushMessage(member.getMemberId(), "checkin", "进场成功 · " + support.programName(session.getSessionId()),
+                    "已核销 1 次充电，" + support.locationLabel(distanceMeters) + "。本次消耗 " + record.get("kcal") + " kcal。",
+                    "/pages/archive/index");
+        } else {
+            support.pushMessage(member.getMemberId(), "checkin", "体验课已核销 · " + support.programName(session.getSessionId()),
+                    "本次首次体验课不消耗次卡，" + support.locationLabel(distanceMeters)
+                            + "。想继续训练，可在会员卡页登记购卡。",
+                    "/pages/pass/index");
+        }
+        Map<String, Object> resp = support.checkinResponse(trial ? "trial" : "class", venue,
                 viewService.bookingView(bookingMapper.findById(booking.getBookingId())), record, fresh, distanceMeters);
         idempotencyService.save(scope, idempotencyKey, SCAN_ENDPOINT, 200, resp);
         return resp;

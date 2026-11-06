@@ -22,3 +22,6 @@ run.log
 
 # 微信开发者工具本地配置
 miniprogram/project.private.config.json
+
+# 本地头像上传目录
+backend/uploads/
