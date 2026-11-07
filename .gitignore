@@ -25,3 +25,6 @@ miniprogram/project.private.config.json
 
 # 本地头像上传目录
 backend/uploads/
+
+# 本地 AI 规则目录
+.trae/
