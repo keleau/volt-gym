@@ -21,11 +21,11 @@
 
 | 流程 | 完整视频 |
 | --- | --- |
-| 游客流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) |
-| 开卡流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) |
-| 预约课流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) |
+| 游客流程 | [GitHub 在线观看](https://keleau.github.io/volt-gym/video.html#visitor) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) |
+| 开卡流程 | [GitHub 在线观看](https://keleau.github.io/volt-gym/video.html#card) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) |
+| 预约课流程 | [GitHub 在线观看](https://keleau.github.io/volt-gym/video.html#booking) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) |
 
-> GitHub 文件页对 MP4 只提供文件/下载入口，Gitee 的 MP4 需下载后观看。
+> GitHub Pages 可在线观看完整视频，Gitee 的 MP4 需下载后观看。
 >
 > 录屏中的手机投屏提示是录制环境通知；支付与验证码是本地演示能力，不代表真实微信支付/短信。
 
