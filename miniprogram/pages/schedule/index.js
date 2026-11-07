@@ -472,6 +472,10 @@ Page({
       statusLabel = `候补 ${session.waitlistPosition}`
       actionLabel = '管理'
       tone = 'mine'
+    } else if (session.myStatus === 'checked-in') {
+      statusLabel = '已核销'
+      actionLabel = '已核销'
+      tone = 'done'
     } else if (session.left <= 0) {
       statusLabel = '已满'
       actionLabel = '候补'
@@ -482,7 +486,11 @@ Page({
       statusLabel,
       actionLabel,
       tone,
-      tagClass: tone === 'mine' ? 'tag--acid' : tone === 'full' ? 'tag--danger' : 'tag--paper',
+      tagClass: tone === 'mine'
+        ? 'tag--acid'
+        : tone === 'full'
+          ? 'tag--danger'
+          : tone === 'done' ? 'tag--olive' : 'tag--paper',
       period: periodOf(session.startTime || session.time),
     })
   },
@@ -495,6 +503,10 @@ Page({
 
   openSessionByData(session) {
     if (!session) return
+    if (session.myStatus === 'checked-in') {
+      wx.showToast({ title: '这节课已核销，不能重复预约', icon: 'none' })
+      return
+    }
     if (session.isPast) {
       wx.showToast({ title: '这节课已经开始', icon: 'none' })
       return
@@ -691,8 +703,11 @@ Page({
             return
           }
           this.setData({ sheetState: 'waitlist', sheetTitle: '加入候补' })
-        } else if (error && error.code === 'DUPLICATE_BOOKING') {
-          wx.showToast({ title: '这一场已经约过', icon: 'none' })
+        } else if (error && (error.code === 'DUPLICATE_BOOKING' || error.code === 'ALREADY_CHECKED_IN')) {
+          wx.showToast({
+            title: error.code === 'ALREADY_CHECKED_IN' ? '这节课已核销，不能重复预约' : '这一场已经约过',
+            icon: 'none',
+          })
           this.setData({ sheetVisible: false })
           tab.setHidden(this, false)
           this.load(true)

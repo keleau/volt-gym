@@ -47,7 +47,7 @@ VOLT_DEMO_PAY=true               # 小程序演示支付并开卡；只改业务
 | `mapper/` + `resources/mapper/*.xml` | MyBatis 接口与 SQL |
 | `pojo/` | 领域模型 |
 | `seed/VoltDataSeeder` | 建表、灌静态目录、生成场次与演示数据 |
-| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql`、`demo-unbind-phone.sql`、`demo-visitor.sql`、`demo-restore-card.sql` |
+| `resources/db/` | `schema.sql`、`seed.sql`、`demo-reset.sql`、`demo-reset-current-wechat.sql` |
 | `common/` | 契约常量、统一错误体、异常处理 |
 
 ## 主要接口
@@ -91,35 +91,21 @@ Base URL `/api/v1`：
 重置演示数据：
 
 ```bash
+# 清空预约/报名/消息/演示链接等数据；重启后端会重新建演示数据和场次
 mysql -u root -p gym_management_system < src/main/resources/db/demo-reset.sql
-# 然后重启后端，VoltDataSeeder 会重新生成场次
 ```
 
-重复演示微信绑定手机号：
+当前真实微信会员（已配置 AppSecret）重新演示绑定流程：
 
 ```bash
-# 先在小程序退出登录；若刚跑过 demo-reset.sql，需等后端重启并重建 MBR-DEMO 后再执行
-mysql -u root -p gym_management_system < src/main/resources/db/demo-unbind-phone.sql
-# 再点微信一键登录 → 进入绑定弹窗；绑定 13800006688 可恢复演示次卡与档案
+# 解除 active 真实微信会员的手机号，并删除其预约/消息、回退场次占位；保留会员、openid 和次卡
+mysql -u root -p gym_management_system < src/main/resources/db/demo-reset-current-wechat.sql
+# 然后在小程序里重新编译/冷启动 → 登录页 → 微信登录 → 绑定手机号
 ```
 
-本地演示绑定后的三种身份：
+要重新预约同一手机号的体验课，必须先执行上面的当前微信重置，确保旧体验课已删除，否则会返回 `TRIAL_ALREADY_BOOKED`。
 
-```bash
-# 已开卡：保留或恢复 8 次卡，绑定手机号
-mysql -u root -p gym_management_system < src/main/resources/db/demo-restore-card.sql
-
-# 路人：清空次卡、预约、训练记录和待开卡登记，再绑定一个新手机号
-mysql -u root -p gym_management_system < src/main/resources/db/demo-visitor.sql
-
-# 体验课（干净、无次卡）：先执行 demo-visitor.sql，再用新手机号在官网预约今天的体验课，
-# 最后在小程序微信登录并绑定该手机号；MBR-DEMO 的旧卡和旧预约已被清空，所以只显示体验课。
-mysql -u root -p gym_management_system < src/main/resources/db/demo-visitor.sql
-```
-
-`demo-visitor.sql` 之后不要再执行 `demo-unbind-phone.sql` 清数据；前者已经解绑并清空 MBR-DEMO 的演示数据。只想保留次卡演示时用 `demo-restore-card.sql`。
-
-`demo-visitor.sql` 会清空 MBR-DEMO 的预约、训练记录、消息和次卡权益，并回退场次占位；只用于本地演示，不要在生产库执行。完整恢复演示数据请用 `demo-reset.sql` 并重启后端。
+`demo-reset-current-wechat.sql` 只影响 active 的真实 openid，不动 `demo-openid / MBR-DEMO`；`demo-reset.sql` 是整库演示数据全量重置。两个脚本都只用于本地演示，不要在生产库执行。
 
 ## 自检
 

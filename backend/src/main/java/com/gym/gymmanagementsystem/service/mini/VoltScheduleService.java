@@ -66,7 +66,7 @@ public class VoltScheduleService {
         Map<String, Booking> bookingBySession = new HashMap<>();
         Map<String, Map<String, Object>> waitlistBySession = new HashMap<>();
         if (member != null) {
-            for (Booking booking : support.activeBookings(member)) {
+            for (Booking booking : support.activeOrCheckedInBookings(member)) {
                 bookingBySession.putIfAbsent(booking.getSessionId(), booking);
             }
             for (Map<String, Object> row : support.waitlistRows(member.getMemberId())) {
@@ -130,7 +130,7 @@ public class VoltScheduleService {
         view.put("waitlistPosition", 0);
         if (member != null) {
             support.expireLocks(member.getMemberId());
-            Booking booking = support.allBookings(member).stream()
+            Booking booking = support.activeOrCheckedInBookings(member).stream()
                     .filter(item -> sessionId.equals(item.getSessionId()))
                     .findFirst().orElse(null);
             Map<String, Object> wait = support.waitlistRows(member.getMemberId()).stream()
@@ -179,6 +179,9 @@ public class VoltScheduleService {
             existing = bookingMapper.findActiveByPhoneAndSession(member.getPhone(), sessionId);
         }
         if (existing != null) {
+            if ("checked-in".equals(existing.getStatus())) {
+                throw ApiException.conflict("ALREADY_CHECKED_IN", "这节课已经核销，不能重复预约。");
+            }
             Map<String, Object> resp = support.bookingResult(existing, true);
             idempotencyService.save(scope, idempotencyKey, LOCK_ENDPOINT, 200, resp);
             return resp;

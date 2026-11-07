@@ -185,7 +185,11 @@ Page({
   },
 
   leave() {
-    if (this.data.loginMode || this.data.addMode || this.data.fromLogin) {
+    if (this.data.loginMode || this.data.fromLogin) {
+      wx.switchTab({ url: '/pages/index/index' })
+      return
+    }
+    if (this.data.addMode) {
       wx.switchTab({ url: '/pages/mine/index' })
       return
     }

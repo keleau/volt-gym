@@ -12,12 +12,7 @@ Page({
     this._alive = true
     this.setData({ nav: navUtil.getNavMetrics() })
     if (auth.isLoggedIn()) {
-      const member = auth.getUser()
-      wx.reLaunch({
-        url: member && member.phoneBound === false
-          ? '/pages/index/index'
-          : '/pages/mine/index',
-      })
+      wx.reLaunch({ url: '/pages/index/index' })
     }
   },
 
@@ -32,12 +27,7 @@ Page({
       .loginWithWechat(null)
       .then((session) => {
         if (!this._alive) return
-        const member = session && session.user
-        if (member && member.phoneBound === false) {
-          wx.reLaunch({ url: '/pages/index/index' })
-          return
-        }
-        wx.reLaunch({ url: '/pages/mine/index' })
+        wx.reLaunch({ url: '/pages/index/index' })
       })
       .catch((error) => {
         if (!this._alive) return

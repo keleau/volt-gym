@@ -26,7 +26,7 @@
         FROM volt_booking
         WHERE member_phone = #{phone}
           AND session_id = #{sessionId}
-          AND status IN ('locked', 'confirmed')
+          AND status IN ('locked', 'confirmed', 'checked-in')
         LIMIT 1
         FOR UPDATE
     </select>
@@ -36,7 +36,7 @@
         FROM volt_booking
         WHERE member_id = #{memberId}
           AND session_id = #{sessionId}
-          AND status IN ('locked', 'confirmed')
+          AND status IN ('locked', 'confirmed', 'checked-in')
         LIMIT 1
         FOR UPDATE
     </select>

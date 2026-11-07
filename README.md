@@ -129,7 +129,7 @@ npm run dev
 
 演示录制时 `FORCE_LOGIN: true` 会让每次冷启动清掉旧会话、先走独立登录页，确保能看到微信授权；录完改回 `false`，否则每次重新打开小程序都要重新登录。`AUTO_LOGIN` 只在 `FORCE_LOGIN` 关闭且没有本地 session 时生效。
 
-未配置微信 AppSecret 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`。`MBR-DEMO` 默认带演示次卡和档案，因此微信一键登录会直接进入会员中心，不会触发绑定页。
+未配置微信 AppSecret 且打开 `WX_DEMO_FALLBACK=true` 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`，新微信会创建真实会员。当前演示环境已配置真实 AppSecret，登录身份以真实 openid 为准。
 
 ### 4. 真机演示与扫码核销
 
@@ -138,13 +138,13 @@ npm run dev
 - 真机预览如果拦截本地 HTTP，改用开发者工具的「真机调试」，或给后端加 HTTPS/域名白名单。
 - 开发者工具里点「开始扫码」会自动打开「手动选择场馆」，不依赖相机；适合稳定录屏。
 
-要重复演示「微信登录 → 绑定手机号」：
+要重复演示真实微信的「登录 → 绑定手机号」：
 
-1. 在小程序「我的」退出登录；
-2. 执行 `mysql -u <user> -p <db> < backend/src/main/resources/db/demo-unbind-phone.sql` 清空演示会员手机号；
-3. 重新点微信一键登录，会弹出绑定手机号弹窗；绑定 `13800006688` 可恢复 `MBR-DEMO` 的次卡与档案。
+1. 执行 `mysql -u <user> -p <db> < backend/src/main/resources/db/demo-reset-current-wechat.sql`，解除当前真实微信会员的手机号并清掉预约/消息；
+2. 小程序重新编译或冷启动（`FORCE_LOGIN: true` 会清本地旧会话）；
+3. 点微信一键登录，未绑定会员会弹出手机号验证弹窗。
 
-该脚本只改本地演示会员，不影响其他账号；生产环境没有手机号解绑接口。需要在「已开卡 / 体验课 / 路人」三种身份之间切换时，使用 `backend/src/main/resources/db/demo-restore-card.sql` 和 `demo-visitor.sql`。
+只保留两个演示脚本：`demo-reset.sql` 全量重置演示数据，`demo-reset-current-wechat.sql` 重置当前真实微信会员。完整恢复场次/演示数据执行 `demo-reset.sql` 后重启后端。
 
 ## 验证
 

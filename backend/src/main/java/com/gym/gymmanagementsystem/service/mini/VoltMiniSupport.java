@@ -256,16 +256,31 @@ public class VoltMiniSupport {
                 list.add(booking);
             }
         }
-        list.sort((a, b) -> {
-            VoltSession first = sessionMapper.findById(a.getSessionId());
-            VoltSession second = sessionMapper.findById(b.getSessionId());
-            if (first == null || second == null) {
-                return 0;
-            }
-            return first.getSessionDate().atTime(first.getStartTime())
-                    .compareTo(second.getSessionDate().atTime(second.getStartTime()));
-        });
+        list.sort(this::compareBySessionTime);
         return list;
+    }
+
+    public List<Booking> activeOrCheckedInBookings(VoltMember member) {
+        List<Booking> list = new ArrayList<>();
+        for (Booking booking : allBookings(member)) {
+            if ("locked".equals(booking.getStatus())
+                    || "confirmed".equals(booking.getStatus())
+                    || "checked-in".equals(booking.getStatus())) {
+                list.add(booking);
+            }
+        }
+        list.sort(this::compareBySessionTime);
+        return list;
+    }
+
+    private int compareBySessionTime(Booking a, Booking b) {
+        VoltSession first = sessionMapper.findById(a.getSessionId());
+        VoltSession second = sessionMapper.findById(b.getSessionId());
+        if (first == null || second == null) {
+            return 0;
+        }
+        return first.getSessionDate().atTime(first.getStartTime())
+                .compareTo(second.getSessionDate().atTime(second.getStartTime()));
     }
 
     public Map<String, Object> nextBooking(List<Booking> active) {

@@ -59,7 +59,7 @@
             <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onCancelWaitlist">退出候补</button>
           </block>
           <block wx:else>
-            <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onBookAgain">再约一次</button>
+            <button class="btn btn--ghost btn--sm booking-card__btn" data-id="{{item.id}}" bindtap="onBookAgain">{{item.status === 'checked-in' ? '约同类课' : '再约一次'}}</button>
           </block>
         </view>
       </view>
