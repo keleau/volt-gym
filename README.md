@@ -17,7 +17,7 @@
 
 > 上方为各流程的 GIF 节选，点击可查看完整尺寸；GIF 由真实运行录屏生成。
 >
-> 完整视频（H.264/AAC，下载后播放）：[游客流程](docs/videos/visitor-flow.mp4) · [开卡流程](docs/videos/card-open-flow.mp4) · [预约课流程](docs/videos/booking-flow.mp4)。Gitee 不支持 MP4 在线播放，因此提供 GIF 直接预览 + 完整视频下载。
+> 完整视频（H.264/AAC，需下载后播放）：[游客流程](docs/videos/visitor-flow.mp4) · [开卡流程](docs/videos/card-open-flow.mp4) · [预约课流程](docs/videos/booking-flow.mp4)。Gitee 不支持 MP4 在线播放，因此提供 GIF 直接预览 + 完整视频（需下载）。
 >
 > 录屏中的手机投屏提示是录制环境通知；支付与验证码是本地演示能力，不代表真实微信支付/短信。
 
