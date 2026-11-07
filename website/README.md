@@ -17,7 +17,7 @@ npm run preview
 VITE_API_BASE=http://127.0.0.1:8080/api/v1
 ```
 
-留空 `VITE_API_BASE` 时默认使用同源 `/api/v1`（适合 Nginx 反向代理）。官网只连真实后端，不再提供 Mock 模式。
+留空 `VITE_API_BASE` 时默认使用同源 `/api/v1`（适合 Nginx 反向代理）。官网只连真实后端
 
 ## 页面
 
