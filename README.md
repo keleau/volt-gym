@@ -140,11 +140,11 @@ npm run dev
 
 要重复演示真实微信的「登录 → 绑定手机号」：
 
-1. 执行 `mysql -u <user> -p <db> < backend/src/main/resources/db/demo-reset-current-wechat.sql`，解除当前真实微信会员的手机号并清掉预约/消息；
+1. 在 `backend/.env` 设 `VOLT_RESET_ON_START=true`，后端每次启动会执行 `demo-reset-current-wechat.sql`：解除当前真实微信会员的手机号，清掉预约、消息、购卡登记和次卡余额；也可以手动执行该脚本；
 2. 小程序重新编译或冷启动（`FORCE_LOGIN: true` 会清本地旧会话）；
 3. 点微信一键登录，未绑定会员会弹出手机号验证弹窗。
 
-只保留两个演示脚本：`demo-reset.sql` 全量重置演示数据，`demo-reset-current-wechat.sql` 重置当前真实微信会员。完整恢复场次/演示数据执行 `demo-reset.sql` 后重启后端。
+启动重置默认关闭（`VOLT_RESET_ON_START=false`），生产必须保持关闭。只保留两个演示脚本：`demo-reset.sql` 全量重置演示数据，`demo-reset-current-wechat.sql` 重置当前真实微信会员；完整恢复场次/演示数据执行 `demo-reset.sql` 后重启后端。
 
 ## 验证
 

@@ -42,5 +42,7 @@ volt:
   demo:
     # 小程序「演示支付并开卡」开关；只改业务状态，不调用微信支付，生产必须 false。
     pay-enabled: ${VOLT_DEMO_PAY:false}
+    # 本地演示：每次启动执行 demo-reset-current-wechat.sql，清当前微信会员与购卡记录；生产必须 false。
+    reset-on-start: ${VOLT_RESET_ON_START:false}
   cors:
     allowed-origin-patterns: ${VOLT_CORS_ORIGINS:http://localhost:[*],http://127.0.0.1:[*]}

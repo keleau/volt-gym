@@ -88,7 +88,7 @@ module.exports = {
 
 - 真实模式 `GET /member/account` 返回 `isDemo: false`，「我的 → 重置演示数据」入口自动隐藏。
 - 本地要恢复演示基线：执行 `backend/src/main/resources/db/demo-reset.sql`，重启后端让 `VoltDataSeeder` 重建会员、记录、消息、身体数据和下一次预约。
-- 要重复演示真实微信绑定手机号：执行 `backend/src/main/resources/db/demo-reset-current-wechat.sql` 解除当前 active 真实微信会员的手机号并清掉预约/消息，再冷启动小程序重新登录；未绑定会员会进入绑定弹窗。
+- 要重复演示真实微信绑定手机号：在 `backend/.env` 设 `VOLT_RESET_ON_START=true`，后端每次启动执行 `demo-reset-current-wechat.sql`，解除当前 active 真实微信会员的手机号并清掉预约、消息、购卡登记和次卡余额（没有会员归属的孤儿购卡单也会清掉）；也可以手动执行后冷启动小程序重新登录；未绑定会员会进入绑定弹窗。该开关默认关闭，生产必须 false。
 
 ### 2.5 开发工具与真机
 

@@ -21,6 +21,15 @@ DELETE FROM volt_otp;
 DELETE FROM volt_member WHERE member_id = 'MBR-DEMO';
 DELETE FROM volt_session;
 
+-- 购卡单和流水已清空，真实会员的次卡余额也回到 0，避免只剩会员卡状态。
+UPDATE volt_member
+SET credits = 0,
+    credits_total = 0,
+    plan_code = '',
+    plan_name = '',
+    expires_at = NULL
+WHERE member_id <> 'MBR-DEMO';
+
 UPDATE volt_event
 SET signed_count = CASE event_id
     WHEN 'EV-1104' THEN 18

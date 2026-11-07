@@ -6,6 +6,7 @@ import com.gym.gymmanagementsystem.pojo.Program;
 import com.gym.gymmanagementsystem.pojo.Venue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -66,11 +67,16 @@ public class VoltDataSeeder implements ApplicationRunner {
     private final DataSource dataSource;
     private final JdbcTemplate jdbcTemplate;
     private final VoltCatalogMapper catalogMapper;
+    private final boolean resetOnStart;
 
-    public VoltDataSeeder(DataSource dataSource, JdbcTemplate jdbcTemplate, VoltCatalogMapper catalogMapper) {
+    public VoltDataSeeder(DataSource dataSource,
+                          JdbcTemplate jdbcTemplate,
+                          VoltCatalogMapper catalogMapper,
+                          @Value("${volt.demo.reset-on-start:false}") boolean resetOnStart) {
         this.dataSource = dataSource;
         this.jdbcTemplate = jdbcTemplate;
         this.catalogMapper = catalogMapper;
+        this.resetOnStart = resetOnStart;
     }
 
     @Override
@@ -80,6 +86,10 @@ public class VoltDataSeeder implements ApplicationRunner {
         try (Connection connection = dataSource.getConnection()) {
             ScriptUtils.executeSqlScript(connection, utf8("db/schema.sql"));
             ScriptUtils.executeSqlScript(connection, utf8("db/seed.sql"));
+            if (resetOnStart) {
+                ScriptUtils.executeSqlScript(connection, utf8("db/demo-reset-current-wechat.sql"));
+                log.info("VOLT 启动重置：已清理当前微信会员的预约、消息、购卡记录与次卡余额");
+            }
         } catch (SQLException ex) {
             throw new IllegalStateException("初始化 VOLT 库表失败", ex);
         }
