@@ -29,6 +29,29 @@
   color: #635846;
 }
 
+.ci-modes {
+  display: flex;
+  gap: 6rpx;
+  margin-bottom: 20rpx;
+  padding: 6rpx;
+  border: 1rpx solid #d9cbb6;
+  background: #efe4d2;
+}
+
+.ci-mode {
+  flex: 1;
+  padding: 16rpx 0;
+  color: #635846;
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.ci-mode.is-active {
+  background: #1b1712;
+  color: #fbf5e9;
+  font-weight: 600;
+}
+
 /* ---------- scan ---------- */
 
 .scan-card {

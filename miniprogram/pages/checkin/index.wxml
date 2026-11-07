@@ -7,12 +7,17 @@
     <view class="ci-head wrap">
       <view class="ci-head__kicker mono"><view class="ci-head__node"></view>CHECK IN / 到店盖章</view>
       <text class="ci-heading serif">到店进场</text>
-      <text class="ci-sub">扫描前台场馆码，把今天盖进本子里。</text>
+      <text class="ci-sub">{{mode === 'class' ? '扫描前台场馆码，核销今天的课程。' : '自由训练不扣次卡，扫码后记录一次训练。'}}</text>
     </view>
 
     <view wx:if="{{loading}}" class="loading"><view class="loading__bar"></view><text>正在加载</text></view>
 
     <block wx:else>
+      <view class="ci-modes wrap">
+        <view class="ci-mode {{mode === 'class' ? 'is-active' : ''}}" data-mode="class" bindtap="switchMode">课程核销</view>
+        <view class="ci-mode {{mode === 'free' ? 'is-active' : ''}}" data-mode="free" bindtap="switchMode">自由训练</view>
+      </view>
+
       <view class="scan-card card">
         <view class="scan-card__icon">
           <view class="scan-frame">
@@ -23,13 +28,14 @@
             <view class="scan-frame__line"></view>
           </view>
         </view>
-        <text class="scan-card__title serif">到店盖章</text>
-        <text class="scan-card__desc">扫描前台场馆码，核销课时并记录训练</text>
-        <button class="btn btn--primary btn--block scan-card__btn" bindtap="triggerScan">开始扫码</button>
+        <text class="scan-card__title serif">{{mode === 'class' ? '课程核销' : '自由训练'}}</text>
+        <text class="scan-card__desc">{{mode === 'class' ? '只能核销今天的课程，扫描前台场馆码' : '不消耗次卡，扫描前台场馆码记录训练'}}</text>
+        <button wx:if="{{mode === 'class'}}" class="btn btn--primary btn--block scan-card__btn" bindtap="onClassScan">去核销</button>
+        <button wx:else class="btn btn--primary btn--block scan-card__btn" bindtap="onFreeScan">扫码自由训练</button>
         <text class="scan-card__alt" bindtap="onSimulate">手动选择场馆</text>
       </view>
 
-      <view class="ci-section wrap">
+      <view wx:if="{{mode === 'class'}}" class="ci-section wrap">
         <view class="ci-section__head">
           <text class="ci-section__title">今日课程</text>
           <text class="ci-section__aside">{{todayBooking ? '待核销' : todayRecord ? '已签到' : '暂无'}}</text>
@@ -58,13 +64,28 @@
 
         <view wx:else class="today-card today-card--empty card">
           <text class="today-card__empty-title">今天没有待核销课程</text>
-          <text class="today-card__hint">也可以先约一节课，到店后再签到。</text>
+          <text wx:if="{{nextBookingText}}" class="today-card__hint">下一节：{{nextBookingText}}，当天再来核销。</text>
+          <text class="today-card__hint">未来日期的课程只能当天扫码核销。</text>
+          <button class="btn btn--ghost today-card__empty-btn" bindtap="goFreeScan">去自由训练</button>
           <button class="btn btn--ghost today-card__empty-btn" bindtap="onGoBook">去约课</button>
         </view>
       </view>
 
+      <view wx:if="{{mode === 'free'}}" class="ci-section wrap">
+        <view class="ci-section__head">
+          <text class="ci-section__title">自由训练</text>
+          <text class="ci-section__aside">不扣次卡</text>
+        </view>
+        <view class="today-card card">
+          <text class="today-card__name">{{todayRecord ? '今天已记录训练' : '还没记录训练'}}</text>
+          <text wx:if="{{todayRecord}}" class="today-card__meta">{{todayRecord.programName}} · {{todayRecord.time}} · {{todayRecord.kcal}} kcal</text>
+          <text wx:else class="today-card__hint">扫描任意 VOLT 门店码，记录一次 45 分钟自由训练。</text>
+          <text wx:if="{{todayRecord}}" class="today-card__hint" bindtap="onGoArchive">查看训练档案 ›</text>
+        </view>
+      </view>
+
       <view class="ci-foot wrap">
-        <text class="ci-foot__note serif">进场即核销 · 次卡按次扣减</text>
+        <text class="ci-foot__note serif">{{mode === 'class' ? '进场即核销 · 次卡按次扣减' : '自由训练 · 不消耗次卡'}}</text>
         <text class="ci-foot__phone" bindtap="onGoArchive">查看训练记录 →</text>
       </view>
     </block>
@@ -81,12 +102,12 @@
           <view class="scan-frame__line"></view>
         </view>
       </view>
-      <text class="process__title">正在核销</text>
+      <text class="process__title">{{mode === 'free' ? '正在记录' : '正在核销'}}</text>
       <text class="process__venue">{{checkVenue.name}} · {{checkingCode}}</text>
       <view class="process__steps">
         <view class="process__step {{checkStage >= 0 ? 'is-done' : ''}}">读取场馆码</view>
         <view class="process__step {{checkStage >= 1 ? 'is-done' : ''}}">{{checkStage === 1 ? '正在校验位置' : '校验到店位置'}}</view>
-        <view class="process__step {{checkStage >= 2 ? 'is-done' : ''}}">{{checkStage === 2 ? '正在写入档案' : '核销课时与记录'}}</view>
+        <view class="process__step {{checkStage >= 2 ? 'is-done' : ''}}">{{checkStage === 2 ? (mode === 'free' ? '正在写入训练' : '正在写入档案') : '核销课时与记录'}}</view>
       </view>
       <text class="process__note">请保持页面打开</text>
     </view>
@@ -148,6 +169,7 @@
         <view class="success__actions">
           <button wx:if="{{success.mode === 'trial'}}" class="btn btn--primary btn--block" bindtap="onGoPass">看看会员卡</button>
           <button wx:else class="btn btn--primary btn--block" bindtap="onGoArchive">查看训练档案</button>
+          <button class="btn btn--ghost btn--block" bindtap="onGoBookings">查看我的预约</button>
           <button class="btn btn--ghost btn--block" open-type="share">分享给好友</button>
           <button wx:if="{{success.mode === 'trial'}}" class="btn btn--ghost btn--block" bindtap="onGoArchive">查看训练档案</button>
         </view>

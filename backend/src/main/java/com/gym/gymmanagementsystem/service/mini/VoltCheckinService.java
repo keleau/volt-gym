@@ -75,9 +75,11 @@ public class VoltCheckinService {
         if (recent.size() > 5) {
             recent = new ArrayList<>(recent.subList(0, 5));
         }
+        List<Booking> active = support.activeBookings(member);
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("member", viewService.memberView(member));
-        resp.put("todayBooking", support.todayBooking(support.activeBookings(member)));
+        resp.put("todayBooking", support.todayBooking(active));
+        resp.put("nextBooking", support.nextBooking(active));
         resp.put("todayRecord", todayRecord);
         resp.put("stats", support.stats(member.getMemberId()));
         resp.put("recentRecords", recent);

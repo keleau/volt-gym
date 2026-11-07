@@ -91,7 +91,7 @@ Page({
       statusLabel = '已确认'
       statusTone = 'confirmed'
     } else if (item.status === 'checked-in') {
-      statusLabel = '已签到'
+      statusLabel = item.isTrial ? '已核销' : '已签到'
       statusTone = 'done'
     } else if (item.status === 'cancelled') {
       statusLabel = '已取消'

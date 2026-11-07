@@ -22,8 +22,11 @@ Page({
     checkStage: 0,
     checkVenue: null,
     member: { credits: 0 },
+    mode: 'class',
     stats: {},
     todayBooking: null,
+    nextBooking: null,
+    nextBookingText: '',
     todayVenueCode: '',
     todayRecord: null,
     recentRecords: [],
@@ -99,11 +102,16 @@ Page({
           }),
         )
         this.loadedOnce = true
+        const nextBooking = data.nextBooking || null
         this.setData({
           loading: false,
           member: data.member,
           stats: data.stats || {},
           todayBooking: data.todayBooking,
+          nextBooking,
+          nextBookingText: nextBooking
+            ? `${dateUtil.relativeDay(nextBooking.date)} ${dateUtil.weekdayCn(nextBooking.date)} ${nextBooking.time} · ${nextBooking.programName}`
+            : '',
           todayVenueCode: data.todayBooking ? data.todayBooking.venueCode : '',
           todayRecord: data.todayRecord,
           recentRecords,
@@ -112,7 +120,7 @@ Page({
         })
         if (this.pendingAutoScan) {
           this.pendingAutoScan = false
-          setTimeout(() => this.triggerScan(), 480)
+          setTimeout(() => this.onClassScan(), 480)
         }
       })
       .catch((error) => {
@@ -120,6 +128,45 @@ Page({
         this.setData({ loading: false })
         wx.showToast({ title: format.errorText(error), icon: 'none' })
       })
+  },
+
+  switchMode(event) {
+    const mode = event.currentTarget.dataset.mode
+    if (!mode || mode === this.data.mode) return
+    this.setData({ mode })
+  },
+
+  onClassScan() {
+    if (!this.data.todayBooking) {
+      const next = this.data.nextBooking
+      const content = next
+        ? `你的下一节是 ${this.data.nextBookingText}，请在课程当天扫码核销。今天要记录一次自由训练吗？`
+        : '今天没有待核销课程。要记录一次自由训练吗？'
+      wx.showModal({
+        title: '今天没有待核销课程',
+        content,
+        confirmText: '去自由训练',
+        cancelText: '取消',
+        confirmColor: '#A33B2B',
+        success: (res) => {
+          if (res.confirm) this.goFreeScan()
+        },
+      })
+      return
+    }
+    this.triggerScan()
+  },
+
+  onFreeScan() {
+    this.triggerScan()
+  },
+
+  goFreeScan() {
+    this.setData({ mode: 'free' }, () => {
+      setTimeout(() => {
+        if (this._alive) this.triggerScan()
+      }, 220)
+    })
   },
 
   triggerScan() {
@@ -190,6 +237,12 @@ Page({
   },
 
   processVenue(code) {
+    if (this.data.mode === 'free') {
+      // 自由训练直接扫码记录，不复用上一次课程核销的定位结果。
+      this.locationMeta = null
+      this.freeCheckin(code)
+      return
+    }
     tab.setHidden(this, true)
     const venue = this.data.venues.find((item) => item.code === code)
     this.setData({
@@ -301,7 +354,7 @@ Page({
       this.setData({ phase: 'idle' })
       wx.showModal({
         title: '今日没有待核销课程',
-        content: `在${result.venue.name}记录一次 45 分钟自由训练？不会消耗充电次数。`,
+        content: `只能核销今天的课程，未来日期的预约请当天扫码。要在${result.venue.name}记录一次 45 分钟自由训练吗？不会消耗充电次数。`,
         confirmText: '记录训练',
         cancelText: '取消',
         confirmColor: '#A33B2B',
@@ -384,6 +437,12 @@ Page({
     tab.setHidden(this, false)
     this.setData({ phase: 'idle', success: null })
     tab.switchTab('/pages/archive/index')
+  },
+
+  onGoBookings() {
+    tab.setHidden(this, false)
+    this.setData({ phase: 'idle', success: null })
+    wx.navigateTo({ url: '/pages/bookings/index?tab=history' })
   },
 
   onGoPass() {
