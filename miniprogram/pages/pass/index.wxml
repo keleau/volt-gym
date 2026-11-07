@@ -55,7 +55,7 @@
               <text wx:else class="pass-cell__num mono">{{item.label}}</text>
             </view>
           </view>
-          <view wx:else class="pass-empty">{{pendingCard ? '购卡已登记，到店付款后开卡。' : '暂无次卡，点下方方案登记购卡。'}}</view>
+          <view wx:else class="pass-empty">{{!member.phoneBound ? '绑定手机号后同步官网购卡和次卡。' : pendingCard ? '购卡已登记，到店付款后开卡。' : '暂无次卡，点下方方案登记购卡。'}}</view>
           <view class="pass-ticket__foot">
             <text class="mono">已用 {{member.creditsTotal - member.credits}} / {{member.creditsTotal}} · 余 {{member.credits}} 次</text>
             <view class="pass-barcode"></view>

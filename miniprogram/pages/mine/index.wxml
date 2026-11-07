@@ -59,9 +59,7 @@
           <view class="menu-row" bindtap="goPass" hover-class="menu-row--hover">
             <text class="menu-row__label">会员卡</text>
             <view class="menu-row__right">
-              <text wx:if="{{pendingCard}}" class="menu-row__desc">待开卡</text>
-              <text wx:elif="{{member.credits > 0}}" class="menu-row__desc">余 {{member.credits}} 次</text>
-              <text wx:else class="menu-row__desc">未开通</text>
+              <text class="menu-row__desc">{{cardStatusText}}</text>
               <text class="menu-row__arrow">›</text>
             </view>
           </view>

@@ -28,18 +28,27 @@ VALUES
 ('P06', '深度恢复', 'DEEP RECOVERY', '泡沫轴、拉伸和呼吸，把紧绷的身体一点点放开。', 'LOW', 55, 180,
  '/assets/images/program-recovery.webp', 6);
 
-INSERT IGNORE INTO volt_plan
+INSERT INTO volt_plan
 (plan_code, plan_name, plan_en, price, unit_text, featured, points_json, cta_text, sort_order)
 VALUES
 ('PLAN-01', '首次体验课', 'FIRST TRIAL', 49, '单次', 1,
  '["团课 1 节，任选课程","InBody 体测 1 次","教练 1 对 1 训练建议","三店通用，到期自动失效"]',
  'RUN > 立即接入', 1),
-('PLAN-02', '按次充电', 'PAY PER SESSION', 99, '每节起', 0,
- '["上一次付一次，不绑定年卡","小程序自助选场次","开课前 2 小时可退","新人首节自动按 49 元结算"]',
- '查看本周场次', 2),
+('PLAN-02', '单次卡', 'SINGLE PASS', 20, '1 次 / 30 天', 0,
+ '["单次团课 1 节","30 天内有效","三店通用","不绑定年卡"]',
+ '购买单次卡', 3),
 ('PLAN-03', '10 次充电卡', '10-PACK CARD', 899, '10 节 / 180 天', 0,
  '["折合 89.9 元一节","三店全部课程通用","180 天长期有效","可与朋友共享同一张卡"]',
- '购买次卡', 3);
+ '购买次卡', 2)
+ON DUPLICATE KEY UPDATE
+ plan_name = VALUES(plan_name),
+ plan_en = VALUES(plan_en),
+ price = VALUES(price),
+ unit_text = VALUES(unit_text),
+ featured = VALUES(featured),
+ points_json = VALUES(points_json),
+ cta_text = VALUES(cta_text),
+ sort_order = VALUES(sort_order);
 
 INSERT IGNORE INTO volt_coach
 (coach_id, coach_name, title_text, avatar_url, bio, program_no, venue_codes)

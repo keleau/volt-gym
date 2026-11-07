@@ -405,7 +405,7 @@ Idempotency-Key: 8f4c2b1e-...
 - 日期超出窗口：400 `DATE_OUT_OF_RANGE`；
 - 当天场次全部已开课：409 `PAST_SESSION`（不是 `SLOT_FULL`，避免误导成“约满”）；
 - 写入必须幂等，重复提交不得生成第二张预约；
-- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 99 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。官网本期只把 `PLAN-01` 作为体验课预约；`PLAN-03` 走 `/card-orders` 登记，不占用场次。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次；`PLAN-01` 体验课核销不扣次，且同一手机号限一次。
+- `amount` 取所选方案价格（`PLAN-01` 49 / `PLAN-02` 20 / `PLAN-03` 899），与 Mock 一致；支付尚未接入，`amount` 只作展示。官网本期只把 `PLAN-01` 作为体验课预约；`PLAN-03` 走 `/card-orders` 登记，不占用场次。会员次卡在到店扫码核销时扣 1 次并写 `volt_credit_ledger`，预约本身不扣次；`PLAN-01` 体验课核销不扣次，且同一手机号限一次。
 
 后端实现补充：
 

@@ -85,6 +85,7 @@ import {
   verifyOtp,
 } from '../../../services/api/index.js'
 import { useCooldown } from '../../../composables/useCooldown.js'
+import { todayIso } from '../../../utils/date.js'
 import { isMemberBlocked } from '../../../utils/member.js'
 import { isValidPhone, normalizePhone } from '../../../utils/phone.js'
 
@@ -113,10 +114,16 @@ const pendingCard = computed(() =>
 )
 const isBlocked = computed(() => !pendingCard.value && isMemberBlocked(member.value))
 const hasActivePass = computed(() => Boolean(member.value) && !isMemberBlocked(member.value))
+const isExpired = computed(
+  () => Boolean(member.value?.expiresAt) && member.value.expiresAt < todayIso()
+)
 const stateLabel = computed(() => {
   if (!member.value) return 'SIGN IN'
   if (hasActivePass.value) return 'CONNECTED'
-  return pendingCard.value ? 'PENDING' : 'NO PASS'
+  if (pendingCard.value) return 'PENDING'
+  if (isExpired.value) return 'EXPIRED'
+  if (member.value.planCode || Number(member.value.creditsTotal) > 0) return 'USED UP'
+  return 'NO PASS'
 })
 const memberHint = computed(() => {
   if (pendingCard.value && hasActivePass.value) {
