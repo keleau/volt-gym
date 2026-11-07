@@ -21,9 +21,9 @@
 
 | 流程 | 完整视频 |
 | --- | --- |
-| 游客流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/visitor-flow.mp4) |
-| 开卡流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/card-open-flow.mp4) |
-| 预约课流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/booking-flow.mp4) |
+| 游客流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) |
+| 开卡流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) |
+| 预约课流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) |
 
 > GitHub 文件页对 MP4 只提供文件/下载入口，Gitee 的 MP4 需下载后观看。
 >
