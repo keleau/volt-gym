@@ -4,13 +4,22 @@
 
 官网负责获客和登记，微信小程序负责会员约课、进场和训练记录，Spring Boot 负责场次库存、会员、卡单和核销。HR 可以用 3 分钟看完整业务闭环，技术同学可以继续往下看接口契约和实现细节。
 
-## 演示视频（点击直接播放）
+## 演示预览（GIF 直接播放）
 
-- [游客状态下的使用流程](https://cdn.jsdelivr.net/gh/keleau/volt-gym@main/docs/videos/visitor-flow.mp4) · 1:30 · 游客预约体验课 → 登记会员卡 → 到店核销 → 查看训练记录
-- [会员开卡流程](https://cdn.jsdelivr.net/gh/keleau/volt-gym@main/docs/videos/card-open-flow.mp4) · 1:30 · 官网登记 10 次卡 → 小程序绑定手机号 → 会员卡入账 → 到店核销
-- [预约课流程](https://cdn.jsdelivr.net/gh/keleau/volt-gym@main/docs/videos/booking-flow.mp4) · 1:20 · 官网预约体验课 → 小程序登录绑定 → 到店扫码核销 → 查看训练档案
+| 游客流程 | 开卡流程 |
+| --- | --- |
+| <a href="docs/previews/visitor-flow.gif"><img src="docs/previews/visitor-flow.gif" width="220" alt="游客流程预览"></a> | <a href="docs/previews/card-open-flow.gif"><img src="docs/previews/card-open-flow.gif" width="360" alt="开卡流程预览"></a> |
+| 游客预约体验课 → 登记会员卡 → 到店核销 → 查看训练记录 | 官网登记 10 次卡 → 小程序绑定手机号 → 会员卡入账 |
 
-> 点击链接会在浏览器直接播放（H.264/AAC），视频源文件在 [`docs/videos/`](docs/videos/)。录屏中的手机投屏提示是录制环境通知；支付与验证码是本地演示能力，不代表真实微信支付/短信。
+<p align="center">
+  <a href="docs/previews/booking-flow.gif"><img src="docs/previews/booking-flow.gif" width="520" alt="预约课流程预览"></a>
+</p>
+
+> 上方为各流程的 GIF 节选，点击可查看完整尺寸；GIF 由真实运行录屏生成。
+>
+> 完整视频（H.264/AAC，下载后播放）：[游客流程](docs/videos/visitor-flow.mp4) · [开卡流程](docs/videos/card-open-flow.mp4) · [预约课流程](docs/videos/booking-flow.mp4)。Gitee 不支持 MP4 在线播放，因此提供 GIF 直接预览 + 完整视频下载。
+>
+> 录屏中的手机投屏提示是录制环境通知；支付与验证码是本地演示能力，不代表真实微信支付/短信。
 
 <p align="center">
   <img src="docs/screenshots/website-home.png" alt="VOLT 官网首页" width="100%">
@@ -29,7 +38,7 @@
 
 ## 面试快速路线
 
-1. **3 分钟**：看上面 3 个视频，先知道「用户怎么从官网到小程序、再到店核销」。
+1. **3 分钟**：看上面 3 段 GIF 预览（完整视频在 [`docs/videos/`](docs/videos/)），先知道「用户怎么从官网到小程序、再到店核销」。
 2. **5 分钟**：看下面的界面截图和核心流程，理解三端各自负责什么。
 3. **技术面**：看「项目亮点 / 技术实现」和接口契约，重点聊库存、幂等、会员合并和状态机。
 
@@ -162,7 +171,7 @@ npm run dev
 
 演示录制时 `FORCE_LOGIN: true` 会让每次冷启动清掉旧会话、先走独立登录页，确保能看到微信授权；录完改回 `false`，否则每次重新打开小程序都要重新登录。`AUTO_LOGIN` 只在 `FORCE_LOGIN` 关闭且没有本地 session 时生效。
 
-未配置微信 AppSecret 且打开 `WX_DEMO_FALLBACK=true` 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置真实 AppSecret 后走 `jscode2session`，新微信会创建真实会员。当前演示环境已配置真实 AppSecret，登录身份以真实 openid 为准。
+AppSecret 只通过本地 `.env` 或部署平台的环境变量注入，不写入仓库。未配置且打开 `WX_DEMO_FALLBACK=true` 时，`wx.login` 会落到演示会员 `MBR-DEMO`；配置后走 `jscode2session`，新微信会创建真实会员。登录身份以真实 openid 为准。
 
 ### 4. 真机演示与扫码核销
 
