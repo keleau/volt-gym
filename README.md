@@ -4,6 +4,8 @@
 
 官网负责获客和登记，微信小程序负责会员约课、进场和训练记录，Spring Boot 负责场次库存、会员、卡单和核销。HR 可以用 3 分钟看完整业务闭环，技术同学可以继续往下看接口契约和实现细节。
 
+**仓库：** [Gitee](https://gitee.com/keleau/volt-gym) · [GitHub 镜像](https://github.com/keleau/volt-gym)
+
 ## 演示预览（GIF 直接播放）
 
 | 游客流程 | 开卡流程 |
@@ -15,9 +17,15 @@
   <a href="docs/previews/booking-flow.gif"><img src="docs/previews/booking-flow.gif" width="520" alt="预约课流程预览"></a>
 </p>
 
-> 上方为各流程的 GIF 节选，点击可查看完整尺寸；GIF 由真实运行录屏生成。
->
-> 完整视频（H.264/AAC，需下载后播放）：[游客流程](docs/videos/visitor-flow.mp4) · [开卡流程](docs/videos/card-open-flow.mp4) · [预约课流程](docs/videos/booking-flow.mp4)。Gitee 不支持 MP4 在线播放，因此提供 GIF 直接预览 + 完整视频（需下载）。
+> 上方为各流程的 GIF 节选，点击可查看完整尺寸；GIF 由真实运行录屏生成，可直接播放。
+
+| 流程 | 完整视频 |
+| --- | --- |
+| 游客流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/visitor-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/visitor-flow.mp4) |
+| 开卡流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/card-open-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/card-open-flow.mp4) |
+| 预约课流程 | [GitHub 文件页](https://github.com/keleau/volt-gym/blob/main/docs/videos/booking-flow.mp4) · [Gitee（需下载后观看）](https://gitee.com/keleau/volt-gym/raw/main/docs/videos/booking-flow.mp4) |
+
+> GitHub 文件页对 MP4 只提供文件/下载入口，Gitee 的 MP4 需下载后观看。
 >
 > 录屏中的手机投屏提示是录制环境通知；支付与验证码是本地演示能力，不代表真实微信支付/短信。
 
@@ -38,7 +46,7 @@
 
 ## 面试快速路线
 
-1. **3 分钟**：看上面 3 段 GIF 预览（完整视频在 [`docs/videos/`](docs/videos/)），先知道「用户怎么从官网到小程序、再到店核销」。
+1. **3 分钟**：看上面 3 段 GIF 预览（完整视频见上方链接），先知道「用户怎么从官网到小程序、再到店核销」。
 2. **5 分钟**：看下面的界面截图和核心流程，理解三端各自负责什么。
 3. **技术面**：看「项目亮点 / 技术实现」和接口契约，重点聊库存、幂等、会员合并和状态机。
 
