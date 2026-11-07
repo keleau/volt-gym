@@ -110,6 +110,7 @@ public class VoltScheduleService {
         resp.put("sessions", sessionViews);
         resp.put("venues", support.venueViews(sessions));
         resp.put("member", member == null ? support.minimalMember() : viewService.memberView(member));
+        resp.put("trial", support.trialInfo(member));
         resp.put("programs", support.programViews());
         resp.put("coaches", support.coachViews());
         return resp;

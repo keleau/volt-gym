@@ -90,10 +90,10 @@
           </view>
         </view>
 
-        <view wx:if="{{trialMode && !member.credits}}" class="trial-banner">
-          <text class="trial-banner__tag mono">TRIAL / 首次体验</text>
-          <text class="trial-banner__title serif">¥49 先练一次，不扣次卡</text>
-          <text class="trial-banner__desc">到店付款 · 一个手机号限约一次</text>
+        <view wx:if="{{trialMode && trial.available}}" class="trial-banner">
+          <text class="trial-banner__tag mono">{{trial.free ? 'MEMBER GIFT / 会员赠课' : 'TRIAL / 首次体验'}}</text>
+          <text class="trial-banner__title serif">{{trial.free ? '会员赠课 · 免费体验一次' : '¥49 先练一次，不扣次卡'}}</text>
+          <text class="trial-banner__desc">{{trial.free ? '随卡赠送 · 每个手机号限一次' : '到店付款 · 一个手机号限约一次'}}</text>
         </view>
 
         <view wx:if="{{mode === 'coach'}}" class="coach-strip-wrap wrap">
@@ -209,10 +209,13 @@
       </view>
 
       <view wx:if="{{sheetState === 'book'}}" class="bk-actions">
-        <view wx:if="{{trialMode && !member.credits}}" class="bk-credit-line"><text>首次体验 ¥49</text><text>不扣次卡</text></view>
+        <view wx:if="{{trialMode && trial.available}}" class="bk-credit-line">
+          <text>{{trial.free ? '会员赠课 ¥0' : '首次体验 ¥49'}}</text>
+          <text>不扣次卡</text>
+        </view>
         <view wx:else class="bk-credit-line"><text>次卡扣 1 次</text><text>余额 {{member.credits}} 次</text></view>
-        <button class="btn btn--primary btn--block" bindtap="onBook">{{trialMode && !member.credits ? '预约体验课' : '锁定名额'}}</button>
-        <text wx:if="{{trialMode && !member.credits}}" class="bk-fine">提交后直接确认，到店付 ¥49；每个手机号限一次</text>
+        <button class="btn btn--primary btn--block" bindtap="onBook">{{trialMode && trial.available ? (trial.free ? '预约免费体验课' : '预约体验课') : '锁定名额'}}</button>
+        <text wx:if="{{trialMode && trial.available}}" class="bk-fine">{{trial.free ? '随卡赠送 · 不扣次卡 · 每个手机号限一次' : '提交后直接确认，到店付 ¥49；每个手机号限一次'}}</text>
         <text wx:else class="bk-fine">锁定后 10 分钟内确认，逾期自动释放</text>
       </view>
 
@@ -246,7 +249,7 @@
         <view class="bk-confirmed">
           <view class="bk-confirmed__icon">✓</view>
           <view class="bk-confirmed__main">
-            <text class="bk-confirmed__title">{{bookingResult.isTrial ? '体验课已预约' : '预约成功'}}</text>
+            <text class="bk-confirmed__title">{{bookingResult.isTrial ? '体验课预约成功' : '预约成功'}}</text>
             <text wx:if="{{bookingResult.isTrial}}" class="bk-confirmed__desc">体验课预约号 {{bookingResult.orderNo}} · {{bookingResult.dateShort}} {{bookingResult.startTime}}</text>
             <text wx:else class="bk-confirmed__desc">预约号 {{bookingResult.orderNo}} · {{bookingResult.dateShort}} {{bookingResult.startTime}}</text>
           </view>
@@ -256,7 +259,7 @@
             <text class="bk-entry__label">进场码</text>
             <text class="bk-entry__code">{{bookingResult.entryCode}}</text>
           </view>
-          <text class="bk-entry__hint">{{bookingResult.isTrial ? '到店付 ¥49，向前台出示或扫码核销' : '到店后向前台出示，或扫码核销'}}</text>
+          <text class="bk-entry__hint">{{bookingResult.isTrial ? (bookingResult.amount > 0 ? '到店付 ¥' + bookingResult.amount + '，向前台出示或扫码核销' : '会员赠课 · 免费，向前台出示或扫码核销') : '到店后向前台出示，或扫码核销'}}</text>
         </view>
         <button class="btn btn--primary btn--block" bindtap="goBookings">查看我的预约</button>
         <button wx:if="{{bookingResult.isTrial}}" class="btn btn--ghost btn--block bk-secondary" bindtap="goPass">看看会员卡</button>

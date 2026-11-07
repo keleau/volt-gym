@@ -1,6 +1,7 @@
 const api = require('../../services/api')
 const navUtil = require('../../utils/nav')
 const format = require('../../utils/format')
+const tab = require('../../utils/tab')
 
 const LEDGER_LABELS = {
   CHECKIN: '核销扣次',
@@ -35,6 +36,7 @@ Page({
     brand: {},
     passCells: [],
     pendingCard: null,
+    trial: { used: false, available: true, free: false, price: 49 },
     demoPayEnabled: false,
     paying: false,
     ledgerEntries: [],
@@ -95,6 +97,7 @@ Page({
             brand: data.brand || {},
             passCells,
             pendingCard,
+            trial: data.trial || { used: false, available: true, free: false, price: 49 },
             demoPayEnabled: Boolean(data.demoPayEnabled),
             ledgerEntries: mapLedger(ledger),
             buyPlan,
@@ -140,6 +143,10 @@ Page({
     wx.navigateTo({ url: '/pages/bind-phone/index' })
   },
 
+  goTrial() {
+    tab.switchTab('/pages/schedule/index', { schedulePreset: { trialMode: true } })
+  },
+
   submitBuy() {
     if (this.data.buying) return
     const plan = this.data.buyPlan
@@ -167,9 +174,17 @@ Page({
       .create({ planCode: plan.code, venueCode: this.data.buyVenueCode })
       .then(() => {
         if (!this._alive) return
-        wx.showToast({ title: '购卡已登记', icon: 'success' })
         this.setData({ buySheetVisible: false })
-        return this.load()
+        return this.load().then(() => {
+          if (!this._alive) return
+          wx.showModal({
+            title: '购卡登记成功',
+            content: `${plan.name} · ${this.data.buyVenueName}\n到店付款后由店员开卡，次数自动到账。`,
+            showCancel: false,
+            confirmText: '知道了',
+            confirmColor: '#A33B2B',
+          })
+        })
       })
       .catch((error) => {
         if (!this._alive) return
@@ -194,8 +209,21 @@ Page({
           .demoPay(order.orderNo)
           .then(() => {
             if (!this._alive) return
-            wx.showToast({ title: '演示支付成功', icon: 'success' })
-            return this.load()
+            const planName = order.planName || '会员卡'
+            const credits = order.credits || 0
+            return this.load().then(() => {
+              if (!this._alive) return
+              wx.showModal({
+                title: '开卡成功',
+                content: `${planName} · ${credits} 次已到账，会员赠课也可以约了。`,
+                confirmText: '去约课',
+                cancelText: '看看会员卡',
+                confirmColor: '#A33B2B',
+                success: (modal) => {
+                  if (modal.confirm) wx.switchTab({ url: '/pages/schedule/index' })
+                },
+              })
+            })
           })
           .catch((error) => {
             if (!this._alive) return

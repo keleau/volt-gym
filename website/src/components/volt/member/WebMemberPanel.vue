@@ -26,9 +26,9 @@
       <p class="member-hint">
         {{ memberHint }}
       </p>
-      <button type="button" class="member-mini" @click="$emit('mini')">
-        打开会员小程序
-        <span aria-hidden="true">→</span>
+      <button type="button" class="member-mini" @click="copyMiniName">
+        {{ miniCopied ? '已复制，去微信粘贴搜索' : '微信搜「VOLT 电压健身」' }}
+        <span aria-hidden="true">{{ miniCopied ? '✓' : '→' }}</span>
       </button>
     </template>
 
@@ -88,7 +88,10 @@ import { useCooldown } from '../../../composables/useCooldown.js'
 import { isMemberBlocked } from '../../../utils/member.js'
 import { isValidPhone, normalizePhone } from '../../../utils/phone.js'
 
-const emit = defineEmits(['change', 'mini'])
+const props = defineProps({
+  presetPhone: { type: String, default: '' },
+})
+const emit = defineEmits(['change'])
 const member = ref(null)
 const nextBooking = ref(null)
 const cardOrders = ref([])
@@ -101,6 +104,8 @@ const verifying = ref(false)
 const { remaining: cooldown, start: startCooldown } = useCooldown({ intervalMs: 1000 })
 const error = ref('')
 const allowDevCode = import.meta.env.DEV
+const miniCopied = ref(false)
+let copyTimer = 0
 let suppressExpired = false
 
 const pendingCard = computed(() =>
@@ -234,6 +239,19 @@ function logout() {
   suppressExpired = false
 }
 
+async function copyMiniName() {
+  try {
+    await navigator.clipboard.writeText('VOLT 电压健身')
+    miniCopied.value = true
+  } catch {
+    miniCopied.value = false
+  }
+  window.clearTimeout(copyTimer)
+  copyTimer = window.setTimeout(() => {
+    miniCopied.value = false
+  }, 1800)
+}
+
 onMounted(() => {
   window.addEventListener('volt:session-expired', onExpired)
   const session = getWebSession()
@@ -243,11 +261,14 @@ onMounted(() => {
     nextBooking.value = null
     emitChange()
     refresh()
+    return
   }
+  if (props.presetPhone) phone.value = normalizePhone(props.presetPhone)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('volt:session-expired', onExpired)
+  window.clearTimeout(copyTimer)
 })
 
 defineExpose({ refresh })

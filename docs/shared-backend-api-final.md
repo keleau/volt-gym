@@ -504,7 +504,7 @@
 
 响应需同时返回 `mode`、`trial`（布尔，体验课为 true）、`member`、`record`、`booking`（若有）、`stats`（本周统计）、`locationLabel`。事务顺序：校验场馆/预约 → `markCheckedInIfConfirmed` 条件改为 `checked-in` → 普通课时按 `credits > 0` 条件扣 1 次（体验课跳过）→ 写训练记录 → 普通课时写 `volt_credit_ledger`（`CHECKIN`，-1）。唯一键 `(booking_id, reason)` 保证同一预约最多扣一次；普通课时余额不足抛 `NO_CREDITS` 并回滚核销。
 
-`PLAN-01` 首次体验课按手机号限一次：创建预约时已有非取消/非过期的体验课单，返回 409 `TRIAL_ALREADY_BOOKED`。
+`PLAN-01` 首次体验课按手机号限一次：创建预约时已有非取消/非过期的体验课单，返回 409 `TRIAL_ALREADY_BOOKED`。已开卡会员的首次体验课金额为 0（随卡赠课），非会员仍按 ¥49；赠课不扣次卡，买卡不会额外增加第二次体验。
 
 预约锁位和确认都不扣次，取消/锁位超时也不返还；只有门店撤销核销时才追加 `REVOKE`（+1）流水，当前无自助撤销入口。
 

@@ -54,7 +54,7 @@
 
 | 方法 | 路径 | 登录 | 幂等 | 说明 |
 | --- | --- | --- | --- | --- |
-| POST | `/bookings` | 是（体验课） | 是 | 官网体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，金额 ¥49；不可重复体验 |
+| POST | `/bookings` | 是（体验课） | 是 | 官网体验课预约；OTP 会员 + `PLAN-01`，0 次卡允许，金额 ¥49；已开卡会员赠课 ¥0；不可重复体验 |
 | GET | `/community` | 否/可选 | — | 社区聚合 |
 | POST | `/events/{eventId}/signups` | 否/可选 | 是 | 活动报名 |
 | POST | `/challenges/current/join` | 否/可选 | 是 | 加入本周挑战 |

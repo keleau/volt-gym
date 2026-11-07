@@ -271,6 +271,7 @@ Component({
           { label: '有效期', value: expiresAt || '长期有效' },
         ]
         if (hasTrial) rows.push({ label: '体验课', value: trialText || '已有预约' })
+        if (!hasTrial) rows.push({ label: '会员赠课', value: '1 次免费体验课' })
         if (pendingRow) rows.push(pendingRow)
         if (mergedRow) rows.push(mergedRow)
         return {
@@ -281,9 +282,9 @@ Component({
           subtitle: `已开卡 · ${planName || '会员卡'} · 余 ${credits} 次`,
           lead: '体验课、官网购卡和会员卡已经同步到这个微信。',
           rows,
-          primary: { action: 'close', label: '进入会员中心' },
+          primary: { action: 'mine', label: '进入会员中心' },
           secondary: { action: 'pass', label: '查看会员卡' },
-          tertiary: null,
+          tertiary: hasTrial ? null : { action: 'trial', label: '预约免费体验课' },
         }
       }
 

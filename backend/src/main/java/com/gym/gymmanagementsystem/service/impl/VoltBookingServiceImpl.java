@@ -250,7 +250,8 @@ public class VoltBookingServiceImpl implements VoltBookingService {
         booking.setSource("web");
         booking.setPlanCode(plan.getPlanCode());
         booking.setPlanName(plan.getPlanName());
-        booking.setAmount(member == null || trialRequest ? amountOf(plan) : 0);
+        boolean freeTrial = trialRequest && hasCard(member);
+        booking.setAmount(freeTrial ? 0 : (member == null || trialRequest ? amountOf(plan) : 0));
         booking.setMemberName(name);
         booking.setMemberPhone(phone);
         booking.setCreatedAt(LocalDateTime.now());
@@ -333,6 +334,15 @@ public class VoltBookingServiceImpl implements VoltBookingService {
 
     private Integer amountOf(Plan plan) {
         return plan.getPrice();
+    }
+
+    private boolean hasCard(VoltMember member) {
+        if (member == null) {
+            return false;
+        }
+        Integer total = member.getCreditsTotal();
+        return (total != null && total > 0)
+                || (member.getPlanCode() != null && !member.getPlanCode().isBlank());
     }
 
     private String nextBookingId() {

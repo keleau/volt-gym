@@ -45,6 +45,7 @@
           v-else-if="i === 3"
           :active="isContentActive(i)"
           :preset="preset"
+          @member="openMemberWithPhone"
         />
         <StepFooter
           v-else
@@ -72,9 +73,9 @@
     <VoltGateFooter ref="gateRef" :steps="steps" :active="chromeIndex" />
     <MemberModal
       :open="memberOpen"
-      @close="memberOpen = false"
+      :phone="memberPresetPhone"
+      @close="closeMember"
       @change="onMemberChange"
-      @mini="goMini"
     />
 
     <p class="sr-only" aria-live="polite">{{ announcement }}</p>
@@ -174,9 +175,21 @@ const screenEls = []
 
 const memberOpen = ref(false)
 const memberSession = ref(getWebSession())
+const memberPresetPhone = ref('')
 
 function openMember() {
+  memberPresetPhone.value = ''
   memberOpen.value = true
+}
+
+function openMemberWithPhone({ phone } = {}) {
+  memberPresetPhone.value = phone || ''
+  memberOpen.value = true
+}
+
+function closeMember() {
+  memberOpen.value = false
+  memberPresetPhone.value = ''
 }
 
 function syncMemberSession() {
@@ -185,11 +198,6 @@ function syncMemberSession() {
 
 function onMemberChange() {
   syncMemberSession()
-}
-
-function goMini() {
-  memberOpen.value = false
-  if (typeof window !== 'undefined') window.location.hash = 'footer'
 }
 
 const chromeIndex = computed(() => chromeAt.value ?? active.value)

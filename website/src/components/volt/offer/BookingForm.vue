@@ -6,9 +6,9 @@
         <h3>预留一个位置<em>。</em></h3>
       </div>
       <div class="form-chosen">
-        <span class="mono">已选 {{ selectedPlan.code }}</span>
+        <span class="mono">已选 {{ selectedPlan.code }}{{ freeTrial ? ' · 会员赠课' : '' }}</span>
         <b>{{ selectedPlan.name }}</b>
-        <strong>¥{{ selectedPlan.price }}</strong>
+        <strong>¥{{ trialPrice }}</strong>
       </div>
     </header>
 
@@ -158,14 +158,14 @@
         :disabled="loading || availability?.soldOut || cooldown > 0"
       >
         <span>{{ submitLabel }}</span>
-        <span class="submit-price mono">¥{{ selectedPlan.price }}</span>
+        <span class="submit-price mono">¥{{ trialPrice }}</span>
         <b aria-hidden="true">→</b>
       </button>
       <p class="privacy mono">提交即代表同意门店服务条款，信息仅用于本次预约。</p>
     </form>
 
     <div class="form-foot mono">
-      <span>体验课到店付款</span>
+      <span>{{ freeTrial ? '会员赠课 · 不扣次卡' : '体验课到店付款' }}</span>
       <span>无推销</span>
       <span>三店通用</span>
     </div>
@@ -173,6 +173,7 @@
     <BookingSuccessModal
       v-if="confirmed && order"
       :booking="order"
+      :pending-card="linkedCard"
       @close="handleReset"
     />
   </section>
@@ -190,6 +191,7 @@ import { useBooking } from '../../../composables/useBooking.js'
 import { useCooldown } from '../../../composables/useCooldown.js'
 import {
   ApiError,
+  getMemberHome,
   saveWebSession,
   sendOtp,
   verifyOtp,
@@ -209,6 +211,8 @@ const otpError = ref('')
 const sending = ref(false)
 const verifying = ref(false)
 const verifiedPhone = ref('')
+const trialInfo = ref(null)
+const linkedCard = ref(null)
 const allowDevCode = import.meta.env.DEV
 const { remaining: otpCooldown, start: startOtpCooldown } = useCooldown()
 
@@ -239,11 +243,31 @@ const {
 const isVerified = computed(
   () => Boolean(form.phone) && verifiedPhone.value === form.phone
 )
+const freeTrial = computed(() => Boolean(trialInfo.value?.free && trialInfo.value?.available))
+const trialPrice = computed(() => (freeTrial.value ? 0 : props.selectedPlan.price))
+
+function refreshTrial(phone) {
+  return getMemberHome()
+    .then((home) => {
+      if (verifiedPhone.value !== phone) return
+      trialInfo.value = home?.trial || null
+      linkedCard.value =
+        (home?.cardOrders || []).find((order) => order.status === 'pending') || null
+    })
+    .catch(() => {
+      if (verifiedPhone.value === phone) {
+        trialInfo.value = null
+        linkedCard.value = null
+      }
+    })
+}
 
 watch(
   () => form.phone,
   () => {
     verifiedPhone.value = ''
+    trialInfo.value = null
+    linkedCard.value = null
     code.value = ''
     codeSent.value = false
     devCode.value = ''
@@ -294,6 +318,7 @@ function verifyCode() {
       saveWebSession({ token: res.token, member: res.member, phone: form.phone })
       verifiedPhone.value = form.phone
       codeSent.value = false
+      refreshTrial(form.phone)
     })
     .catch((error) => {
       otpError.value =
@@ -324,6 +349,8 @@ function handleReset() {
   devCode.value = ''
   otpError.value = ''
   verifiedPhone.value = ''
+  trialInfo.value = null
+  linkedCard.value = null
 }
 </script>
 

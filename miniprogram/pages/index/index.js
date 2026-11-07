@@ -223,6 +223,10 @@ Page({
       wx.navigateTo({ url: '/pages/pass/index' })
       return
     }
+    if (action === 'mine') {
+      tab.switchTab('/pages/mine/index')
+      return
+    }
     if (action === 'buy') {
       wx.navigateTo({ url: '/pages/pass/index?buy=1' })
       return

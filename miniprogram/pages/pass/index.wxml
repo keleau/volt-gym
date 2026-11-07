@@ -63,6 +63,15 @@
         </view>
       </view>
 
+      <view wx:if="{{trial.free && trial.available}}" class="pass-gift wrap">
+        <view class="pass-gift__main">
+          <text class="pass-gift__kicker mono">MEMBER GIFT / 会员赠课</text>
+          <text class="pass-gift__title serif">含 1 次免费体验课</text>
+          <text class="pass-gift__desc">随卡赠送 · 不扣次卡 · 每个手机号限一次</text>
+        </view>
+        <button class="btn btn--primary pass-gift__btn" bindtap="goTrial">去预约</button>
+      </view>
+
       <view class="pass-plans wrap">
         <view class="pass-section-head">
           <text class="pass-section-title serif">次卡选项</text>

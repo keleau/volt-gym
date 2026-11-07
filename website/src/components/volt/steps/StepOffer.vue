@@ -10,6 +10,7 @@
       v-if="selectedPlan.kind === 'card'"
       :active="active"
       :selected-plan="selectedPlan"
+      @member="$emit('member', $event)"
     />
     <BookingForm
       v-else
@@ -32,6 +33,7 @@ const props = defineProps({
   active: { type: Boolean, default: false },
   preset: { type: Object, default: () => ({ program: '', venue: '', plan: '' }) },
 })
+defineEmits(['member'])
 
 const selectedPlan = ref(
   pricingPlans.find((plan) => plan.code === props.preset.plan) || pricingPlans[0]

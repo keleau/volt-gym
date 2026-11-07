@@ -1,7 +1,7 @@
 <template>
   <BaseModal :open="true" @close="$emit('close')">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-label="预约成功">
-      <p class="modal-status mono">BOOKING CONFIRMED / 预约已确认</p>
+      <p class="modal-status mono">{{ isFree ? 'MEMBER GIFT / 会员赠课' : 'BOOKING CONFIRMED / 预约已确认' }}</p>
       <h3>名额已锁定。</h3>
       <p class="modal-plan mono">{{ booking.planCode }} / {{ booking.planName }}</p>
       <dl class="modal-detail mono">
@@ -14,21 +14,31 @@
           <dt>时间</dt>
           <dd>{{ booking.time }}<template v-if="booking.endTime">–{{ booking.endTime }}</template></dd>
         </div>
-        <div><dt>金额</dt><dd>¥{{ booking.amount }} · 到店支付</dd></div>
+        <div><dt>金额</dt><dd>{{ isFree ? '会员赠课 · 免费' : `¥${booking.amount} · 到店支付` }}</dd></div>
       </dl>
-      <p class="modal-note">预约信息已记录。到店后用同一手机号登录小程序，扫码核销体验课（不扣次卡）。想长期练，可在小程序或前台开 10 次卡。</p>
+      <p v-if="pendingCard" class="modal-linked mono">
+        同手机号另有 {{ pendingCard.planName }} 购卡登记，到店付款开卡后次数自动到账。
+      </p>
+      <p class="modal-note">
+        <template v-if="isFree">这是会员卡赠送的首次体验课，不扣次卡。到店扫码核销即可。</template>
+        <template v-else>预约信息已记录。到店后用同一手机号登录小程序，扫码核销体验课（不扣次卡）。想长期练，可在小程序或前台开 10 次卡。</template>
+      </p>
       <button type="button" class="modal-btn" @click="$emit('close')">完成</button>
     </div>
   </BaseModal>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import BaseModal from '../../ui/BaseModal.vue'
 
-defineProps({
+const props = defineProps({
   booking: { type: Object, required: true },
+  pendingCard: { type: Object, default: null },
 })
 defineEmits(['close'])
+
+const isFree = computed(() => Number(props.booking.amount) === 0)
 </script>
 
 <style scoped>
@@ -79,6 +89,15 @@ defineEmits(['close'])
   font-size: 13px;
   line-height: 1.6;
   color: color-mix(in srgb, #0D0B08 72%, transparent);
+}
+.modal-linked {
+  margin: 12px 0 0;
+  padding: 7px 9px;
+  border-left: 3px solid var(--acid);
+  background: color-mix(in srgb, #F59E0B 12%, transparent);
+  font-size: 9px;
+  line-height: 1.5;
+  color: #7A3B00;
 }
 .modal-btn {
   width: 100%;

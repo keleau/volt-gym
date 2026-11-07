@@ -10,7 +10,10 @@
           ×
         </button>
       </div>
-      <WebMemberPanel @change="$emit('change', $event)" @mini="$emit('mini')" />
+      <WebMemberPanel
+        :preset-phone="phone"
+        @change="$emit('change', $event)"
+      />
       <p class="member-modal-note mono">
         会员卡只是账号；次卡需到店付款开卡后生效。
       </p>
@@ -24,8 +27,9 @@ import WebMemberPanel from './WebMemberPanel.vue'
 
 defineProps({
   open: { type: Boolean, default: false },
+  phone: { type: String, default: '' },
 })
-defineEmits(['close', 'change', 'mini'])
+defineEmits(['close', 'change'])
 </script>
 
 <style scoped>

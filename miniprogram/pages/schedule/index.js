@@ -28,6 +28,7 @@ Page({
     dayViews: [],
     programs: [],
     member: { credits: 0 },
+    trial: { used: false, available: true, free: false, price: 49 },
     trialMode: false,
     selectedVenueCode: '',
     selectedVenue: null,
@@ -114,6 +115,7 @@ Page({
           days: data.days || [],
           programs: data.programs || [],
           member: data.member || { credits: 0 },
+          trial: data.trial || { used: false, available: true, free: false, price: 49 },
         })
         const hasPreset = this.pendingPreset && Object.keys(this.pendingPreset).length > 0
         const current = {
@@ -620,7 +622,7 @@ Page({
       this.goBindPhone()
       return
     }
-    const trialBooking = this.data.trialMode && Number(this.data.member.credits) <= 0
+    const trialBooking = this.data.trialMode && Boolean(this.data.trial && this.data.trial.available)
     if (!trialBooking && this.data.member.credits <= 0) {
       wx.showModal({
         title: '充电次数不足',
@@ -666,17 +668,21 @@ Page({
           left,
           soldOut: left <= 0,
         })
-        this.setData({
+        const patch = {
           submitting: false,
           bookingResult: booking,
           sheetState: status === 'confirmed' ? 'confirmed' : 'locked',
-          sheetTitle: isTrial ? '体验课已预约' : status === 'confirmed' ? '已预约' : '确认预约',
-        })
+          sheetTitle: isTrial ? '体验课预约成功' : status === 'confirmed' ? '已预约' : '确认预约',
+        }
+        if (isTrial) {
+          patch.trial = Object.assign({}, this.data.trial, { used: true, available: false })
+        }
+        this.setData(patch)
         if (status === 'locked' && booking.lockExpiresAt) {
           this.startLockTicker(booking.lockExpiresAt)
         }
         wx.showToast({
-          title: isTrial ? '体验课已预约' : result.duplicate ? '已预约过这一场' : '名额已锁定',
+          title: isTrial ? '体验课预约成功' : result.duplicate ? '已预约过这一场' : '名额已锁定',
           icon: 'none',
         })
       })

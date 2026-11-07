@@ -583,6 +583,27 @@ public class VoltMiniSupport {
         return brand;
     }
 
+    public boolean hasCard(VoltMember member) {
+        if (member == null) {
+            return false;
+        }
+        Integer total = member.getCreditsTotal();
+        return (total != null && total > 0)
+                || (member.getPlanCode() != null && !member.getPlanCode().isBlank());
+    }
+
+    public Map<String, Object> trialInfo(VoltMember member) {
+        boolean free = hasCard(member);
+        boolean used = member != null && member.getPhone() != null
+                && bookingMapper.countTrialsByPhone(member.getPhone()) > 0;
+        Map<String, Object> info = new LinkedHashMap<>();
+        info.put("used", used);
+        info.put("available", !used);
+        info.put("free", free);
+        info.put("price", free ? 0 : DEMO_TRIAL_PRICE);
+        return info;
+    }
+
     public Map<String, Object> subscriptions(String memberId) {
         ensureSubscription(memberId);
         return jdbcTemplate.queryForObject(

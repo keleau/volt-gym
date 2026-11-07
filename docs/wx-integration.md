@@ -240,7 +240,7 @@ api.auth.linkPhone({ phone, code })
 - 认领幂等，不重复创建预约、不重复占库存；
 - 手机号唯一；如果手机号已绑定其他微信，返回 409 `PHONE_TAKEN`，提示联系前台处理。两边都有次卡时会合并次数，不会丢卡。
 
-`visitor` 点击「预约体验课」会切到 `pages/schedule/index` 的 `trialMode`：课表顶部显示「首次体验 ¥49 · 不扣次卡」，预约时调用 `api.bookings.createTrial` → `POST /bookings {planCode:"PLAN-01", sessionId, autoConfirm:true}`。该手机号已有有效体验课时返回 409 `TRIAL_ALREADY_BOOKED`，页面引导查看会员卡。
+`visitor` 点击「预约体验课」会切到 `pages/schedule/index` 的 `trialMode`：课表顶部显示「首次体验 ¥49 · 不扣次卡」，预约时调用 `api.bookings.createTrial` → `POST /bookings {planCode:"PLAN-01", sessionId, autoConfirm:true}`。该手机号已有有效体验课时返回 409 `TRIAL_ALREADY_BOOKED`，页面引导查看会员卡。已开卡会员从会员卡页的「会员赠课」入口进入同一模式，金额为 ¥0；赠课不扣次卡，且同一手机号只保留一次体验。
 
 ### 4.3.1 同一个微信多张会员卡
 

@@ -14,7 +14,7 @@
 
     <template v-if="!result">
       <p class="card-intro">
-        提交后到店付款，店员确认开卡；开卡后用小程序同手机号登录，次数自动出现。
+        提交后到店付款，店员确认开卡；开卡后用同手机号登录，次数自动出现。
       </p>
 
       <form class="card-form" novalidate @submit.prevent="submit">
@@ -113,11 +113,14 @@
         <div><dt>金额</dt><dd>¥{{ result.amount }} · 到店支付</dd></div>
       </dl>
       <p class="card-success-note">
-        现在可微信搜索「VOLT 电压健身」进入小程序。店员开卡后，用同手机号登录即可看到次数并约课。
+        店员开卡后次数自动到账。你可以先用登记手机号登录，查看开卡进度；约课请在小程序内完成。
+      </p>
+      <p v-if="linkedBooking" class="card-success-linked mono">
+        同手机号已有预约：{{ linkedBooking.date }} {{ linkedBooking.time }} · {{ linkedBooking.venueName }}
       </p>
       <div class="card-success-actions">
-        <button type="button" class="card-submit" @click="goMini">
-          去小程序
+        <button type="button" class="card-submit" @click="goMember">
+          登录查看开卡进度
           <b aria-hidden="true">→</b>
         </button>
         <button type="button" class="card-again" @click="again">再登记一张</button>
@@ -129,24 +132,32 @@
 <script setup>
 import { reactive, ref, watch } from 'vue'
 import { venues } from '../../../data/site.js'
-import { ApiError, createCardOrder } from '../../../services/api/index.js'
+import {
+  ApiError,
+  createCardOrder,
+  getMemberHome,
+  getWebSession,
+} from '../../../services/api/index.js'
 import { isValidPhone, normalizePhone } from '../../../utils/phone.js'
 
 const props = defineProps({
   active: { type: Boolean, default: false },
   selectedPlan: { type: Object, required: true },
 })
+const emit = defineEmits(['member'])
 
 const form = reactive({ name: '', phone: '', venue: '', note: '' })
 const errors = reactive({ name: '', phone: '', venue: '', note: '' })
 const loading = ref(false)
 const error = ref('')
 const result = ref(null)
+const linkedBooking = ref(null)
 
 watch(
   () => props.selectedPlan.code,
   () => {
     result.value = null
+    linkedBooking.value = null
     error.value = ''
   }
 )
@@ -181,6 +192,14 @@ function submit() {
     .then((res) => {
       result.value = res?.order || null
       if (!result.value) throw new Error('missing order')
+      const session = getWebSession()
+      if (session?.phone === form.phone) {
+        getMemberHome()
+          .then((home) => {
+            if (result.value) linkedBooking.value = home?.nextBooking || null
+          })
+          .catch(() => {})
+      }
     })
     .catch((err) => {
       if (err instanceof ApiError && err.fields) {
@@ -198,12 +217,13 @@ function submit() {
 
 function again() {
   result.value = null
+  linkedBooking.value = null
   error.value = ''
   form.note = ''
 }
 
-function goMini() {
-  window.location.hash = 'footer'
+function goMember() {
+  emit('member', { phone: form.phone })
 }
 </script>
 
@@ -451,6 +471,12 @@ select.field-input option { background: #ffffff; color: #0D0B08; }
   font-size: 11px;
   line-height: 1.6;
   color: color-mix(in srgb, #0D0B08 76%, transparent);
+}
+.card-success-linked {
+  margin: -4px 0 14px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: #8A5200;
 }
 .card-success-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 .card-again {

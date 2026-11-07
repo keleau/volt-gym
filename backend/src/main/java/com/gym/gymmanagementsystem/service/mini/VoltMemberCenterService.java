@@ -73,6 +73,7 @@ public class VoltMemberCenterService {
         resp.put("messagesUnread", support.unreadMessages(member.getMemberId()));
         resp.put("subscriptions", support.subscriptions(member.getMemberId()));
         resp.put("cardOrders", cardOrderService.memberOrders(member));
+        resp.put("trial", support.trialInfo(member));
         resp.put("demoPayEnabled", demoPayEnabled);
         return resp;
     }
@@ -93,6 +94,7 @@ public class VoltMemberCenterService {
         resp.put("nextBooking", support.nextBooking(support.activeBookings(member)));
         resp.put("venues", support.venueViews(sessionMapper.findBetween(LocalDate.now(), LocalDate.now())));
         resp.put("cardOrders", cardOrderService.memberOrders(member));
+        resp.put("trial", support.trialInfo(member));
         resp.put("demoPayEnabled", demoPayEnabled);
         return resp;
     }
