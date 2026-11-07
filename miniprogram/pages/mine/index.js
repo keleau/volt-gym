@@ -6,18 +6,7 @@ const tab = require('../../utils/tab')
 const format = require('../../utils/format')
 const share = require('../../utils/share')
 const subscribe = require('../../services/subscribe')
-
-function cardStatusText(member, pendingCard) {
-  if (!member) return '未开通'
-  if (!member.phoneBound) return '绑定后同步'
-  if (pendingCard) return '待开卡'
-  const credits = Number(member.credits) || 0
-  const total = Number(member.creditsTotal) || 0
-  const hasPlan = Boolean(member.planCode)
-  if (credits <= 0 && total <= 0 && !hasPlan) return '未开通'
-  if (member.expiresAt && member.expiresAt < dateUtil.todayISO()) return '已过期'
-  return credits > 0 ? `余 ${credits} 次` : '已用完'
-}
+const memberStatus = require('../../utils/member-status')
 
 Page({
   data: {
@@ -103,7 +92,7 @@ Page({
           counts: data.counts,
           nextBooking: next,
           pendingCard,
-          cardStatusText: cardStatusText(data.member, pendingCard),
+          cardStatusText: memberStatus.cardStatusText(data.member, pendingCard),
           nextDayText: next
             ? `${dateUtil.relativeDay(next.date)} ${next.time} · ${next.venueName}`
             : '',

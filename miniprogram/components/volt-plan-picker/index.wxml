@@ -1,0 +1,20 @@
+<view class="plan-list">
+  <view
+    wx:for="{{plans}}"
+    wx:key="code"
+    class="plan-row {{item.code === currentCode ? 'is-current' : ''}}"
+    data-code="{{item.code}}"
+    bindtap="onPick"
+    hover-class="plan-row--hover"
+  >
+    <view class="plan-row__main">
+      <text class="plan-row__name serif">{{item.name}}</text>
+      <text class="plan-row__unit">{{item.unit}}</text>
+    </view>
+    <view class="plan-row__right">
+      <text class="plan-row__price serif">¥{{item.price}}</text>
+      <text wx:if="{{item.code === currentCode}}" class="plan-row__tag">当前</text>
+      <text class="plan-row__cta">{{item.code === currentCode ? '续卡' : '购卡'}}</text>
+    </view>
+  </view>
+</view>

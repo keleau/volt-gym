@@ -86,12 +86,6 @@ Page({
     tab.setHidden(this, false)
   },
 
-  onHide() {
-    this.stopLockTicker()
-    if (this.data.sheetVisible) this.setData({ sheetVisible: false })
-    tab.setHidden(this, false)
-  },
-
   onUnload() {
     this._alive = false
     this.stopLockTicker()

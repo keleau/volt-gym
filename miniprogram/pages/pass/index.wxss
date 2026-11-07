@@ -328,68 +328,6 @@
   color: #72654f;
 }
 
-.plan-list {
-  margin-top: 8rpx;
-}
-
-.plan-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16rpx;
-  padding: 16rpx 0;
-  border-bottom: 1rpx dashed #d9cbb6;
-}
-
-.plan-row__name {
-  display: block;
-  font-family: "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
-  font-size: 29rpx;
-  font-weight: 700;
-  color: #1b1712;
-}
-
-.plan-row__unit {
-  display: block;
-  margin-top: 2rpx;
-  font-size: 20rpx;
-  color: #635846;
-}
-
-.plan-row__right {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-}
-
-.plan-row__cta {
-  margin-left: 4rpx;
-  padding: 4rpx 10rpx;
-  border: 1rpx solid #a33b2b;
-  color: #873023;
-  font-size: 18rpx;
-  line-height: 1.4;
-}
-
-.plan-row--hover {
-  background: #fbf5e9;
-}
-
-.plan-row__price {
-  font-family: "Source Han Serif SC", "Songti SC", "SimSun", serif;
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #873023;
-}
-
-.plan-row__tag {
-  padding: 4rpx 8rpx;
-  border: 1rpx solid #dfc3b9;
-  background: #f0ddd6;
-  color: #873023;
-  font-size: 18rpx;
-}
-
 .pass-contact {
   margin-top: 22rpx !important;
 }

@@ -68,7 +68,8 @@
     "volt-sheet": "/components/volt-sheet/index",
     "volt-calendar": "/components/volt-calendar/index",
     "volt-login": "/components/volt-login/index",
-    "volt-bind": "/components/volt-bind/index"
+    "volt-bind": "/components/volt-bind/index",
+    "volt-plan-picker": "/components/volt-plan-picker/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

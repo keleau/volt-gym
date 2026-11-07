@@ -77,26 +77,11 @@
           <text class="pass-section-title serif">次卡选项</text>
           <text class="pass-section-aside mono">PLANS / 按次</text>
         </view>
-        <view class="plan-list">
-          <view
-            wx:for="{{plans}}"
-            wx:key="code"
-            class="plan-row {{item.code === member.planCode ? 'is-current' : ''}}"
-            data-code="{{item.code}}"
-            bindtap="onBuyPlan"
-            hover-class="plan-row--hover"
-          >
-            <view class="plan-row__main">
-              <text class="plan-row__name serif">{{item.name}}</text>
-              <text class="plan-row__unit">{{item.unit}}</text>
-            </view>
-            <view class="plan-row__right">
-              <text class="plan-row__price serif">¥{{item.price}}</text>
-              <text wx:if="{{item.code === member.planCode}}" class="plan-row__tag">当前</text>
-              <text class="plan-row__cta">{{item.code === member.planCode ? '续卡' : '购卡'}}</text>
-            </view>
-          </view>
-        </view>
+        <volt-plan-picker
+          plans="{{plans}}"
+          current-code="{{member.planCode}}"
+          bind:select="onPickPlan"
+        ></volt-plan-picker>
         <button class="btn btn--ghost btn--block pass-contact" bindtap="onContact">联系前台购卡</button>
         <text class="pass-note">按次购卡 · 前台办理 · 官网或小程序登记的购卡单开卡后都会显示在这里</text>
       </view>

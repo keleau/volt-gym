@@ -122,8 +122,8 @@ Page({
     wx.makePhoneCall({ phoneNumber: this.data.brand.phone || '4009006688' })
   },
 
-  onBuyPlan(event) {
-    const code = event.currentTarget.dataset.code
+  onPickPlan(event) {
+    const code = event.detail && event.detail.code
     const plan = this.data.plans.find((item) => item.code === code)
     if (!plan) return
     this.setData({ buyPlan: plan, buySheetVisible: true })
